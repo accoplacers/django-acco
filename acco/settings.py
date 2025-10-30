@@ -26,7 +26,12 @@ SECRET_KEY = 'django-insecure-+3j3fd@1)0jioqs9(-jms%##w+@)5#b%3is+pja2p^u&t*cnsd
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    '127.0.0.1',
+    '35.154.23.157',
+    'www.accoplacers.com',
+    'accoplacers.com',
+]
 
 
 # Application definition
@@ -76,10 +81,15 @@ WSGI_APPLICATION = 'acco.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
+# Database
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'emp',
+        'HOST': 'localhost',
+        'PORT': '3306',
+        'USER': 'accoplacers',
+        'PASSWORD': 'accoplacers'
     }
 }
 
