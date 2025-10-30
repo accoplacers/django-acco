@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -133,5 +134,5 @@ MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-STRIPE_PUBLIC_KEY = "pk_test_51SNW0c2LxDwWoQKwn95JmvotxrR732tCRhPeJUPzMQjecZuQzhXYFpu6rLF88xCVhWjvxo6L91fdaL3LgVVSe9i100NOQ3Fdb8"
-STRIPE_SECRET_KEY = "sk_test_51SNW0c2LxDwWoQKwdtDisa4wmM1eNTOigEAxayoxEMXGn3aITrIkpfGvUq3StsEmOFV2eA0HotxBbCTux47GVfDt00fvuPcYdy"
+STRIPE_PUBLIC_KEY = os.getenv("STRIPE_PUBLIC_KEY")
+STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")
