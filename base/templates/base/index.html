@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accoplacers - Career Support for Accounting & Finance Professionals</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'base/css/style.css' %}">
+
+
+    <link rel="icon" href="{% static 'base/img/favicon.ico' %}" type="image/x-icon">
+    <link rel="apple-touch-icon" href="{% static 'base/img/favicon.ico' %}" type="image/x-icon">
+
+    <!-- SEO Meta Tags -->
+    <title>Accoplacers | Accounting, Audit & Finance Career Placements</title>
+    <meta name="description" content="Accoplacers is a Dubai-based career support and placement firm for accounting, audit, and finance professionals. Upload your resume or register online to connect with top job opportunities in the UAE.">
+    <meta name="keywords" content="accounting jobs Dubai, audit careers UAE, finance placements Dubai, accounting recruitment, job placement UAE, resume screening, career guidance finance, internship accounting UAE, finance job consultants, Accoplacers Dubai, career mentoring audit, personalized job support UAE">
+    <link rel="canonical" href="https://www.accoplacers.com/">
+
+    <!-- Open Graph / Facebook Meta Tags -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Accoplacers | Career Support for Accounting, Audit & Finance Professionals">
+    <meta property="og:description" content="Looking for a job in accounting, audit, or finance? Accoplacers connects you with the best career opportunities in Dubai. Upload your resume or register today!">
+    <meta property="og:image" content="https://www.accoplacers.com/static/base/img/accoplacers-og-image.jpg">
+    <meta property="og:url" content="https://www.accoplacers.com/">
+    <meta property="og:site_name" content="Accoplacers">
+
+    <!-- Twitter Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Accoplacers | Your Partner in Accounting, Audit & Finance Jobs">
+    <meta name="twitter:description" content="Accoplacers offers expert career support and placement services for finance professionals. Based in Dubai. Register or upload your resume now.">
+    <meta name="twitter:image" content="https://www.accoplacers.com/static/base/img/accoplacers-og-image.jpg">
+
+
+    <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "EmploymentAgency",
+            "name": "Accoplacers",
+            "url": "https://www.accoplacers.com/",
+            "description": "Accoplacers is a Dubai-based career support and placement firm specializing in accounting, audit, and finance roles. Upload your resume or register online for personalized job assistance.",
+            "image": "https://www.accoplacers.com/static/base/img/accoplacers-og-image.jpg",
+            "address": {
+                "@type": "PostalAddress",
+                "addressLocality": "Abu Hail",
+                "addressRegion": "Dubai",
+                "addressCountry": "AE"
+            },
+            "contactPoint": {
+                "@type": "ContactPoint",
+                "telephone": "+971566527369",
+                "contactType": "Customer Service"
+            },
+            "sameAs": [
+                "https://www.linkedin.com/company/accoplacers",  // Replace or remove if not available
+                "https://www.instagram.com/accoplacers"          // Replace or remove if not available
+            ]
+        }
+    </script>
+
+
+</head>
+<body>
+    <!-- Django Message Popup -->
+    {% if messages %}
+    <div id="message-popup">
+        {% for message in messages %}
+        <div class="message-box {{ message.tags }}">
+            <span class="message-text">{{ message }}</span>
+            <span class="close-btn">&times;</span>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Header -->
+    <header id="header">
+        <div class="container header-container">
+            <a href="/"><div class="logo"><i class="fas fa-briefcase"></i>Acco<span>placers</span></div></a>
+            <div class="mobile-menu" id="mobileMenu">☰</div>
+            <nav id="navMenu">
+                <ul>
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#about">About Us</a></li>
+                    <li><a href="#services">Services</a></li>
+                    <li><a href="#register">Register</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="container">
+            <div class="hero-content">
+                <h1>Your Career in Accounting & Finance Starts Here</h1>
+                <p>Accoplacers connects talented Accounting, Auditing and Finance Professionals with Top Employers across the GCC region.</p>
+                <div class="hero-btns">
+                    <!-- <a href="#register" class="btn">Register with Us</a> -->
+                    <a href="#register" class="btn btn-accent">Register With Us</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="about" id="about">
+        <div class="container">
+            <h2>About Accoplacers</h2>
+            <div class="about-content">
+                <div class="about-text">
+                    <p><strong>Accoplacers</strong> is a Dubai-based professional career support and placement firm focused on empowering job seekers in the fields of Accounting, Audit, and Finance.</p>
+                    <p>Our promoters are seasoned professionals with over <strong>15 years of experience</strong> in the industry, having worked closely with reputed firms across the GCC.</p>
+                    <p>We understand the unique needs of both candidates and employers, and bridge this gap through our expert advisory, resume matching, and career mentoring services.</p>
+                    <p>At <strong>Accoplacers</strong>, we are not just recruiters — we are career enablers.</p>
+                </div>
+                <div class="about-img">
+                    <img src="https://images.unsplash.com/photo-1521791136064-7986c2920216?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" alt="Team meeting">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section class="services" id="services">
+        <div class="container">
+            <h2>Our Services</h2>
+            <div class="services-grid">
+                <div class="service-card">
+                    <div class="service-icon"><i class="fas fa-file-alt"></i></div>
+                    <h3>Resume Screening & Placement</h3>
+                    <p>We evaluate your profile and connect you with the most suitable openings in accounting, audit, and finance roles.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon"><i class="fas fa-chart-line"></i></div>
+                    <h3>Career Guidance & Mentoring</h3>
+                    <p>Our team of experienced professionals provides career coaching, interview tips, and personalized guidance.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon"><i class="fas fa-building"></i></div>
+                    <h3>Employer Assistance</h3>
+                    <p>For companies, we offer professional staffing solutions, from screening to onboarding of qualified candidates in finance roles.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon"><i class="fas fa-user-graduate"></i></div>
+                    <h3>Internship Opportunities</h3>
+                    <p>We help freshers find meaningful internships that match their academic background and career goals.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Why Choose Us Section -->
+    <section class="why-us">
+        <div class="container">
+            <h2>Why Choose Accoplacers</h2>
+            <div class="features">
+                <div class="feature">
+                    <div class="feature-icon"><i class="fas fa-award"></i></div>
+                    <h3>Industry Expertise</h3>
+                    <p>Promoters with over 15 years of experience in the accounting and finance sector.</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon"><i class="fas fa-bullseye"></i></div>
+                    <h3>Focused Approach</h3>
+                    <p>We specialize only in finance-related careers — ensuring targeted results.</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon"><i class="fas fa-hands-helping"></i></div>
+                    <h3>Personalized Support</h3>
+                    <p>Each candidate receives individual attention and career mentoring.</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon"><i class="fas fa-map-marker-alt"></i></div>
+                    <h3>Local Presence</h3>
+                    <p>Our team operates from Dubai and understands the UAE job market in depth.</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon"><i class="fas fa-lock"></i></div>
+                    <h3>Confidential & Secure</h3>
+                    <p>Your data is protected with us and is never shared without consent.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Combined Registration Form Section -->
+    <section class="forms" id="register">
+        <div class="container">
+            <h2>Join Accoplacers</h2>
+            <div class="form-container">
+                <div class="form-tabs">
+                    <div class="form-tab active" data-tab="register">Registration</div>
+                </div>
+                
+                <!-- Full Registration Form -->
+                <div class="form-content active" id="register-form">
+                    <form id="registrationForm" action="/register/" method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="name">Full Name</label>
+                                <input type="text" id="name" name="name" required />
+                            </div>
+                            <div class="form-group">
+                                <label for="email">Email Address</label>
+                                <input type="email" id="email" name="email" required />
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="phone">Phone Number</label>
+                                <input type="tel" id="phone" name="phone" required />
+                            </div>
+                            <div class="form-group">
+                                <label for="nationality">Nationality</label>
+                                <input type="text" id="nationality" name="nationality" required />
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="location">Current Location</label>
+                                <input type="text" id="location" name="location" required />
+                            </div>
+                            <div class="form-group">
+                                <label for="qualification">Highest Qualification</label>
+                                <input type="text" id="qualification" name="qualification" required />
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="experience">Years of Experience</label>
+                                <select id="experience" name="experience" required>
+                                    <option value="">Select</option>
+                                    <option value="0-1">0-1 years</option>
+                                    <option value="1-3">1-3 years</option>
+                                    <option value="3-5">3-5 years</option>
+                                    <option value="5-10">5-10 years</option>
+                                    <option value="10+">10+ years</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="role">Preferred Job Role/Industry</label>
+                                <input type="text" id="role" name="role" required />
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="resume">Upload Resume (PDF or DOC)</label>
+                            <input type="file" id="resume" name="resume" accept=".pdf,.doc,.docx" required />
+                            <small style="display:block; margin-top:4px; color:#777;">Maximum file size: 5MB</small>
+                        </div>
+
+                        <div class="form-group text-center">
+                            <button type="submit" class="btn" id="submitBtn">
+                                <span class="btn-text">Register</span>
+                                <span class="btn-loader"></span>
+                            </button>
+                        </div>
+                        <div id="formStatus" class="form-status"></div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="contact" id="contact">
+        <div class="container">
+            <h2>Contact Us</h2>
+            <div class="contact-container">
+                <div class="contact-info">
+                    <h3>Get in Touch</h3>
+                    <p><i class="fas fa-phone-alt"></i> +971 56 652 7369</p>
+                    <p><i class="fas fa-phone-alt"></i> +971 50 485 5864</p>
+                    <p><i class="fas fa-map-marker-alt"></i> Abu Hail, Dubai, UAE</p>
+                    <p><i class="fas fa-envelope"></i> accoplacers@gmail.com</p>
+                    
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+<!--                         <a href="#"><i class="fab fa-twitter"></i></a> -->
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                <div class="contact-form">
+                    <form id="contactForm" action="/contact/" method="POST">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="contact-name">Name</label>
+                            <input type="text" id="contact-name" name="contact-name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="contact-email">Email</label>
+                            <input type="email" id="contact-email" name="contact-email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="contact-phone">Phone</label>
+                            <input type="tel" id="contact-phone" name="contact-phone" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="contact-message">Message</label>
+                            <textarea id="contact-message" name="contact-message" required></textarea>
+                        </div>
+                        <div class="form-group text-center">
+                            <button type="submit" class="btn">Send Message</button>
+                        </div>
+                        <div id="contactStatus" class="form-status"></div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-container">
+                <div class="footer-col">
+                    <h3>Accoplacers</h3>
+                    <p>Career support and placement services for accounting, audit & finance professionals in the GCC region.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="#home"><i class="fas fa-chevron-right"></i> Home</a></li>
+                        <li><a href="#about"><i class="fas fa-chevron-right"></i> About Us</a></li>
+                        <li><a href="#services"><i class="fas fa-chevron-right"></i> Services</a></li>
+                        <li><a href="#register"><i class="fas fa-chevron-right"></i> Register</a></li>
+                        <li><a href="#contact"><i class="fas fa-chevron-right"></i> Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h3>Services</h3>
+                    <ul>
+                        <li><a href="#services"><i class="fas fa-chevron-right"></i> Resume Screening</a></li>
+                        <li><a href="#services"><i class="fas fa-chevron-right"></i> Career Guidance</a></li>
+                        <li><a href="#services"><i class="fas fa-chevron-right"></i> Employer Assistance</a></li>
+                        <li><a href="#services"><i class="fas fa-chevron-right"></i> Internship Opportunities</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h3>Contact</h3>
+                    <ul>
+                        <li><i class="fas fa-map-marker-alt"></i> Abu Hail, Dubai, UAE</li>
+                        <li><i class="fas fa-phone-alt"></i> +971 56 652 7369</li>
+                        <li><i class="fas fa-phone-alt"></i> +971 50 485 5864</li>
+                        <li><i class="fas fa-envelope"></i> accoplacers@gmail.com</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                <p style="color: rgba(255, 255, 255, 0.747);">&copy; 2025 Accoplacers. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <a href="https://wa.me/+971588790863" class="float-whatsapp" target="_blank">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+
+    <script src="{% static 'base/js/script.js' %}"></script>
+    <script src="https://js.stripe.com/v3/"></script>
+<script>
+    const stripe = Stripe('{{ stripe_public_key }}');
+
+    const form = document.getElementById('registrationForm');
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        // File size validation
+        const resumeInput = document.getElementById('resume');
+        const file = resumeInput.files[0];
+        if (file && file.size > 5 * 1024 * 1024) {
+            alert('File size exceeds 5MB');
+            return;
+        }
+
+        const formData = new FormData(form);
+
+        // 1️⃣ Save form temporarily on server
+        fetch('/register/temp-save/', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === 'success') {
+                // 2️⃣ Redirect to Stripe Checkout
+                fetch("{% url 'create_checkout_session' %}", {
+                    method: "POST",
+                    headers: { "X-CSRFToken": "{{ csrf_token }}" },
+                })
+                .then(res => res.json())
+                .then(data => stripe.redirectToCheckout({ sessionId: data.id }));
+            } else {
+                alert(data.message);
+            }
+        });
+    });
+
+</script>
+
+</body>
