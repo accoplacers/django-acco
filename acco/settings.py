@@ -24,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-+3j3fd@1)0jioqs9(-jms%##w+@)5#b%3is+pja2p^u&t*cnsdfadgrevdy'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = [
     '127.0.0.1',
@@ -144,6 +144,6 @@ MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-STRIPE_PUBLIC_KEY="pk_test_51SNW0c2LxDwWoQKwn95JmvotxrR732tCRhPeJUPzMQjecZuQzhXYFpu6rLF88xCVhWjvxo6L91fdaL3LgVVSe9i100NOQ3Fdb8"
-STRIPE_SECRET_KEY="sk_test_51SNW0c2LxDwWoQKwdtDisa4wmM1eNTOigEAxayoxEMXGn3aITrIkpfGvUq3StsEmOFV2eA0HotxBbCTux47GVfDt00fvuPcYdy"
+STRIPE_PUBLIC_KEY="pk_live_51SNW0c2LxDwWoQKwzslYiqnw4lC0xyHQYWx9DUzMPPaF8tAYKGfg63n8duArAv52IMtEhAJwm9lJt3gNHbUOX7sc00Ot0i50pm"
+STRIPE_SECRET_KEY="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"
 
