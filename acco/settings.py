@@ -44,7 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    'base.apps.BaseConfig'
+    'base',
 ]
 
 MIDDLEWARE = [
@@ -144,5 +144,6 @@ MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-STRIPE_PUBLIC_KEY = os.getenv("STRIPE_PUBLIC_KEY")
-STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")
+STRIPE_PUBLIC_KEY="pk_test_51SNW0c2LxDwWoQKwn95JmvotxrR732tCRhPeJUPzMQjecZuQzhXYFpu6rLF88xCVhWjvxo6L91fdaL3LgVVSe9i100NOQ3Fdb8"
+STRIPE_SECRET_KEY="sk_test_51SNW0c2LxDwWoQKwdtDisa4wmM1eNTOigEAxayoxEMXGn3aITrIkpfGvUq3StsEmOFV2eA0HotxBbCTux47GVfDt00fvuPcYdy"
+
