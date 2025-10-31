@@ -372,46 +372,58 @@
     <script src="{% static 'base/js/script.js' %}"></script>
     <script src="https://js.stripe.com/v3/"></script>
 <script>
-    const stripe = Stripe('{{ stripe_public_key }}');
+const stripe = Stripe('{{ stripe_public_key }}');
+const form = document.getElementById('registrationForm');
 
-    const form = document.getElementById('registrationForm');
-    form.addEventListener('submit', function(e) {
-        e.preventDefault();
+form.addEventListener('submit', function (e) {
+    e.preventDefault();
 
-        // File size validation
-        const resumeInput = document.getElementById('resume');
-        const file = resumeInput.files[0];
-        if (file && file.size > 5 * 1024 * 1024) {
-            alert('File size exceeds 5MB');
-            return;
+    const resumeInput = document.getElementById('resume');
+    const file = resumeInput.files[0];
+    if (file && file.size > 5 * 1024 * 1024) {
+        alert('File size exceeds 5MB');
+        return;
+    }
+
+    const formData = new FormData(form);
+
+    // Step 1: Temp Save
+    fetch('/register/temp-save/', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}'
         }
+    })
+    .then(res => {
+        if (!res.ok) throw new Error("Temp-save failed: " + res.status);
+        return res.json();
+    })
+    .then(data => {
+        if (data.status !== 'success') throw new Error(data.message || "Temp save failed");
 
-        const formData = new FormData(form);
-
-        // 1️⃣ Save form temporarily on server
-        fetch('/register/temp-save/', {
-            method: 'POST',
-            body: formData,
+        // Step 2: Create Checkout Session
+        return fetch("{% url 'create_checkout_session' %}", {
+            method: "POST",
             headers: {
-                'X-CSRFToken': '{{ csrf_token }}'
-            }
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.status === 'success') {
-                // 2️⃣ Redirect to Stripe Checkout
-                fetch("{% url 'create_checkout_session' %}", {
-                    method: "POST",
-                    headers: { "X-CSRFToken": "{{ csrf_token }}" },
-                })
-                .then(res => res.json())
-                .then(data => stripe.redirectToCheckout({ sessionId: data.id }));
-            } else {
-                alert(data.message);
+                "X-CSRFToken": "{{ csrf_token }}"
             }
         });
+    })
+    .then(res => {
+        if (!res.ok) throw new Error("Stripe session failed: " + res.status);
+        return res.json();
+    })
+    .then(data => {
+        if (!data.id) throw new Error("No session ID returned");
+        return stripe.redirectToCheckout({ sessionId: data.id });
+    })
+    .catch(err => {
+        console.error(err);
+        alert("Error: " + err.message);
     });
-
+});
 </script>
+
 
 </body>
