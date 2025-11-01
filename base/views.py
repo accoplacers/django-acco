@@ -71,7 +71,7 @@ def create_checkout_session(request):
     if request.method == 'POST':
         try:
             # Amount in cents (e.g., 50 USD = 5000)
-            amount = 1000
+            amount = 4900
 
             session = stripe.checkout.Session.create(
                 payment_method_types=['card'],
