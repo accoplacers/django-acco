@@ -11,5 +11,5 @@ urlpatterns = [
     path('register/success/', views.registration_success, name='registration_success'),
     path('register/temp-save/', views.temp_save_registration, name='temp_save_registration'),
     path('dashboard/', views.registrations_dashboard, name='registrations_dashboard'),
-
+    path("terms/", views.terms, name="terms"),
 ]

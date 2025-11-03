@@ -163,6 +163,10 @@ def temp_save_registration(request):
     return JsonResponse({'status': 'error'}, status=400)
 
 
+def terms(request):
+    return render(request, 'base/terms.html')
+
+
 
 # DASHBOARD
 

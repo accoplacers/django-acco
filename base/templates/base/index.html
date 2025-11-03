@@ -256,12 +256,19 @@
                             <small style="display:block; margin-top:4px; color:#777;">Maximum file size: 5MB</small>
                         </div>
 
+                        <!-- ✅ New Terms Checkbox -->
+                        <label style="display: flex; align-items: center; gap: 8px;">
+                            <input type="checkbox" id="terms" name="terms" required>
+                            I agree with the <a href="/terms/" target="_blank" style="color:#007bff; text-decoration: none;">terms and conditions</a>
+                        </label>
+
                         <div class="form-group text-center">
                             <button type="submit" class="btn" id="submitBtn">
                                 <span class="btn-text">Register</span>
                                 <span class="btn-loader"></span>
                             </button>
                         </div>
+
                         <div id="formStatus" class="form-status"></div>
                     </form>
                 </div>
@@ -380,6 +387,13 @@ form.addEventListener('submit', function (e) {
     const file = resumeInput.files[0];
     if (file && file.size > 5 * 1024 * 1024) {
         alert('File size exceeds 5MB');
+        return;
+    }
+
+    // ✅ Check if terms are agreed
+    const termsCheckbox = document.getElementById('terms');
+    if (!termsCheckbox.checked) {
+        alert('Please agree with the terms and conditions before submitting.');
         return;
     }
 
