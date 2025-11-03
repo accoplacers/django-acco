@@ -113,6 +113,7 @@
                 <span id="sortIcon" class="sort-indicator">↕</span>
               </th>
               <th class="py-3 px-4">Role</th>
+              <th class="py-3 px-4">Plan</th>
               <th class="py-3 px-4">Resume</th>
             </tr>
           </thead>
@@ -128,6 +129,7 @@
               <td class="py-3 px-4">{{ reg.qualification }}</td>
               <td class="py-3 px-4">{{ reg.experience }}</td>
               <td class="py-3 px-4">{{ reg.role }}</td>
+              <td class="py-3 px-4">{{ reg.plan }}</td>
               <td class="py-3 px-4">
                 {% if reg.resume %}
                   <a href="{{ reg.resume.url }}" target="_blank" class="text-blue-400 hover:text-blue-300 underline">View</a>

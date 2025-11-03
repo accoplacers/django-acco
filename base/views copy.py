@@ -70,19 +70,8 @@ def contact_user(request):
 def create_checkout_session(request):
     if request.method == 'POST':
         try:
-            import json
-            data = json.loads(request.body.decode('utf-8'))
-            plan = data.get('plan', 'basic')
-
-            # ✅ Map plan to price (in AED)
-            plan_prices = {
-                'basic': 49,
-                'intermediate': 89,
-                'premium': 149,
-            }
-
-            amount_aed = plan_prices.get(plan, 49)
-            amount = int(amount_aed * 100)  # Stripe expects amount in fils
+            # Amount in cents (e.g., 50 USD = 5000)
+            amount = 4900
 
             session = stripe.checkout.Session.create(
                 payment_method_types=['card'],
@@ -90,7 +79,7 @@ def create_checkout_session(request):
                     'price_data': {
                         'currency': 'aed',
                         'product_data': {
-                            'name': f'{plan.capitalize()} Registration Plan',
+                            'name': 'Registration Fee',
                         },
                         'unit_amount': amount,
                     },
@@ -103,7 +92,6 @@ def create_checkout_session(request):
             return JsonResponse({'id': session.id})
         except Exception as e:
             return JsonResponse({'error': str(e)})
-
         
 
 def registration_success(request):
@@ -121,7 +109,6 @@ def registration_success(request):
         qualification=data['qualification'],
         experience=data['experience'],
         role=data['role'],
-        plan=data.get('plan', 'basic'),
     )
 
     # Assign resume if it exists
@@ -157,7 +144,6 @@ def temp_save_registration(request):
             'qualification': request.POST.get('qualification'),
             'experience': request.POST.get('experience'),
             'role': request.POST.get('role'),
-            'plan': request.POST.get('plan', 'basic'),
         }
 
         # Save resume temporarily
