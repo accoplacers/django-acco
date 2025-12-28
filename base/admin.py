@@ -26,6 +26,8 @@ class RegistrationAdmin(admin.ModelAdmin):
     )
     
     def employee_id(self, obj):
+        if obj.id is None:
+            return "N/A"
         return f"EMP-{obj.id:04d}"
     employee_id.short_description = 'Employee ID'
     employee_id.admin_order_field = 'id'
@@ -60,6 +62,8 @@ class EmployerAdmin(admin.ModelAdmin):
     )
     
     def employer_id(self, obj):
+        if obj.id is None:
+            return "N/A"
         return f"EMPR-{obj.id:04d}"
     employer_id.short_description = 'Employer ID'
     employer_id.admin_order_field = 'id'
