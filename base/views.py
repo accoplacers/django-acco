@@ -133,10 +133,14 @@ def registration_success(request):
     resume_tmp_path = data.pop('resume', None)
     photo_tmp_path = data.pop('photo', None)
     password = data.pop('password', None)
+    if not password:
+        messages.error(request, "Registration error: Missing password. Please try again.")
+        return redirect('/')
+
     registration = Registration(
         name=data['name'],
         email=data['email'],
-        password=make_password(password) if password else None,
+        password=make_password(password),
         phone=data['phone'],
         nationality=data['nationality'],
         location=data['location'],
