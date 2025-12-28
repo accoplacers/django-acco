@@ -385,18 +385,88 @@
         padding: 15px;
         gap: 15px;
       }
+    }
 
-      .tabs-container {
-        flex-direction: column;
+    /* Enhanced Responsive Styles */
+    @media (max-width: 1200px) {
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .admin-container {
+        padding: 20px;
       }
 
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .section-header,
       .table-header {
         flex-direction: column;
         gap: 15px;
+        align-items: stretch;
+      }
+
+      .search-box {
+        width: 100%;
       }
 
       .search-box input {
         width: 100%;
+      }
+
+      .table-wrapper {
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      /* Make tables scrollable */
+      table {
+        min-width: 800px;
+      }
+
+      .tabs {
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .tab-btn {
+        flex: 1;
+        justify-content: center;
+        padding: 10px;
+        font-size: 0.9em;
+      }
+
+      .job-form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .header-actions {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .admin-badge {
+        display: none;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .stat-card {
+        padding: 20px;
+      }
+
+      .stat-number {
+        font-size: 1.6em;
+      }
+
+      .admin-header .logo {
+        font-size: 1.2em;
       }
     }
   </style>

@@ -32,6 +32,9 @@ def register_user(request):
         role = request.POST.get('role')
         resume = request.FILES.get('resume')
 
+        if Registration.objects.filter(email=email).exists():
+             return JsonResponse({'status': 'error', 'message': 'Email already registered.'}, status=400)
+
         Registration.objects.create(
             name=name,
             email=email,
@@ -172,9 +175,16 @@ def registration_success(request):
 def temp_save_registration(request):
     if request.method == 'POST':
         # Save form data to session
+        email = request.POST.get('email')
+        
+        # Check if email already exists
+        if Registration.objects.filter(email=email).exists():
+            messages.error(request, "An account with this email already exists. Please login.")
+            return redirect('/')
+
         data = {
             'name': request.POST.get('name'),
-            'email': request.POST.get('email'),
+            'email': email,
             'password': request.POST.get('password'),
             'phone': request.POST.get('phone'),
             'nationality': request.POST.get('nationality'),
