@@ -287,6 +287,9 @@ def employee_login(request):
         
         try:
             employee = Registration.objects.get(email=email)
+            print(f"DEBUG: Login attempt for {email}")
+            print(f"DEBUG: Stored Hash: {employee.password}")
+            
             if employee.password and check_password(password, employee.password):
                 # Set session
                 request.session['employee_id'] = employee.id
@@ -295,9 +298,10 @@ def employee_login(request):
                 messages.success(request, f"Welcome back, {employee.name}!")
                 return redirect('employee_dashboard')
             else:
-                messages.error(request, "Invalid email or password.")
+                debug_info = "Hash missing" if not employee.password else "Hash mismatch"
+                messages.error(request, f"Invalid email or password. (Debug: {debug_info})")
         except Registration.DoesNotExist:
-            messages.error(request, "No account found with this email.")
+            messages.error(request, f"No account found with not-email: {email}")
     
     return render(request, 'base/employee_login.html')
 
