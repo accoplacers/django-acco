@@ -8,7 +8,8 @@ class Registration(models.Model):
     ]
 
     name = models.CharField(max_length=150)
-    email = models.EmailField()
+    email = models.EmailField(unique=True)
+    password = models.CharField(max_length=128, blank=True, null=True)  # hashed password for login
     phone = models.CharField(max_length=20)
     nationality = models.CharField(max_length=100)
     location = models.CharField(max_length=100)
@@ -16,12 +17,44 @@ class Registration(models.Model):
     experience = models.CharField(max_length=20)
     role = models.CharField(max_length=100)
     resume = models.FileField(upload_to='resumes/')
-    plan = models.CharField(max_length=20, choices=PLAN_CHOICES, default='basic')  # ✅ new field
+    photo = models.ImageField(upload_to='employee_photos/', blank=True, null=True)  # Professional photo
+    skills = models.TextField(blank=True, null=True, help_text="Comma-separated list of skills (e.g., Excel, Tally, SAP, QuickBooks)")
+    plan = models.CharField(max_length=20, choices=PLAN_CHOICES, default='basic')
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.name} - {self.role} ({self.plan})"
 
+
+
+class Employer(models.Model):
+    company_name = models.CharField(max_length=200)
+    email = models.EmailField(unique=True)
+    password = models.CharField(max_length=128)  # hashed password
+    phone = models.CharField(max_length=20)
+    company_description = models.TextField(blank=True)
+    location = models.CharField(max_length=100)
+    industry = models.CharField(max_length=100)
+    logo = models.ImageField(upload_to='employer_logos/', blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.company_name
+
+
+class JobOpening(models.Model):
+    employer = models.ForeignKey(Employer, on_delete=models.CASCADE, related_name='job_openings')
+    title = models.CharField(max_length=200)
+    description = models.TextField()
+    requirements = models.TextField()
+    salary_range = models.CharField(max_length=50, blank=True)
+    location = models.CharField(max_length=100)
+    job_type = models.CharField(max_length=50, default='Full-time')  # Full-time, Part-time, Contract
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.title} at {self.employer.company_name}"
 
 
 class Contact(models.Model):
@@ -33,3 +66,4 @@ class Contact(models.Model):
 
     def __str__(self):
         return self.name
+

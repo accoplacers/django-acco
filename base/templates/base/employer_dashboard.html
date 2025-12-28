@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employer Dashboard - Accoplacers</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'base/css/style.css' %}">
+    <link rel="icon" href="{% static 'base/img/favicon.ico' %}" type="image/x-icon">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
+            min-height: 100vh;
+        }
+
+        /* Modern Header */
+        .dashboard-header {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #fff;
+            padding: 0 40px;
+            height: 72px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .dashboard-header .logo {
+            font-size: 1.5em;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .dashboard-header .logo i {
+            color: #e94560;
+        }
+
+        .dashboard-header .logo span {
+            color: #e94560;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 50px;
+            backdrop-filter: blur(10px);
+        }
+
+        .user-avatar {
+            width: 38px;
+            height: 38px;
+            background: linear-gradient(135deg, #e94560, #c73e54);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.95em;
+        }
+
+        .user-name {
+            font-weight: 500;
+            font-size: 0.95em;
+        }
+
+        .logout-btn {
+            background: rgba(233, 69, 96, 0.2);
+            color: #fff;
+            border: 1px solid rgba(233, 69, 96, 0.4);
+            padding: 10px 22px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logout-btn:hover {
+            background: rgba(233, 69, 96, 0.4);
+            border-color: #e94560;
+        }
+
+        /* Dashboard Container */
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 35px;
+        }
+
+        /* Welcome Banner */
+        .welcome-banner {
+            background: linear-gradient(135deg, #e94560 0%, #c73e54 50%, #a83248 100%);
+            border-radius: 20px;
+            padding: 40px 45px;
+            color: #fff;
+            margin-bottom: 35px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 15px 50px rgba(233, 69, 96, 0.25);
+        }
+
+        .welcome-banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 400px;
+            height: 100%;
+            background: url("data:image/svg+xml,%3Csvg width='400' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 100 Q 100 0, 200 100 T 400 100' fill='none' stroke='rgba(255,255,255,0.1)' stroke-width='80'/%3E%3C/svg%3E") no-repeat center;
+            background-size: cover;
+        }
+
+        .welcome-banner h1 {
+            font-size: 1.9em;
+            font-weight: 700;
+            margin-bottom: 10px;
+            position: relative;
+        }
+
+        .welcome-banner h1 i {
+            margin-right: 12px;
+            opacity: 0.9;
+        }
+
+        .welcome-banner p {
+            font-size: 1.05em;
+            opacity: 0.92;
+            max-width: 600px;
+            position: relative;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 28px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+        }
+
+        .stat-icon.blue {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: #fff;
+        }
+
+        .stat-icon.green {
+            background: linear-gradient(135deg, #27ae60, #219a52);
+            color: #fff;
+        }
+
+        .stat-icon.purple {
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+            color: #fff;
+        }
+
+        .stat-content .stat-number {
+            font-size: 2em;
+            font-weight: 700;
+            color: #1a1a2e;
+            line-height: 1;
+        }
+
+        .stat-content .stat-label {
+            color: #666;
+            font-size: 0.95em;
+            margin-top: 6px;
+        }
+
+        /* Section */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 28px;
+        }
+
+        .section-title {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: #1a1a2e;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .section-title::after {
+            content: '';
+            flex: 1;
+            height: 2px;
+            background: linear-gradient(90deg, #e94560, transparent);
+            margin-left: 20px;
+            max-width: 100px;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: #fff;
+            border: 2px solid #e8ecef;
+            border-radius: 12px;
+            padding: 0 15px;
+            transition: all 0.3s ease;
+        }
+
+        .search-box:focus-within {
+            border-color: #e94560;
+            box-shadow: 0 0 0 4px rgba(233, 69, 96, 0.1);
+        }
+
+        .search-box i {
+            color: #aaa;
+        }
+
+        .search-box input {
+            border: none;
+            outline: none;
+            padding: 14px 12px;
+            font-size: 0.95em;
+            width: 300px;
+            background: transparent;
+        }
+
+        .search-filters {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .skill-chip {
+            display: inline-block;
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            color: #1565c0;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 500;
+            margin: 2px;
+        }
+
+        .skills-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+
+        /* Candidates Grid - Card Style */
+        .candidates-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .candidate-card {
+            background: #fff;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .candidate-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.12);
+        }
+
+        .candidate-card-header {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            padding: 30px 25px;
+            text-align: center;
+            position: relative;
+        }
+
+        .employee-id-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: linear-gradient(135deg, #e94560, #c73e54);
+            color: #fff;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.75em;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .view-profile-btn.whatsapp {
+            background: linear-gradient(135deg, #25D366, #128C7E) !important;
+        }
+
+        .view-profile-btn.whatsapp:hover {
+            box-shadow: 0 8px 25px rgba(37, 211, 102, 0.35) !important;
+        }
+
+        .candidate-card-header::after {
+            content: '';
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 25px solid transparent;
+            border-right: 25px solid transparent;
+            border-top: 20px solid #16213e;
+        }
+
+        .candidate-photo {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 4px solid rgba(255, 255, 255, 0.2);
+            margin: 0 auto 15px;
+            overflow: hidden;
+            background: linear-gradient(135deg, #e94560, #c73e54);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.2em;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .candidate-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .candidate-name {
+            font-size: 1.25em;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 5px;
+        }
+
+        .candidate-position {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.95em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .candidate-position i {
+            color: #e94560;
+        }
+
+        .candidate-card-body {
+            padding: 35px 25px 25px;
+        }
+
+        .candidate-info {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .info-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #e94560;
+            font-size: 0.95em;
+        }
+
+        .info-content .info-label {
+            font-size: 0.8em;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .info-content .info-value {
+            font-weight: 600;
+            color: #333;
+            font-size: 0.95em;
+        }
+
+        /* View Profile Button */
+        .candidate-card-footer {
+            padding: 0 25px 25px;
+        }
+
+        .view-profile-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #e94560, #c73e54);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-size: 0.95em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .view-profile-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(233, 69, 96, 0.35);
+        }
+
+        .view-profile-btn.locked {
+            background: linear-gradient(135deg, #adb5bd, #868e96);
+            cursor: default;
+        }
+
+        .view-profile-btn.locked:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* No Candidates */
+        .no-candidates {
+            text-align: center;
+            padding: 80px 40px;
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+        }
+
+        .no-candidates i {
+            font-size: 4em;
+            color: #ddd;
+            margin-bottom: 25px;
+        }
+
+        .no-candidates h3 {
+            font-size: 1.4em;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .no-candidates p {
+            color: #666;
+        }
+
+        /* Info Banner */
+        .info-banner {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: #fff;
+            padding: 18px 25px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .info-banner i {
+            font-size: 1.5em;
+        }
+
+        .info-banner p {
+            font-size: 0.95em;
+            flex: 1;
+        }
+
+        /* Messages */
+        .message-box {
+            padding: 16px 22px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .message-box.success {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            color: #155724;
+        }
+
+        .message-box.error {
+            background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+            color: #721c24;
+        }
+
+        @media (max-width: 992px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-header {
+                padding: 15px 20px;
+                height: auto;
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            body {
+                padding-top: 130px;
+            }
+
+            .dashboard-container {
+                padding: 15px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .welcome-banner {
+                padding: 20px;
+            }
+
+            .welcome-banner h1 {
+                font-size: 1.4em;
+            }
+
+            .section-header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: stretch;
+            }
+
+            .section-title {
+                font-size: 1.2em;
+            }
+
+            .search-filters {
+                flex-direction: column;
+            }
+
+            .search-box {
+                width: 100%;
+            }
+
+            .search-box input {
+                width: 100%;
+            }
+
+            .candidates-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .candidate-card {
+                padding: 20px;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stat-card {
+                padding: 15px;
+            }
+
+            .stat-number {
+                font-size: 1.6em;
+            }
+
+            .info-banner {
+                flex-direction: column;
+                text-align: center;
+                padding: 15px;
+            }
+
+            .info-banner i {
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+
+            .skill-chip {
+                font-size: 0.75em;
+                padding: 3px 8px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding-top: 140px;
+            }
+
+            .dashboard-container {
+                padding: 10px;
+            }
+
+            .welcome-banner h1 {
+                font-size: 1.2em;
+            }
+
+            .welcome-banner p {
+                font-size: 0.9em;
+            }
+
+            .logout-btn {
+                padding: 8px 15px;
+                font-size: 0.9em;
+            }
+
+            .user-name {
+                display: none;
+            }
+
+            .view-profile-btn {
+                padding: 10px 15px;
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="dashboard-header">
+        <a href="/" style="text-decoration: none; color: inherit;">
+            <div class="logo"><i class="fas fa-briefcase"></i>Acco<span>placers</span></div>
+        </a>
+        <div class="header-right">
+            <div class="user-info">
+                <div class="user-avatar">{{ employer.company_name|slice:":1"|upper }}</div>
+                <span class="user-name">{{ employer.company_name }}</span>
+            </div>
+            <a href="{% url 'employer_logout' %}" class="logout-btn">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </div>
+    </header>
+
+    <div class="dashboard-container">
+        {% if messages %}
+        {% for message in messages %}
+        <div class="message-box {{ message.tags }}">
+            <i class="fas fa-check-circle"></i>
+            {{ message }}
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        <div class="welcome-banner">
+            <h1><i class="fas fa-building"></i> Welcome, {{ employer.company_name }}</h1>
+            <p>Explore our curated pool of verified accounting and finance professionals. Find your next team member
+                today.</p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon blue">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number">{{ employees.count }}</div>
+                    <div class="stat-label">Total Candidates</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon green">
+                    <i class="fas fa-user-check"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number">{{ employees.count }}</div>
+                    <div class="stat-label">Verified Profiles</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon purple">
+                    <i class="fas fa-industry"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number">{{ employer.industry }}</div>
+                    <div class="stat-label">Your Industry</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-banner">
+            <i class="fab fa-whatsapp"></i>
+            <p>Click <strong>"Get More Info via WhatsApp"</strong> on any candidate card to request their contact
+                details and CV. Simply mention the <strong>Employee ID</strong> and we'll connect you!</p>
+        </div>
+
+        <div class="section-header">
+            <h2 class="section-title"><i class="fas fa-user-tie"></i> Available Candidates</h2>
+            <div class="search-filters">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="Search by name, position, location..."
+                        onkeyup="filterCandidates()">
+                </div>
+                <div class="search-box">
+                    <i class="fas fa-tools"></i>
+                    <input type="text" id="skillsFilter" placeholder="Filter by skills (comma-separated)..."
+                        onkeyup="filterCandidates()">
+                </div>
+            </div>
+        </div>
+
+        {% if employees %}
+        <div class="candidates-grid" id="candidatesGrid">
+            {% for emp in employees %}
+            <div class="candidate-card"
+                data-search="{{ emp.name|lower }} {{ emp.role|lower }} {{ emp.location|lower }} emp-{{ emp.id }}"
+                data-skills="{{ emp.skills|lower|default:'' }}">
+                <div class="candidate-card-header">
+                    <div class="employee-id-badge">EMP-{{ emp.id|stringformat:"04d" }}</div>
+                    <div class="candidate-photo">
+                        {% if emp.photo %}
+                        <img src="{{ emp.photo.url }}" alt="{{ emp.name }}">
+                        {% else %}
+                        {{ emp.name|slice:":1"|upper }}
+                        {% endif %}
+                    </div>
+                    <h3 class="candidate-name">{{ emp.name }}</h3>
+                    <p class="candidate-position"><i class="fas fa-briefcase"></i> {{ emp.role }}</p>
+                </div>
+                <div class="candidate-card-body">
+                    <div class="candidate-info">
+                        <div class="info-item">
+                            <div class="info-icon">
+                                <i class="fas fa-id-card"></i>
+                            </div>
+                            <div class="info-content">
+                                <div class="info-label">Employee ID</div>
+                                <div class="info-value emp-id-display" style="color: #e94560; font-weight: 700;"
+                                    data-empid="{{ emp.id }}">EMP-{{ emp.id }}</div>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-icon">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </div>
+                            <div class="info-content">
+                                <div class="info-label">Location</div>
+                                <div class="info-value">{{ emp.location }}</div>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-icon">
+                                <i class="fas fa-user-tie"></i>
+                            </div>
+                            <div class="info-content">
+                                <div class="info-label">Interested In</div>
+                                <div class="info-value">{{ emp.role }}</div>
+                            </div>
+                        </div>
+                        {% if emp.skills %}
+                        <div class="info-item" style="grid-column: 1 / -1;">
+                            <div class="info-icon">
+                                <i class="fas fa-tools"></i>
+                            </div>
+                            <div class="info-content">
+                                <div class="info-label">Skills</div>
+                                <div class="info-value skills-tags">
+                                    {% for skill in emp.skills.split %}
+                                    {% if skill.strip %}<span class="skill-chip">{{ skill|cut:"," }}</span>{% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="candidate-card-footer">
+                    <a href="https://wa.me/+971589288746?text=Hi%20Accoplacers%2C%0A%0AI%20am%20interested%20in%20connecting%20with%20the%20candidate%3A%0A%0A*Employee%20ID%3A*%20EMP-{{ emp.id|stringformat:'04d' }}%0A*Name%3A*%20{{ emp.name|urlencode }}%0A*Position%3A*%20{{ emp.role|urlencode }}%0A%0APlease%20share%20their%20contact%20details%20and%20CV.%0A%0ARegards%2C%0A{{ employer.company_name|urlencode }}"
+                        class="view-profile-btn whatsapp" target="_blank">
+                        <i class="fab fa-whatsapp"></i> Get More Info via WhatsApp
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="no-candidates">
+            <i class="fas fa-user-slash"></i>
+            <h3>No Candidates Available</h3>
+            <p>Check back soon! New candidates register regularly.</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        // Format employee IDs to 4 digits
+        document.querySelectorAll('.emp-id-display').forEach(el => {
+            const id = el.getAttribute('data-empid');
+            el.textContent = 'EMP-' + id.padStart(4, '0');
+        });
+
+        function filterCandidates() {
+            const searchValue = document.getElementById('searchInput').value.toLowerCase();
+            const skillsFilterEl = document.getElementById('skillsFilter');
+            const skillsFilter = skillsFilterEl ? skillsFilterEl.value.toLowerCase() : '';
+            const cards = document.querySelectorAll('.candidate-card');
+
+            // Parse skills filter (comma-separated)
+            const requiredSkills = skillsFilter.split(',').map(s => s.trim()).filter(s => s);
+
+            cards.forEach(card => {
+                const searchText = card.getAttribute('data-search') || '';
+                const cardSkills = card.getAttribute('data-skills') || '';
+
+                // Check text search match
+                const matchesSearch = !searchValue || searchText.includes(searchValue);
+
+                // Check skills match - all required skills must be present
+                let matchesSkills = true;
+                if (requiredSkills.length > 0) {
+                    matchesSkills = requiredSkills.every(skill => cardSkills.includes(skill));
+                }
+
+                if (matchesSearch && matchesSkills) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>

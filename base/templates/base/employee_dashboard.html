@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Dashboard - Accoplacers</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'base/css/style.css' %}">
+    <link rel="icon" href="{% static 'base/img/favicon.ico' %}" type="image/x-icon">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            min-height: 100vh;
+            padding-top: 70px;
+        }
+
+        .dashboard-header {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            height: 70px;
+        }
+
+        .dashboard-header .logo {
+            font-size: 1.5em;
+            font-weight: 700;
+        }
+
+        .dashboard-header .logo i {
+            color: #007bff;
+            margin-right: 8px;
+        }
+
+        .dashboard-header .logo span {
+            color: #007bff;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+
+        .welcome-section {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: #fff;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+
+        .welcome-section h1 {
+            font-size: 1.8em;
+            margin-bottom: 10px;
+        }
+
+        .welcome-section p {
+            opacity: 0.9;
+        }
+
+        /* Skills Section */
+        .skills-section {
+            background: #fff;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .skills-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .skills-header h3 {
+            color: #333;
+            font-size: 1.2em;
+        }
+
+        .skills-header h3 i {
+            color: #007bff;
+            margin-right: 8px;
+        }
+
+        .skill-input-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .skill-input-container input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        .skill-input-container input:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+
+        .add-skill-btn {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: #fff;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: transform 0.2s;
+        }
+
+        .add-skill-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .skills-display {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            min-height: 40px;
+        }
+
+        .skill-tag {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            color: #1565c0;
+            padding: 10px 16px;
+            border-radius: 25px;
+            font-size: 0.95em;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .skill-tag .remove-skill {
+            background: rgba(21, 101, 192, 0.2);
+            border: none;
+            color: #1565c0;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8em;
+            transition: all 0.2s;
+        }
+
+        .skill-tag .remove-skill:hover {
+            background: #e74c3c;
+            color: #fff;
+        }
+
+        .no-skills {
+            color: #999;
+            font-style: italic;
+            padding: 10px 0;
+        }
+
+        .save-skills-btn {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: #fff;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .save-skills-btn.visible {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .save-skills-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .section-title {
+            font-size: 1.4em;
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #007bff;
+        }
+
+        .jobs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+        }
+
+        .job-card {
+            background: #fff;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            border-left: 4px solid #007bff;
+        }
+
+        .job-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+
+        .job-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .job-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .job-type-badge {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: #fff;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+
+        .job-details {
+            margin: 15px 0;
+        }
+
+        .job-detail {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .job-detail i {
+            color: #007bff;
+            width: 16px;
+        }
+
+        .job-description {
+            color: #555;
+            line-height: 1.6;
+            margin: 15px 0;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .no-jobs {
+            text-align: center;
+            padding: 60px;
+            background: #fff;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .no-jobs i {
+            font-size: 4em;
+            color: #ccc;
+            margin-bottom: 20px;
+        }
+
+        .no-jobs h3 {
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .no-jobs p {
+            color: #999;
+        }
+
+        .message-box {
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .message-box.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .message-box.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-header {
+                padding: 15px 20px;
+                flex-direction: column;
+                gap: 15px;
+                height: auto;
+            }
+
+            body {
+                padding-top: 130px;
+            }
+
+            .jobs-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .dashboard-container {
+                padding: 15px;
+            }
+
+            .welcome-section {
+                padding: 20px;
+            }
+
+            .welcome-section h1 {
+                font-size: 1.4em;
+            }
+
+            .skills-section {
+                padding: 15px;
+            }
+
+            .skill-input-container {
+                flex-direction: column;
+            }
+
+            .skill-input-container input {
+                width: 100%;
+            }
+
+            .add-skill-btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .skill-tag {
+                padding: 8px 12px;
+                font-size: 0.85em;
+            }
+
+            .section-title {
+                font-size: 1.2em;
+            }
+
+            .job-card {
+                padding: 20px;
+            }
+
+            .job-title {
+                font-size: 1.1em;
+            }
+
+            .save-skills-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding-top: 140px;
+            }
+
+            .dashboard-container {
+                padding: 10px;
+            }
+
+            .welcome-section h1 {
+                font-size: 1.2em;
+            }
+
+            .welcome-section p {
+                font-size: 0.9em;
+            }
+
+            .logout-btn {
+                padding: 8px 15px;
+                font-size: 0.9em;
+            }
+
+            .user-avatar {
+                width: 35px;
+                height: 35px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="dashboard-header">
+        <a href="/" style="text-decoration: none; color: inherit;">
+            <div class="logo"><i class="fas fa-briefcase"></i>Acco<span>placers</span></div>
+        </a>
+        <div class="header-right">
+            <div class="user-info">
+                <div class="user-avatar">{{ employee.name|slice:":1"|upper }}</div>
+                <span>{{ employee.name }}</span>
+            </div>
+            <a href="{% url 'employee_logout' %}" class="logout-btn">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </div>
+    </header>
+
+    <div class="dashboard-container">
+        {% if messages %}
+        {% for message in messages %}
+        <div class="message-box {{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+        {% endif %}
+
+        <div class="welcome-section">
+            <h1><i class="fas fa-hand-wave"></i> Welcome, {{ employee.name }}!</h1>
+            <p>Explore the latest job opportunities in accounting, audit, and finance.</p>
+        </div>
+
+        <!-- Skills Section -->
+        <div class="skills-section">
+            <div class="skills-header">
+                <h3><i class="fas fa-tools"></i> My Skills</h3>
+            </div>
+
+            <div class="skill-input-container">
+                <input type="text" id="skillInput" placeholder="Type a skill and click Add..."
+                    onkeypress="if(event.key==='Enter'){event.preventDefault();addSkill();}">
+                <button type="button" class="add-skill-btn" onclick="addSkill()">
+                    <i class="fas fa-plus"></i> Add
+                </button>
+            </div>
+
+            <div id="skillsDisplay" class="skills-display">
+                <span id="noSkillsMsg" class="no-skills" style="display: none;">No skills added yet. Type a skill above
+                    and click Add.</span>
+            </div>
+
+            <form method="POST" action="" id="skillsForm">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="update_skills">
+                <input type="hidden" name="skills" id="skillsHidden" value="{{ employee.skills|default:'' }}">
+                <button type="submit" class="save-skills-btn" id="saveSkillsBtn">
+                    <i class="fas fa-save"></i> Save Changes
+                </button>
+            </form>
+        </div>
+
+        <h2 class="section-title"><i class="fas fa-briefcase"></i> Available Job Openings</h2>
+
+        {% if job_openings %}
+        <div class="jobs-grid">
+            {% for job in job_openings %}
+            <div class="job-card">
+                <div class="job-card-header">
+                    <div>
+                        <h3 class="job-title">{{ job.title }}</h3>
+                    </div>
+                    <span class="job-type-badge">{{ job.job_type }}</span>
+                </div>
+
+                <div class="job-details">
+                    <div class="job-detail">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>{{ job.location }}</span>
+                    </div>
+                    {% if job.salary_range %}
+                    <div class="job-detail">
+                        <i class="fas fa-money-bill-wave"></i>
+                        <span>{{ job.salary_range }}</span>
+                    </div>
+                    {% endif %}
+                    <div class="job-detail">
+                        <i class="fas fa-clock"></i>
+                        <span>Posted {{ job.created_at|timesince }} ago</span>
+                    </div>
+                </div>
+
+                <p class="job-description">{{ job.description }}</p>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="no-jobs">
+            <i class="fas fa-search"></i>
+            <h3>No Job Openings Yet</h3>
+            <p>Check back soon! New opportunities are added regularly.</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        // Skills array to track current skills
+        let skills = [];
+        let originalSkills = [];
+
+        // Initialize skills from hidden input on page load
+        document.addEventListener('DOMContentLoaded', function () {
+            const hiddenInput = document.getElementById('skillsHidden');
+            if (hiddenInput.value.trim()) {
+                // Split by comma and clean up each skill
+                skills = hiddenInput.value.split(',').map(s => s.trim()).filter(s => s);
+                originalSkills = [...skills];
+            }
+            renderSkills();
+        });
+
+        function addSkill() {
+            const input = document.getElementById('skillInput');
+            const skill = input.value.trim();
+
+            if (skill && !skills.includes(skill)) {
+                skills.push(skill);
+                input.value = '';
+                renderSkills();
+                updateHiddenInput();
+                checkForChanges();
+            } else if (skills.includes(skill)) {
+                input.value = '';
+                input.placeholder = 'Skill already added!';
+                setTimeout(() => {
+                    input.placeholder = 'Type a skill and click Add...';
+                }, 1500);
+            }
+            input.focus();
+        }
+
+        function removeSkill(skillToRemove) {
+            skills = skills.filter(s => s !== skillToRemove);
+            renderSkills();
+            updateHiddenInput();
+            checkForChanges();
+        }
+
+        function renderSkills() {
+            const container = document.getElementById('skillsDisplay');
+            const noSkillsMsg = document.getElementById('noSkillsMsg');
+
+            // Clear existing tags (keep noSkillsMsg)
+            const existingTags = container.querySelectorAll('.skill-tag');
+            existingTags.forEach(tag => tag.remove());
+
+            if (skills.length === 0) {
+                noSkillsMsg.style.display = 'block';
+            } else {
+                noSkillsMsg.style.display = 'none';
+                skills.forEach(skill => {
+                    const tag = document.createElement('span');
+                    tag.className = 'skill-tag';
+                    tag.innerHTML = `${skill}<button type="button" class="remove-skill" onclick="removeSkill('${skill.replace(/'/g, "\\'")}')"><i class="fas fa-times"></i></button>`;
+                    container.appendChild(tag);
+                });
+            }
+        }
+
+        function updateHiddenInput() {
+            document.getElementById('skillsHidden').value = skills.join(', ');
+        }
+
+        function checkForChanges() {
+            const saveBtn = document.getElementById('saveSkillsBtn');
+            const hasChanges = JSON.stringify(skills.sort()) !== JSON.stringify(originalSkills.sort());
+
+            if (hasChanges || skills.length !== originalSkills.length) {
+                saveBtn.classList.add('visible');
+            } else {
+                saveBtn.classList.remove('visible');
+            }
+        }
+    </script>
+</body>
+
+</html>
