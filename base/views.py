@@ -298,7 +298,9 @@ def employee_login(request):
                 messages.success(request, f"Welcome back, {employee.name}!")
                 return redirect('employee_dashboard')
             else:
-                debug_info = "Hash missing" if not employee.password else "Hash mismatch"
+                stored_len = len(employee.password) if employee.password else 0
+                stored_prefix = employee.password[:10] if employee.password else "None"
+                debug_info = f"Hash mismatch. Stored Len: {stored_len}, Prefix: {stored_prefix}"
                 messages.error(request, f"Invalid email or password. (Debug: {debug_info})")
         except Registration.DoesNotExist:
             messages.error(request, f"No account found with not-email: {email}")
