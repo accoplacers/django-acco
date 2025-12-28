@@ -12,26 +12,17 @@ class Migration(migrations.Migration):
     operations = [
         migrations.SeparateDatabaseAndState(
             database_operations=[
-                # From 0003 (skipped by fake)
-                migrations.AddField(
-                    model_name='registration',
-                    name='password',
-                    field=models.CharField(blank=True, max_length=128, null=True),
-                ),
-                migrations.AlterField(
-                    model_name='registration',
-                    name='email',
-                    field=models.EmailField(max_length=254, unique=True),
-                ),
+                # Registration.password already exists (based on error), so we skip it.
+                # Registration.email update is also likely done if password is there, skipping to be safe.
                 
-                # From 0004 (skipped by fake)
+                # From 0004 (skipped by fake, confirmed missing)
                 migrations.AddField(
                     model_name='registration',
                     name='photo',
                     field=models.ImageField(blank=True, null=True, upload_to='employee_photos/'),
                 ),
                 
-                # From 0005 (skipped by fake)
+                # From 0005 (skipped by fake, likely missing since it's after 0004)
                 migrations.AddField(
                     model_name='registration',
                     name='skills',
