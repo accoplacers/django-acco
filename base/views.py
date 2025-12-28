@@ -174,13 +174,11 @@ def registration_success(request):
 @csrf_exempt
 def temp_save_registration(request):
     if request.method == 'POST':
-        # Save form data to session
         email = request.POST.get('email')
         
         # Check if email already exists
         if Registration.objects.filter(email=email).exists():
-            messages.error(request, "An account with this email already exists. Please login.")
-            return redirect('/')
+            return JsonResponse({'status': 'error', 'message': 'An account with this email already exists. Please login.'})
 
         data = {
             'name': request.POST.get('name'),
