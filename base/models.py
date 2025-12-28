@@ -25,6 +25,13 @@ class Registration(models.Model):
     def __str__(self):
         return f"{self.name} - {self.role} ({self.plan})"
 
+    def save(self, *args, **kwargs):
+        # Auto-hash password if it's plaintext
+        if self.password and not self.password.startswith('pbkdf2_sha256$'):
+            from django.contrib.auth.hashers import make_password
+            self.password = make_password(self.password)
+        super().save(*args, **kwargs)
+
 
 
 class Employer(models.Model):
@@ -40,6 +47,13 @@ class Employer(models.Model):
 
     def __str__(self):
         return self.company_name
+
+    def save(self, *args, **kwargs):
+        # Auto-hash password if it's plaintext
+        if self.password and not self.password.startswith('pbkdf2_sha256$'):
+            from django.contrib.auth.hashers import make_password
+            self.password = make_password(self.password)
+        super().save(*args, **kwargs)
 
 
 class JobOpening(models.Model):
