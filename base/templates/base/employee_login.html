@@ -1,234 +1,361 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Employee Login - Accoplacers</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'base/css/style.css' %}">
-    <link rel="icon" href="{% static 'base/img/favicon.ico' %}" type="image/x-icon">
-    <style>
-        .auth-page {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-            padding: 20px;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Employee Login · Accoplacers</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  {% load static %}
+  <link rel="icon" href="{% static 'base/img/favicon.ico' %}" type="image/x-icon">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      min-height: 100vh;
+      display: flex;
+    }
 
-        .auth-container {
-            background: #fff;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            width: 100%;
-            max-width: 450px;
-            padding: 50px 40px;
-            animation: slideUp 0.5s ease;
-        }
+    /* ── Left Panel ── */
+    .panel-left {
+      width: 44%;
+      background: #0F172A;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 48px;
+      position: relative;
+      overflow: hidden;
+    }
+    .panel-left::before {
+      content: '';
+      position: absolute;
+      top: -120px; right: -120px;
+      width: 420px; height: 420px;
+      background: radial-gradient(circle, rgba(79,70,229,0.18) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .panel-left::after {
+      content: '';
+      position: absolute;
+      bottom: -80px; left: -80px;
+      width: 300px; height: 300px;
+      background: radial-gradient(circle, rgba(79,70,229,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .pl-top { position: relative; z-index: 1; }
+    .pl-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      margin-bottom: 56px;
+    }
+    .pl-logo-icon {
+      width: 36px; height: 36px;
+      background: #4F46E5;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 16px;
+    }
+    .pl-logo-text { font-size: 18px; font-weight: 700; color: #fff; }
+    .pl-logo-text span { color: #818CF8; }
+    .pl-headline {
+      font-size: 32px;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.25;
+      margin-bottom: 16px;
+      letter-spacing: -0.5px;
+    }
+    .pl-sub {
+      font-size: 15px;
+      color: rgba(255,255,255,0.55);
+      line-height: 1.7;
+      max-width: 340px;
+    }
+    .pl-features {
+      list-style: none;
+      margin-top: 40px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      position: relative;
+      z-index: 1;
+    }
+    .pl-features li {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: rgba(255,255,255,0.75);
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .feat-icon {
+      width: 30px; height: 30px;
+      border-radius: 7px;
+      background: rgba(79,70,229,0.25);
+      border: 1px solid rgba(79,70,229,0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #818CF8;
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+    .pl-bottom {
+      position: relative;
+      z-index: 1;
+      font-size: 12px;
+      color: rgba(255,255,255,0.25);
+    }
 
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
+    /* ── Right Panel ── */
+    .panel-right {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 48px 40px;
+      background: #F8FAFC;
+    }
+    .form-card {
+      width: 100%;
+      max-width: 420px;
+    }
+    .form-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: #EEF2FF;
+      color: #4F46E5;
+      font-size: 12.5px;
+      font-weight: 700;
+      padding: 5px 12px;
+      border-radius: 20px;
+      margin-bottom: 20px;
+      letter-spacing: 0.2px;
+    }
+    .form-heading {
+      font-size: 26px;
+      font-weight: 800;
+      color: #0F172A;
+      margin-bottom: 6px;
+      letter-spacing: -0.4px;
+    }
+    .form-sub {
+      font-size: 14px;
+      color: #64748B;
+      margin-bottom: 32px;
+    }
 
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
+    /* Messages */
+    .msg {
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 13.5px;
+      font-weight: 500;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .msg.error { background: #FEF2F2; color: #B91C1C; border: 1px solid #FECACA; }
+    .msg.success { background: #ECFDF5; color: #065F46; border: 1px solid #A7F3D0; }
 
-        .auth-header {
-            text-align: center;
-            margin-bottom: 35px;
-        }
+    /* Form fields */
+    .field { margin-bottom: 18px; }
+    .field label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: #334155;
+      margin-bottom: 7px;
+    }
+    .input-wrap { position: relative; }
+    .input-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #94A3B8;
+      font-size: 14px;
+      pointer-events: none;
+    }
+    .field input {
+      width: 100%;
+      padding: 11px 14px 11px 40px;
+      border: 1.5px solid #E2E8F0;
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: inherit;
+      color: #0F172A;
+      background: #fff;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .field input:focus {
+      border-color: #4F46E5;
+      box-shadow: 0 0 0 3px rgba(79,70,229,0.12);
+    }
+    .field input::placeholder { color: #94A3B8; }
+    .pwd-toggle {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: #94A3B8;
+      cursor: pointer;
+      padding: 0;
+      font-size: 14px;
+      line-height: 1;
+    }
+    .pwd-toggle:hover { color: #64748B; }
 
-        .auth-header .logo {
-            font-size: 2em;
-            font-weight: 700;
-            color: #1a1a2e;
-            margin-bottom: 10px;
-        }
+    .submit-btn {
+      width: 100%;
+      padding: 13px;
+      background: #4F46E5;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.2s, transform 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 4px;
+    }
+    .submit-btn:hover { background: #3730A3; transform: translateY(-1px); }
+    .submit-btn:active { transform: none; }
 
-        .auth-header .logo i {
-            color: #007bff;
-            margin-right: 8px;
-        }
+    .form-footer {
+      text-align: center;
+      margin-top: 28px;
+      padding-top: 24px;
+      border-top: 1px solid #E2E8F0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .form-footer a {
+      color: #4F46E5;
+      font-size: 13.5px;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .form-footer a:hover { text-decoration: underline; }
+    .form-footer .sep { color: #CBD5E1; font-size: 13px; }
 
-        .auth-header .logo span {
-            color: #007bff;
-        }
-
-        .auth-header h2 {
-            font-size: 1.5em;
-            color: #333;
-            margin-top: 15px;
-        }
-
-        .auth-header p {
-            color: #666;
-            margin-top: 8px;
-        }
-
-        .auth-form .form-group {
-            margin-bottom: 20px;
-        }
-
-        .auth-form label {
-            display: block;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 8px;
-        }
-
-        .auth-form input {
-            width: 100%;
-            padding: 14px 16px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 1em;
-            transition: all 0.3s ease;
-            box-sizing: border-box;
-        }
-
-        .auth-form input:focus {
-            border-color: #007bff;
-            outline: none;
-            box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.1);
-        }
-
-        .auth-form .btn {
-            width: 100%;
-            padding: 15px;
-            background: linear-gradient(135deg, #007bff, #0056b3);
-            color: #fff;
-            border: none;
-            border-radius: 10px;
-            font-size: 1.1em;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .auth-form .btn:hover {
-            background: linear-gradient(135deg, #0056b3, #003d80);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(0, 123, 255, 0.3);
-        }
-
-        .auth-links {
-            text-align: center;
-            margin-top: 25px;
-            padding-top: 25px;
-            border-top: 1px solid #e0e0e0;
-        }
-
-        .auth-links a {
-            color: #007bff;
-            text-decoration: none;
-            font-weight: 500;
-        }
-
-        .auth-links a:hover {
-            text-decoration: underline;
-        }
-
-        .auth-links .divider {
-            color: #999;
-            margin: 0 10px;
-        }
-
-        .message-box {
-            padding: 12px 16px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-size: 0.95em;
-        }
-
-        .message-box.error {
-            background: #fee;
-            color: #c33;
-            border: 1px solid #fcc;
-        }
-
-        .message-box.success {
-            background: #efe;
-            color: #363;
-            border: 1px solid #cfc;
-        }
-
-        .user-type-badge {
-            display: inline-block;
-            background: linear-gradient(135deg, #28a745, #20c997);
-            color: #fff;
-            padding: 6px 16px;
-            border-radius: 20px;
-            font-size: 0.85em;
-            font-weight: 600;
-            margin-bottom: 10px;
-        }
-
-        @media (max-width: 480px) {
-            .auth-container {
-                padding: 30px 20px;
-            }
-
-            .auth-header h2 {
-                font-size: 1.3em;
-            }
-
-            .auth-header .logo {
-                font-size: 1.6em;
-            }
-        }
-    </style>
+    /* ── Responsive ── */
+    @media (max-width: 900px) {
+      .panel-left { display: none; }
+      .panel-right { padding: 40px 24px; background: #fff; }
+    }
+    @media (max-width: 480px) {
+      .panel-right { padding: 32px 20px; }
+      .form-heading { font-size: 22px; }
+    }
+  </style>
 </head>
-
 <body>
-    <div class="auth-page">
-        <div class="auth-container">
-            <div class="auth-header">
-                <a href="/" style="text-decoration: none;">
-                    <div class="logo"><i class="fas fa-briefcase"></i>Acco<span>placers</span></div>
-                </a>
-                <span class="user-type-badge"><i class="fas fa-user"></i> Employee Portal</span>
-                <h2>Welcome Back!</h2>
-                <p>Login to access job opportunities</p>
-            </div>
 
-            {% if messages %}
-            {% for message in messages %}
-            <div class="message-box {{ message.tags }}">{{ message }}</div>
-            {% endfor %}
-            {% endif %}
-
-            <form class="auth-form" method="POST">
-                {% csrf_token %}
-                <div class="form-group">
-                    <label for="email"><i class="fas fa-envelope"></i> Email Address</label>
-                    <input type="email" id="email" name="email" placeholder="Enter your email" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="password"><i class="fas fa-lock"></i> Password</label>
-                    <input type="password" id="password" name="password" placeholder="Enter your password" required>
-                </div>
-
-                <button type="submit" class="btn">
-                    <i class="fas fa-sign-in-alt"></i> Login
-                </button>
-            </form>
-
-            <div class="auth-links">
-                <a href="/"><i class="fas fa-home"></i> Back to Home</a>
-                <span class="divider">|</span>
-                <a href="{% url 'employer_login' %}"><i class="fas fa-building"></i> Employer Login</a>
-            </div>
-        </div>
+  <!-- Left Branding Panel -->
+  <div class="panel-left">
+    <div class="pl-top">
+      <a href="/" class="pl-logo">
+        <div class="pl-logo-icon"><i class="fas fa-briefcase"></i></div>
+        <span class="pl-logo-text">Acco<span>placers</span></span>
+      </a>
+      <h1 class="pl-headline">Your next career move starts here</h1>
+      <p class="pl-sub">Access exclusive finance and accounting opportunities across the GCC region. Log in to view your matched jobs.</p>
+      <ul class="pl-features">
+        <li><div class="feat-icon"><i class="fas fa-briefcase"></i></div> Browse active job openings</li>
+        <li><div class="feat-icon"><i class="fas fa-tools"></i></div> Manage your skills profile</li>
+        <li><div class="feat-icon"><i class="fas fa-file-alt"></i></div> Track your application status</li>
+        <li><div class="feat-icon"><i class="fas fa-shield-alt"></i></div> Secure, private and confidential</li>
+      </ul>
     </div>
-</body>
+    <div class="pl-bottom">&copy; 2025 Accoplacers. All rights reserved.</div>
+  </div>
 
+  <!-- Right Form Panel -->
+  <div class="panel-right">
+    <div class="form-card">
+      <span class="form-eyebrow"><i class="fas fa-user"></i> Employee Portal</span>
+      <h1 class="form-heading">Welcome back</h1>
+      <p class="form-sub">Sign in to your account to continue</p>
+
+      {% if messages %}
+        {% for message in messages %}
+        <div class="msg {{ message.tags }}">
+          <i class="fas {% if message.tags == 'error' %}fa-exclamation-circle{% else %}fa-check-circle{% endif %}"></i>
+          {{ message }}
+        </div>
+        {% endfor %}
+      {% endif %}
+
+      <form method="POST">
+        {% csrf_token %}
+
+        <div class="field">
+          <label for="email">Email address</label>
+          <div class="input-wrap">
+            <i class="fas fa-envelope input-icon"></i>
+            <input type="email" id="email" name="email" placeholder="you@email.com" required autofocus>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="password">Password</label>
+          <div class="input-wrap">
+            <i class="fas fa-lock input-icon"></i>
+            <input type="password" id="password" name="password" placeholder="Enter your password" required>
+            <button type="button" class="pwd-toggle" onclick="togglePwd()"><i class="fas fa-eye" id="pwdIcon"></i></button>
+          </div>
+        </div>
+
+        <button type="submit" class="submit-btn">
+          <i class="fas fa-sign-in-alt"></i> Sign In
+        </button>
+      </form>
+
+      <div class="form-footer">
+        <a href="{% url 'employee_register' %}"><i class="fas fa-user-plus"></i> Create an Account</a>
+        <span class="sep">·</span>
+        <a href="{% url 'employer_login' %}"><i class="fas fa-building"></i> Employer Login</a>
+        <span class="sep">·</span>
+        <a href="/"><i class="fas fa-arrow-left"></i> Home</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function togglePwd() {
+      const input = document.getElementById('password');
+      const icon = document.getElementById('pwdIcon');
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.replace('fa-eye', 'fa-eye-slash');
+      } else {
+        input.type = 'password';
+        icon.classList.replace('fa-eye-slash', 'fa-eye');
+      }
+    }
+  </script>
+</body>
 </html>

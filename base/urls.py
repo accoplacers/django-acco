@@ -13,6 +13,7 @@ urlpatterns = [
     path("terms/", views.terms, name="terms"),
     
     # Employee Authentication
+    path('employee/register/', views.employee_register, name='employee_register'),
     path('employee/login/', views.employee_login, name='employee_login'),
     path('employee/logout/', views.employee_logout, name='employee_logout'),
     path('employee/dashboard/', views.employee_dashboard, name='employee_dashboard'),

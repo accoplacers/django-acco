@@ -1,492 +1,269 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Employer Registration - Accoplacers</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
-        rel="stylesheet">
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'base/css/style.css' %}">
-    <link rel="icon" href="{% static 'base/img/favicon.ico' %}" type="image/x-icon">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Employer Registration · Accoplacers</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  {% load static %}
+  <link rel="icon" href="{% static 'base/img/favicon.ico' %}" type="image/x-icon">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      background: #F8FAFC;
+    }
+    .panel-left {
+      width: 38%;
+      background: #0F172A;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 48px;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: hidden;
+    }
+    .panel-left::before {
+      content: '';
+      position: absolute;
+      top: -100px; right: -80px;
+      width: 350px; height: 350px;
+      background: radial-gradient(circle, rgba(225,29,72,0.15) 0%, transparent 70%);
+    }
+    .panel-left::after {
+      content: '';
+      position: absolute;
+      bottom: -60px; left: -60px;
+      width: 260px; height: 260px;
+      background: radial-gradient(circle, rgba(225,29,72,0.1) 0%, transparent 70%);
+    }
+    .pl-top { position: relative; z-index: 1; }
+    .pl-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; margin-bottom: 48px; }
+    .pl-logo-icon { width: 36px; height: 36px; background: #E11D48; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 16px; }
+    .pl-logo-text { font-size: 18px; font-weight: 700; color: #fff; }
+    .pl-logo-text span { color: #FDA4AF; }
+    .pl-headline { font-size: 28px; font-weight: 800; color: #fff; line-height: 1.3; margin-bottom: 14px; letter-spacing: -0.4px; }
+    .pl-sub { font-size: 14px; color: rgba(255,255,255,0.5); line-height: 1.7; }
+    .pl-features { list-style: none; margin-top: 36px; display: flex; flex-direction: column; gap: 13px; position: relative; z-index: 1; }
+    .pl-features li { display: flex; align-items: center; gap: 11px; color: rgba(255,255,255,0.7); font-size: 13.5px; font-weight: 500; }
+    .feat-icon { width: 28px; height: 28px; border-radius: 7px; background: rgba(225,29,72,0.2); border: 1px solid rgba(225,29,72,0.35); display: flex; align-items: center; justify-content: center; color: #FDA4AF; font-size: 12px; flex-shrink: 0; }
+    .pl-bottom { position: relative; z-index: 1; font-size: 12px; color: rgba(255,255,255,0.2); }
 
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            min-height: 100vh;
-            background: linear-gradient(135deg, #0f3460 0%, #1a1a2e 50%, #16213e 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 40px 20px;
-        }
+    .panel-right {
+      flex: 1;
+      padding: 48px 56px;
+      overflow-y: auto;
+    }
+    .form-card { max-width: 640px; margin: 0 auto; }
+    .form-eyebrow {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: #FFF1F2; color: #E11D48;
+      font-size: 12.5px; font-weight: 700;
+      padding: 5px 12px; border-radius: 20px; margin-bottom: 20px;
+    }
+    .form-heading { font-size: 26px; font-weight: 800; color: #0F172A; margin-bottom: 6px; letter-spacing: -0.4px; }
+    .form-sub { font-size: 14px; color: #64748B; margin-bottom: 32px; }
+    .msg {
+      padding: 12px 16px; border-radius: 8px; font-size: 13.5px; font-weight: 500;
+      margin-bottom: 20px; display: flex; align-items: center; gap: 10px;
+    }
+    .msg.error { background: #FEF2F2; color: #B91C1C; border: 1px solid #FECACA; }
+    .msg.success { background: #ECFDF5; color: #065F46; border: 1px solid #A7F3D0; }
 
-        .register-wrapper {
-            display: flex;
-            max-width: 1100px;
-            width: 100%;
-            background: #fff;
-            border-radius: 24px;
-            overflow: hidden;
-            box-shadow: 0 30px 100px rgba(0, 0, 0, 0.4);
-            animation: slideUp 0.6s ease;
-        }
+    .section-divider {
+      font-size: 11.5px; font-weight: 700; color: #94A3B8;
+      text-transform: uppercase; letter-spacing: 0.8px;
+      margin-bottom: 16px; margin-top: 28px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .section-divider::after { content: ''; flex: 1; height: 1px; background: #E2E8F0; }
 
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(40px);
-            }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .field { margin-bottom: 0; }
+    .field.full { grid-column: 1 / -1; }
+    .field label { display: block; font-size: 13px; font-weight: 600; color: #334155; margin-bottom: 7px; }
+    .input-wrap { position: relative; }
+    .input-icon { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: #94A3B8; font-size: 13px; pointer-events: none; }
+    .input-wrap.textarea-wrap .input-icon { top: 14px; transform: none; }
+    .field input,
+    .field select,
+    .field textarea {
+      width: 100%; padding: 11px 14px 11px 38px;
+      border: 1.5px solid #E2E8F0; border-radius: 8px;
+      font-size: 14px; font-family: inherit; color: #0F172A;
+      background: #fff; outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .field textarea { padding: 11px 14px 11px 38px; resize: vertical; min-height: 100px; }
+    .field select { appearance: none; cursor: pointer; }
+    .field input:focus, .field select:focus, .field textarea:focus {
+      border-color: #E11D48; box-shadow: 0 0 0 3px rgba(225,29,72,0.1);
+    }
+    .field input::placeholder, .field textarea::placeholder { color: #94A3B8; }
+    .field input[type="file"] { padding: 10px 14px; cursor: pointer; }
+    .file-hint { font-size: 12px; color: #94A3B8; margin-top: 5px; }
 
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
+    .select-wrap { position: relative; }
+    .select-caret { position: absolute; right: 13px; top: 50%; transform: translateY(-50%); color: #94A3B8; font-size: 12px; pointer-events: none; }
 
-        /* Left Side - Branding */
-        .register-branding {
-            width: 45%;
-            background: linear-gradient(135deg, #e94560 0%, #c73e54 50%, #a83248 100%);
-            padding: 50px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            position: relative;
-            overflow: hidden;
-        }
+    .submit-btn {
+      width: 100%; padding: 13px; background: #E11D48; color: #fff;
+      border: none; border-radius: 8px; font-size: 15px; font-weight: 700;
+      cursor: pointer; font-family: inherit; transition: background 0.2s, transform 0.15s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      margin-top: 28px;
+    }
+    .submit-btn:hover { background: #BE123C; transform: translateY(-1px); }
 
-        .register-branding::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -50%;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
-        }
+    .form-footer {
+      text-align: center; margin-top: 24px; padding-top: 20px;
+      border-top: 1px solid #E2E8F0;
+      display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap;
+    }
+    .form-footer a { color: #E11D48; font-size: 13.5px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; }
+    .form-footer a:hover { text-decoration: underline; }
+    .form-footer .sep { color: #CBD5E1; }
 
-        .register-branding::after {
-            content: '';
-            position: absolute;
-            bottom: -30%;
-            left: -30%;
-            width: 80%;
-            height: 80%;
-            background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, transparent 60%);
-        }
-
-        .branding-content {
-            position: relative;
-            z-index: 1;
-        }
-
-        .branding-logo {
-            font-size: 2em;
-            font-weight: 800;
-            color: #fff;
-            margin-bottom: 30px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .branding-logo i {
-            font-size: 0.9em;
-        }
-
-        .branding-title {
-            font-size: 2.4em;
-            font-weight: 800;
-            color: #fff;
-            line-height: 1.2;
-            margin-bottom: 20px;
-        }
-
-        .branding-subtitle {
-            font-size: 1.1em;
-            color: rgba(255, 255, 255, 0.9);
-            line-height: 1.7;
-            margin-bottom: 40px;
-        }
-
-        .branding-features {
-            list-style: none;
-        }
-
-        .branding-features li {
-            color: rgba(255, 255, 255, 0.95);
-            padding: 12px 0;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            font-size: 1em;
-        }
-
-        .branding-features li i {
-            width: 28px;
-            height: 28px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.8em;
-        }
-
-        /* Right Side - Form */
-        .register-form-container {
-            width: 55%;
-            padding: 50px;
-        }
-
-        .form-header {
-            margin-bottom: 35px;
-        }
-
-        .user-type-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: linear-gradient(135deg, #e94560, #c73e54);
-            color: #fff;
-            padding: 8px 18px;
-            border-radius: 25px;
-            font-size: 0.85em;
-            font-weight: 600;
-            margin-bottom: 18px;
-        }
-
-        .form-header h2 {
-            font-size: 1.8em;
-            font-weight: 700;
-            color: #1a1a2e;
-            margin-bottom: 8px;
-        }
-
-        .form-header p {
-            color: #666;
-            font-size: 1em;
-        }
-
-        .message-box {
-            padding: 14px 20px;
-            border-radius: 12px;
-            margin-bottom: 25px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 0.95em;
-        }
-
-        .message-box.error {
-            background: linear-gradient(135deg, #fee, #fdd);
-            color: #c33;
-            border: 1px solid #fcc;
-        }
-
-        .message-box.success {
-            background: linear-gradient(135deg, #efe, #dfd);
-            color: #363;
-            border: 1px solid #cfc;
-        }
-
-        .register-form .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-
-        .register-form .form-group {
-            margin-bottom: 22px;
-        }
-
-        .register-form .form-group.full-width {
-            grid-column: 1 / -1;
-        }
-
-        .register-form label {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 10px;
-            font-size: 0.95em;
-        }
-
-        .register-form label i {
-            color: #e94560;
-            font-size: 0.9em;
-        }
-
-        .register-form input,
-        .register-form select,
-        .register-form textarea {
-            width: 100%;
-            padding: 15px 18px;
-            border: 2px solid #e8ecef;
-            border-radius: 12px;
-            font-size: 1em;
-            font-family: inherit;
-            transition: all 0.3s ease;
-            background: #f8f9fa;
-        }
-
-        .register-form textarea {
-            min-height: 100px;
-            resize: vertical;
-        }
-
-        .register-form input:focus,
-        .register-form select:focus,
-        .register-form textarea:focus {
-            border-color: #e94560;
-            background: #fff;
-            outline: none;
-            box-shadow: 0 0 0 4px rgba(233, 69, 96, 0.1);
-        }
-
-        .register-form input[type="file"] {
-            padding: 12px;
-            cursor: pointer;
-        }
-
-        .file-hint {
-            font-size: 0.85em;
-            color: #888;
-            margin-top: 6px;
-        }
-
-        .submit-btn {
-            width: 100%;
-            padding: 18px;
-            background: linear-gradient(135deg, #e94560, #c73e54);
-            color: #fff;
-            border: none;
-            border-radius: 12px;
-            font-size: 1.1em;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 10px;
-        }
-
-        .submit-btn:hover {
-            background: linear-gradient(135deg, #c73e54, #a83248);
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(233, 69, 96, 0.3);
-        }
-
-        .auth-links {
-            text-align: center;
-            margin-top: 30px;
-            padding-top: 25px;
-            border-top: 1px solid #e8ecef;
-        }
-
-        .auth-links a {
-            color: #e94560;
-            text-decoration: none;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-
-        .auth-links a:hover {
-            text-decoration: underline;
-        }
-
-        .auth-links .divider {
-            color: #ccc;
-            margin: 0 15px;
-        }
-
-        @media (max-width: 900px) {
-            .register-wrapper {
-                flex-direction: column;
-            }
-
-            .register-branding {
-                width: 100%;
-                padding: 40px;
-            }
-
-            .branding-title {
-                font-size: 1.8em;
-            }
-
-            .register-form-container {
-                width: 100%;
-                padding: 40px;
-            }
-
-            .register-form .form-row {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        @media (max-width: 500px) {
-            body {
-                padding: 20px 15px;
-            }
-
-            .register-branding {
-                padding: 30px;
-            }
-
-            .register-form-container {
-                padding: 30px;
-            }
-        }
-    </style>
+    @media (max-width: 1000px) { .panel-left { display: none; } .panel-right { padding: 40px 32px; } }
+    @media (max-width: 640px) { .form-grid { grid-template-columns: 1fr; } .panel-right { padding: 32px 20px; } .form-heading { font-size: 22px; } }
+  </style>
 </head>
-
 <body>
-    <div class="register-wrapper">
-        <!-- Left Side - Branding -->
-        <div class="register-branding">
-            <div class="branding-content">
-                <div class="branding-logo">
-                    <i class="fas fa-briefcase"></i>
-                    Accoplacers
-                </div>
-                <h1 class="branding-title">Find Your Perfect Finance Team</h1>
-                <p class="branding-subtitle">Join the leading platform connecting employers with top accounting and
-                    finance professionals in the GCC region.</p>
 
-                <ul class="branding-features">
-                    <li>
-                        <i class="fas fa-check"></i>
-                        Access verified candidate profiles
-                    </li>
-                    <li>
-                        <i class="fas fa-check"></i>
-                        Pre-screened finance professionals
-                    </li>
-                    <li>
-                        <i class="fas fa-check"></i>
-                        Quick and efficient hiring process
-                    </li>
-                    <li>
-                        <i class="fas fa-check"></i>
-                        Dedicated recruitment support
-                    </li>
-                    <li>
-                        <i class="fas fa-check"></i>
-                        Industry-specific talent pool
-                    </li>
-                </ul>
-            </div>
-        </div>
-
-        <!-- Right Side - Form -->
-        <div class="register-form-container">
-            <div class="form-header">
-                <span class="user-type-badge"><i class="fas fa-building"></i> Employer Portal</span>
-                <h2>Create Employer Account</h2>
-                <p>Register to access our curated talent pool</p>
-            </div>
-
-            {% if messages %}
-            {% for message in messages %}
-            <div class="message-box {{ message.tags }}">
-                <i
-                    class="fas {% if message.tags == 'error' %}fa-exclamation-circle{% else %}fa-check-circle{% endif %}"></i>
-                {{ message }}
-            </div>
-            {% endfor %}
-            {% endif %}
-
-            <form class="register-form" method="POST" enctype="multipart/form-data">
-                {% csrf_token %}
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="company_name"><i class="fas fa-building"></i> Company Name</label>
-                        <input type="text" id="company_name" name="company_name" placeholder="Enter your company name"
-                            required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="email"><i class="fas fa-envelope"></i> Business Email</label>
-                        <input type="email" id="email" name="email" placeholder="company@email.com" required>
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="password"><i class="fas fa-lock"></i> Password</label>
-                        <input type="password" id="password" name="password" placeholder="Create a secure password"
-                            required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="phone"><i class="fas fa-phone"></i> Phone Number</label>
-                        <input type="tel" id="phone" name="phone" placeholder="+971 XX XXX XXXX" required>
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="industry"><i class="fas fa-industry"></i> Industry</label>
-                        <select id="industry" name="industry" required>
-                            <option value="">Select Industry</option>
-                            <option value="Accounting">Accounting</option>
-                            <option value="Audit">Audit</option>
-                            <option value="Banking">Banking & Finance</option>
-                            <option value="Consulting">Consulting</option>
-                            <option value="Corporate">Corporate</option>
-                            <option value="Real Estate">Real Estate</option>
-                            <option value="Technology">Technology</option>
-                            <option value="Healthcare">Healthcare</option>
-                            <option value="Manufacturing">Manufacturing</option>
-                            <option value="Retail">Retail</option>
-                            <option value="Other">Other</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="location"><i class="fas fa-map-marker-alt"></i> Location</label>
-                        <input type="text" id="location" name="location" placeholder="City, Country" required>
-                    </div>
-                </div>
-
-                <div class="form-group full-width">
-                    <label for="company_description"><i class="fas fa-info-circle"></i> Company Description</label>
-                    <textarea id="company_description" name="company_description"
-                        placeholder="Tell us about your company, culture, and what makes it a great place to work..."></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label for="logo"><i class="fas fa-image"></i> Company Logo</label>
-                    <input type="file" id="logo" name="logo" accept="image/*">
-                    <p class="file-hint">Optional. Recommended size: 200x200px (PNG/JPG)</p>
-                </div>
-
-                <button type="submit" class="submit-btn">
-                    <i class="fas fa-user-plus"></i> Create Employer Account
-                </button>
-            </form>
-
-            <div class="auth-links">
-                <a href="{% url 'employer_login' %}"><i class="fas fa-sign-in-alt"></i> Already have an account?
-                    Login</a>
-                <span class="divider">|</span>
-                <a href="/"><i class="fas fa-home"></i> Back to Home</a>
-            </div>
-        </div>
+  <!-- Left Branding -->
+  <div class="panel-left">
+    <div class="pl-top">
+      <a href="/" class="pl-logo">
+        <div class="pl-logo-icon"><i class="fas fa-briefcase"></i></div>
+        <span class="pl-logo-text">Acco<span>placers</span></span>
+      </a>
+      <h1 class="pl-headline">Hire accounting & finance professionals</h1>
+      <p class="pl-sub">Join leading employers across the GCC who trust Accoplacers to connect them with verified, pre-screened finance talent.</p>
+      <ul class="pl-features">
+        <li><div class="feat-icon"><i class="fas fa-user-check"></i></div> Access verified candidate profiles</li>
+        <li><div class="feat-icon"><i class="fas fa-filter"></i></div> Pre-screened finance professionals</li>
+        <li><div class="feat-icon"><i class="fas fa-bolt"></i></div> Quick, efficient hiring process</li>
+        <li><div class="feat-icon"><i class="fas fa-headset"></i></div> Dedicated recruitment support</li>
+      </ul>
     </div>
-</body>
+    <div class="pl-bottom">&copy; 2025 Accoplacers. All rights reserved.</div>
+  </div>
 
+  <!-- Right Form -->
+  <div class="panel-right">
+    <div class="form-card">
+      <span class="form-eyebrow"><i class="fas fa-building"></i> Employer Portal</span>
+      <h1 class="form-heading">Create Employer Account</h1>
+      <p class="form-sub">Register to access our curated talent pool</p>
+
+      {% if messages %}
+        {% for message in messages %}
+        <div class="msg {{ message.tags }}">
+          <i class="fas {% if message.tags == 'error' %}fa-exclamation-circle{% else %}fa-check-circle{% endif %}"></i>
+          {{ message }}
+        </div>
+        {% endfor %}
+      {% endif %}
+
+      <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="section-divider">Company Information</div>
+        <div class="form-grid">
+          <div class="field">
+            <label for="company_name">Company Name *</label>
+            <div class="input-wrap">
+              <i class="fas fa-building input-icon"></i>
+              <input type="text" id="company_name" name="company_name" placeholder="Your company name" required>
+            </div>
+          </div>
+          <div class="field">
+            <label for="email">Business Email *</label>
+            <div class="input-wrap">
+              <i class="fas fa-envelope input-icon"></i>
+              <input type="email" id="email" name="email" placeholder="company@email.com" required>
+            </div>
+          </div>
+          <div class="field">
+            <label for="industry">Industry *</label>
+            <div class="input-wrap select-wrap">
+              <i class="fas fa-industry input-icon"></i>
+              <select id="industry" name="industry" required>
+                <option value="">Select industry…</option>
+                <option value="Accounting">Accounting</option>
+                <option value="Audit">Audit</option>
+                <option value="Banking">Banking &amp; Finance</option>
+                <option value="Consulting">Consulting</option>
+                <option value="Corporate">Corporate</option>
+                <option value="Real Estate">Real Estate</option>
+                <option value="Technology">Technology</option>
+                <option value="Healthcare">Healthcare</option>
+                <option value="Manufacturing">Manufacturing</option>
+                <option value="Retail">Retail</option>
+                <option value="Other">Other</option>
+              </select>
+              <i class="fas fa-chevron-down select-caret"></i>
+            </div>
+          </div>
+          <div class="field">
+            <label for="location">Location *</label>
+            <div class="input-wrap">
+              <i class="fas fa-map-marker-alt input-icon"></i>
+              <input type="text" id="location" name="location" placeholder="City, Country" required>
+            </div>
+          </div>
+          <div class="field full">
+            <label for="company_description">Company Description</label>
+            <div class="input-wrap textarea-wrap">
+              <i class="fas fa-align-left input-icon"></i>
+              <textarea id="company_description" name="company_description" placeholder="Tell us about your company, culture, and what makes it a great place to work…"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-divider">Account Security</div>
+        <div class="form-grid">
+          <div class="field">
+            <label for="phone">Phone Number *</label>
+            <div class="input-wrap">
+              <i class="fas fa-phone input-icon"></i>
+              <input type="tel" id="phone" name="phone" placeholder="+971 XX XXX XXXX" required>
+            </div>
+          </div>
+          <div class="field">
+            <label for="password">Password *</label>
+            <div class="input-wrap">
+              <i class="fas fa-lock input-icon"></i>
+              <input type="password" id="password" name="password" placeholder="Min. 6 characters" required minlength="6">
+            </div>
+          </div>
+        </div>
+
+        <div class="section-divider">Company Logo</div>
+        <div class="field">
+          <label for="logo">Upload Logo <span style="color:#94A3B8;font-weight:400;">(optional)</span></label>
+          <div class="input-wrap">
+            <i class="fas fa-image input-icon"></i>
+            <input type="file" id="logo" name="logo" accept="image/*">
+          </div>
+          <p class="file-hint">Recommended: 200×200px PNG or JPG</p>
+        </div>
+
+        <button type="submit" class="submit-btn">
+          <i class="fas fa-user-plus"></i> Create Employer Account
+        </button>
+      </form>
+
+      <div class="form-footer">
+        <a href="{% url 'employer_login' %}"><i class="fas fa-sign-in-alt"></i> Already have an account? Sign In</a>
+        <span class="sep">·</span>
+        <a href="/"><i class="fas fa-arrow-left"></i> Home</a>
+      </div>
+    </div>
+  </div>
+</body>
 </html>

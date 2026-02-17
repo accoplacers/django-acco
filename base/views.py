@@ -10,14 +10,29 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import make_password, check_password
+from django.core.exceptions import ValidationError
+from .validators import (
+    validate_company_name,
+    validate_phone_number,
+    validate_safe_email,
+    validate_text_input
+)
+from .decorators import rate_limit
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
 
 def registration_view(request):
-    return render(request, 'base/index.html', {
-        'stripe_public_key': settings.STRIPE_PUBLIC_KEY
-    })
+    context = {
+        'stripe_public_key': settings.STRIPE_PUBLIC_KEY,
+        'session_user_type': request.session.get('user_type'),
+        'session_user_name': (
+            request.session.get('employee_name') if request.session.get('user_type') == 'employee'
+            else request.session.get('employer_name') if request.session.get('user_type') == 'employer'
+            else None
+        ),
+    }
+    return render(request, 'base/index.html', context)
 
 
 def register_user(request):
@@ -51,12 +66,24 @@ def register_user(request):
     return JsonResponse({'status': 'error', 'message': 'Invalid request method.'}, status=400)
 
 
+@rate_limit(max_requests=3, time_window=60, block_duration=300)
 def contact_user(request):
     if request.method == 'POST':
-        name = request.POST.get('contact-name')
-        email = request.POST.get('contact-email')
-        phone = request.POST.get('contact-phone')
-        message = request.POST.get('contact-message')
+        name = request.POST.get('contact-name', '').strip()
+        email = request.POST.get('contact-email', '').strip()
+        phone = request.POST.get('contact-phone', '').strip()
+        message = request.POST.get('contact-message', '').strip()
+
+        try:
+            # Validate all inputs
+            validate_text_input(name, min_length=2, max_length=150)
+            validate_safe_email(email)
+            validate_phone_number(phone)
+            validate_text_input(message, min_length=10, max_length=2000)
+
+        except ValidationError as e:
+            messages.error(request, f"Invalid input: {str(e)}")
+            return redirect('/')
 
         Contact.objects.create(
             name=name,
@@ -64,7 +91,7 @@ def contact_user(request):
             phone=phone,
             message=message
         )
-        messages.success(request, "We will get back to you soon!")
+        messages.success(request, "Thank you for contacting us! We will get back to you soon!")
         return redirect('/')
 
     return redirect('/')
@@ -176,25 +203,60 @@ def registration_success(request):
 
 
 @csrf_exempt
+@rate_limit(max_requests=5, time_window=60, block_duration=300)
 def temp_save_registration(request):
     if request.method == 'POST':
-        email = request.POST.get('email')
-        
+        # Get and sanitize inputs
+        name = request.POST.get('name', '').strip()
+        email = request.POST.get('email', '').strip()
+        password = request.POST.get('password', '')
+        phone = request.POST.get('phone', '').strip()
+        nationality = request.POST.get('nationality', '').strip()
+        location = request.POST.get('location', '').strip()
+        qualification = request.POST.get('qualification', '').strip()
+        experience = request.POST.get('experience', '').strip()
+        role = request.POST.get('role', '').strip()
+        plan = request.POST.get('plan', 'basic')
+
+        try:
+            # Validate all inputs
+            validate_text_input(name, min_length=2, max_length=150)
+            validate_safe_email(email)
+            validate_phone_number(phone)
+            validate_text_input(nationality, min_length=2, max_length=100)
+            validate_text_input(location, min_length=2, max_length=100)
+            validate_text_input(qualification, min_length=2, max_length=100)
+            validate_text_input(experience, min_length=1, max_length=20)
+            validate_text_input(role, min_length=2, max_length=100)
+
+            # Validate password
+            if not password or len(password) < 6:
+                raise ValidationError("Password must be at least 6 characters long.")
+            if len(password) > 128:
+                raise ValidationError("Password is too long.")
+
+            # Validate plan
+            if plan not in ['basic', 'intermediate', 'premium']:
+                raise ValidationError("Invalid plan selected.")
+
+        except ValidationError as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+
         # Check if email already exists
         if Registration.objects.filter(email=email).exists():
             return JsonResponse({'status': 'error', 'message': 'An account with this email already exists. Please login.'})
 
         data = {
-            'name': request.POST.get('name'),
+            'name': name,
             'email': email,
-            'password': request.POST.get('password'),
-            'phone': request.POST.get('phone'),
-            'nationality': request.POST.get('nationality'),
-            'location': request.POST.get('location'),
-            'qualification': request.POST.get('qualification'),
-            'experience': request.POST.get('experience'),
-            'role': request.POST.get('role'),
-            'plan': request.POST.get('plan', 'basic'),
+            'password': password,
+            'phone': phone,
+            'nationality': nationality,
+            'location': location,
+            'qualification': qualification,
+            'experience': experience,
+            'role': role,
+            'plan': plan,
         }
 
         tmp_dir = os.path.join(settings.MEDIA_ROOT, 'tmp')
@@ -222,6 +284,86 @@ def temp_save_registration(request):
         return JsonResponse({'status': 'success'})
 
     return JsonResponse({'status': 'error'}, status=400)
+
+
+@rate_limit(max_requests=5, time_window=60, block_duration=300)
+def employee_register(request):
+    if request.session.get('user_type') == 'employee':
+        return redirect('employee_dashboard')
+    if request.method == 'POST':
+        name = request.POST.get('name', '').strip()
+        email = request.POST.get('email', '').strip()
+        password = request.POST.get('password', '')
+        confirm_password = request.POST.get('confirm_password', '')
+        phone = request.POST.get('phone', '').strip()
+        nationality = request.POST.get('nationality', '').strip()
+        location = request.POST.get('location', '').strip()
+        qualification = request.POST.get('qualification', '').strip()
+        experience = request.POST.get('experience', '').strip()
+        role = request.POST.get('role', '').strip()
+        resume = request.FILES.get('resume')
+        photo = request.FILES.get('photo')
+        plan = request.POST.get('plan', 'basic')
+
+        form_data = {
+            'name': name, 'email': email, 'phone': phone,
+            'nationality': nationality, 'location': location,
+            'qualification': qualification, 'experience': experience, 'role': role,
+        }
+
+        try:
+            validate_text_input(name, min_length=2, max_length=150)
+            validate_safe_email(email)
+            validate_phone_number(phone)
+            validate_text_input(nationality, min_length=2, max_length=100)
+            validate_text_input(location, min_length=2, max_length=100)
+            validate_text_input(qualification, min_length=2, max_length=100)
+            validate_text_input(experience, min_length=1, max_length=20)
+            validate_text_input(role, min_length=2, max_length=100)
+
+            if not password or len(password) < 6:
+                raise ValidationError("Password must be at least 6 characters long.")
+            if len(password) > 128:
+                raise ValidationError("Password is too long.")
+            if password != confirm_password:
+                raise ValidationError("Passwords do not match.")
+            if plan not in ['basic', 'intermediate', 'premium']:
+                plan = 'basic'
+            if not resume:
+                raise ValidationError("Please upload your resume.")
+
+        except ValidationError as e:
+            messages.error(request, str(e))
+            return render(request, 'base/employee_register.html', {'form_data': form_data})
+
+        if Registration.objects.filter(email=email).exists():
+            messages.error(request, "An account with this email already exists. Please login.")
+            return render(request, 'base/employee_register.html', {'form_data': form_data})
+
+        registration = Registration(
+            name=name,
+            email=email,
+            password=make_password(password),
+            phone=phone,
+            nationality=nationality,
+            location=location,
+            qualification=qualification,
+            experience=experience,
+            role=role,
+            plan=plan,
+        )
+
+        if resume:
+            registration.resume.save(resume.name, resume, save=False)
+        if photo:
+            registration.photo.save(photo.name, photo, save=False)
+
+        registration.save()
+
+        messages.success(request, "Registration successful! Please login to access your dashboard.")
+        return redirect('employee_login')
+
+    return render(request, 'base/employee_register.html')
 
 
 def terms(request):
@@ -281,6 +423,8 @@ def registrations_dashboard(request):
 from .models import Employer, JobOpening
 
 def employee_login(request):
+    if request.session.get('user_type') == 'employee':
+        return redirect('employee_dashboard')
     if request.method == 'POST':
         email = request.POST.get('email')
         password = request.POST.get('password')
@@ -348,22 +492,47 @@ def employee_dashboard(request):
 # EMPLOYER AUTHENTICATION
 # ==========================================
 
+@rate_limit(max_requests=5, time_window=60, block_duration=300)
 def employer_register(request):
+    if request.session.get('user_type') == 'employer':
+        return redirect('employer_dashboard')
     if request.method == 'POST':
-        company_name = request.POST.get('company_name')
-        email = request.POST.get('email')
-        password = request.POST.get('password')
-        phone = request.POST.get('phone')
-        company_description = request.POST.get('company_description', '')
-        location = request.POST.get('location')
-        industry = request.POST.get('industry')
+        company_name = request.POST.get('company_name', '').strip()
+        email = request.POST.get('email', '').strip()
+        password = request.POST.get('password', '')
+        phone = request.POST.get('phone', '').strip()
+        company_description = request.POST.get('company_description', '').strip()
+        location = request.POST.get('location', '').strip()
+        industry = request.POST.get('industry', '').strip()
         logo = request.FILES.get('logo')
-        
+
+        try:
+            # Validate all inputs
+            validate_company_name(company_name)
+            validate_safe_email(email)
+            validate_phone_number(phone)
+            validate_text_input(location, min_length=2, max_length=100)
+            validate_text_input(industry, min_length=2, max_length=100)
+
+            if company_description:
+                validate_text_input(company_description, min_length=0, max_length=2000)
+
+            # Validate password length
+            if not password or len(password) < 6:
+                raise ValidationError("Password must be at least 6 characters long.")
+
+            if len(password) > 128:
+                raise ValidationError("Password is too long (max 128 characters).")
+
+        except ValidationError as e:
+            messages.error(request, str(e))
+            return render(request, 'base/employer_register.html')
+
         # Check if email already exists
         if Employer.objects.filter(email=email).exists():
             messages.error(request, "An account with this email already exists.")
             return render(request, 'base/employer_register.html')
-        
+
         # Create employer with hashed password
         employer = Employer.objects.create(
             company_name=company_name,
@@ -375,14 +544,16 @@ def employer_register(request):
             industry=industry,
             logo=logo
         )
-        
+
         messages.success(request, "Registration successful! Please login.")
         return redirect('employer_login')
-    
+
     return render(request, 'base/employer_register.html')
 
 
 def employer_login(request):
+    if request.session.get('user_type') == 'employer':
+        return redirect('employer_dashboard')
     if request.method == 'POST':
         email = request.POST.get('email')
         password = request.POST.get('password')

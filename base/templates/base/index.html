@@ -15,568 +15,58 @@
     <link rel="stylesheet" href="{% static 'base/css/style.css' %}">
     <link rel="icon" href="{% static 'base/img/favicon.ico' %}" type="image/x-icon">
     <style>
-        /* Registration Modal Styles */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(8px);
-            z-index: 9999;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .modal-overlay.active {
-            display: flex;
-            opacity: 1;
-        }
-
-        .registration-modal {
-            background: #fff;
-            border-radius: 24px;
-            width: 100%;
-            max-width: 900px;
-            max-height: 90vh;
-            overflow-y: auto;
-            position: relative;
-            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.3);
-            animation: modalSlideIn 0.4s ease;
-        }
-
-        @keyframes modalSlideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-50px) scale(0.95);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
-
-        .modal-header {
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-            color: #fff;
-            padding: 35px 40px;
-            border-radius: 24px 24px 0 0;
-            text-align: center;
-            position: relative;
-        }
-
-        .modal-header::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-            border-radius: 24px 24px 0 0;
-        }
-
-        .modal-close {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.1);
-            border: none;
-            color: #fff;
-            font-size: 1.3em;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 10;
-        }
-
-        .modal-close:hover {
-            background: rgba(255, 255, 255, 0.25);
-            transform: rotate(90deg);
-        }
-
-        .modal-header .logo {
-            font-size: 1.8em;
-            font-weight: 700;
-            margin-bottom: 10px;
-            position: relative;
-        }
-
-        .modal-header .logo i {
-            color: #3498db;
-            margin-right: 8px;
-        }
-
-        .modal-header .logo span {
-            color: #3498db;
-        }
-
-        .modal-header h2 {
-            font-size: 1.6em;
-            font-weight: 600;
-            margin: 15px 0 8px;
-            position: relative;
-        }
-
-        .modal-header p {
-            opacity: 0.85;
-            font-size: 1em;
-            margin: 0;
-            position: relative;
-        }
-
-        .modal-body {
-            padding: 40px;
-        }
-
-        .modal-form .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 0;
-        }
-
-        .modal-form .form-group {
-            margin-bottom: 22px;
-        }
-
-        .modal-form label {
-            display: block;
-            font-weight: 600;
-            color: #1a1a2e;
-            margin-bottom: 8px;
-            font-size: 0.95em;
-        }
-
-        .modal-form label i {
-            color: #3498db;
-            margin-right: 6px;
-            width: 16px;
-        }
-
-        .modal-form input,
-        .modal-form select {
-            width: 100%;
-            padding: 14px 16px;
-            border: 2px solid #e8ecef;
-            border-radius: 12px;
-            font-size: 1em;
-            transition: all 0.3s ease;
-            background: #f8f9fa;
-        }
-
-        .modal-form input:focus,
-        .modal-form select:focus {
-            border-color: #3498db;
-            background: #fff;
-            outline: none;
-            box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.1);
-        }
-
-        .modal-form input[type="file"] {
-            padding: 12px;
-            background: #fff;
-            cursor: pointer;
-        }
-
-        /* Progress Steps */
-        .form-steps {
-            display: flex;
-            justify-content: center;
-            gap: 40px;
-            margin-bottom: 30px;
-        }
-
-        .step {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: #adb5bd;
-            font-weight: 500;
-            position: relative;
-        }
-
-        .step.active {
-            color: #3498db;
-        }
-
-        .step.completed {
-            color: #28a745;
-        }
-
-        .step-number {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: #e9ecef;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            font-size: 0.9em;
-        }
-
-        .step.active .step-number {
-            background: linear-gradient(135deg, #3498db, #2980b9);
-            color: #fff;
-        }
-
-        .step.completed .step-number {
-            background: linear-gradient(135deg, #28a745, #20c997);
-            color: #fff;
-        }
-
-        /* Plans Section in Modal */
-        .plans-section {
-            margin: 25px 0;
-        }
-
-        .plans-section h3 {
-            text-align: center;
-            color: #1a1a2e;
-            margin-bottom: 20px;
-            font-size: 1.3em;
-        }
-
-        .modal-plans {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 16px;
-        }
-
-        .modal-plan-card {
-            border: 2px solid #e8ecef;
-            border-radius: 16px;
-            padding: 20px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
-            background: #fff;
-        }
-
-        .modal-plan-card:hover {
-            border-color: #3498db;
-            transform: translateY(-3px);
-            box-shadow: 0 10px 30px rgba(52, 152, 219, 0.1);
-        }
-
-        .modal-plan-card.selected {
-            border-color: #3498db;
-            background: linear-gradient(135deg, rgba(52, 152, 219, 0.05), rgba(52, 152, 219, 0.02));
-        }
-
-        .modal-plan-card.selected::after {
-            content: '\f00c';
-            font-family: 'Font Awesome 6 Free';
-            font-weight: 900;
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: #3498db;
-            color: #fff;
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.7em;
-        }
-
-        .modal-plan-card input[type="radio"] {
-            display: none;
-        }
-
-        .modal-plan-name {
-            font-weight: 700;
-            font-size: 1.1em;
-            color: #1a1a2e;
-            margin-bottom: 5px;
-        }
-
-        .modal-plan-price {
-            font-size: 1.4em;
-            font-weight: 700;
-            color: #3498db;
-            margin-bottom: 12px;
-        }
-
-        .modal-plan-features {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            font-size: 0.85em;
-            color: #666;
-        }
-
-        .modal-plan-features li {
-            padding: 4px 0;
-            display: flex;
-            align-items: flex-start;
-            gap: 8px;
-        }
-
-        .modal-plan-features li::before {
-            content: '\f00c';
-            font-family: 'Font Awesome 6 Free';
-            font-weight: 900;
-            color: #28a745;
-            font-size: 0.8em;
-            margin-top: 3px;
-        }
-
-        .popular-badge {
-            position: absolute;
-            top: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: linear-gradient(135deg, #e74c3c, #c0392b);
-            color: #fff;
-            padding: 4px 14px;
-            border-radius: 20px;
-            font-size: 0.7em;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        /* Terms in Modal */
-        .modal-terms {
-            display: flex;
-            align-items: flex-start;
-            gap: 12px;
-            margin: 25px 0;
-            padding: 18px;
-            background: #f8f9fa;
-            border-radius: 12px;
-        }
-
-        .modal-terms input[type="checkbox"] {
-            width: 20px;
-            height: 20px;
-            margin-top: 2px;
-            cursor: pointer;
-            accent-color: #3498db;
-        }
-
-        .modal-terms label {
-            margin: 0;
-            font-size: 0.95em;
-            color: #555;
-            cursor: pointer;
-        }
-
-        .modal-terms a {
-            color: #3498db;
-            font-weight: 500;
-        }
-
-        /* Submit Button in Modal */
-        .modal-submit {
-            width: 100%;
-            padding: 18px;
-            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-            color: #fff;
-            border: none;
-            border-radius: 12px;
-            font-size: 1.1em;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .modal-submit:hover {
-            background: linear-gradient(135deg, #2980b9 0%, #1a5276 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(52, 152, 219, 0.3);
-        }
-
-        .modal-submit:disabled {
-            opacity: 0.7;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        /* Join Section Redesign */
+        /* ── Join Section ── */
         .join-section {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            background: linear-gradient(135deg, #F8FAFC 0%, #EEF2FF 100%);
             padding: 100px 0;
         }
-
-        .join-section h2 {
-            text-align: center;
-            margin-bottom: 15px;
-        }
-
+        .join-section h2 { text-align: center; margin-bottom: 15px; }
         .join-section .section-subtitle {
-            text-align: center;
-            color: #666;
-            font-size: 1.1em;
-            max-width: 600px;
-            margin: 0 auto 50px;
+            text-align: center; color: #64748B;
+            font-size: 1.1em; max-width: 600px; margin: 0 auto 50px;
         }
-
         .join-cards {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 40px;
-            max-width: 900px;
-            margin: 0 auto;
+            display: grid; grid-template-columns: repeat(2, 1fr);
+            gap: 32px; max-width: 880px; margin: 0 auto;
         }
-
         .join-card {
-            background: #fff;
-            border-radius: 24px;
-            padding: 45px 40px;
+            background: #fff; border: 1px solid #E2E8F0;
+            border-radius: 20px; padding: 40px 36px;
             text-align: center;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
-            transition: all 0.4s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .join-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 5px;
-        }
-
-        .join-card.employee::before {
-            background: linear-gradient(90deg, #3498db, #2980b9);
-        }
-
-        .join-card.employer::before {
-            background: linear-gradient(90deg, #e74c3c, #c0392b);
-        }
-
-        .join-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.12);
-        }
-
-        .join-card-icon {
-            width: 90px;
-            height: 90px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 25px;
-            font-size: 2.2em;
-            color: #fff;
-        }
-
-        .join-card.employee .join-card-icon {
-            background: linear-gradient(135deg, #3498db, #2980b9);
-        }
-
-        .join-card.employer .join-card-icon {
-            background: linear-gradient(135deg, #e74c3c, #c0392b);
-        }
-
-        .join-card h3 {
-            font-size: 1.5em;
-            color: #1a1a2e;
-            margin-bottom: 12px;
-        }
-
-        .join-card p {
-            color: #666;
-            margin-bottom: 25px;
-            line-height: 1.7;
-        }
-
-        .join-card .btn {
-            padding: 16px 35px;
-            border-radius: 10px;
-            font-weight: 600;
-            text-decoration: none;
-            display: inline-block;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
             transition: all 0.3s ease;
+            position: relative; overflow: hidden;
         }
-
-        .join-card.employee .btn {
-            background: linear-gradient(135deg, #3498db, #2980b9);
-            color: #fff;
+        .join-card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
         }
-
-        .join-card.employee .btn:hover {
-            box-shadow: 0 10px 30px rgba(52, 152, 219, 0.3);
-            transform: translateY(-2px);
+        .join-card.employee::before { background: linear-gradient(90deg, #4F46E5, #6366F1); }
+        .join-card.employer::before { background: linear-gradient(90deg, #E11D48, #BE123C); }
+        .join-card:hover { transform: translateY(-8px); box-shadow: 0 20px 60px rgba(0,0,0,0.1); }
+        .join-card-icon {
+            width: 80px; height: 80px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 22px; font-size: 2em; color: #fff;
         }
-
-        .join-card.employer .btn {
-            background: linear-gradient(135deg, #e74c3c, #c0392b);
-            color: #fff;
+        .join-card.employee .join-card-icon { background: linear-gradient(135deg, #4F46E5, #3730A3); }
+        .join-card.employer .join-card-icon { background: linear-gradient(135deg, #E11D48, #BE123C); }
+        .join-card h3 { font-size: 1.4em; color: #0F172A; margin-bottom: 10px; }
+        .join-card p { color: #64748B; margin-bottom: 22px; line-height: 1.7; }
+        .join-card .btn {
+            padding: 14px 30px; border-radius: 8px;
+            font-weight: 700; text-decoration: none;
+            display: inline-block; transition: all 0.2s ease; font-size: 14px;
         }
+        .join-card.employee .btn { background: #4F46E5; color: #fff; }
+        .join-card.employee .btn:hover { background: #3730A3; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(79,70,229,0.3); }
+        .join-card.employer .btn { background: #E11D48; color: #fff; }
+        .join-card.employer .btn:hover { background: #BE123C; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(225,29,72,0.3); }
+        .join-card-features { list-style: none; padding: 0; margin: 18px 0 22px; text-align: left; }
+        .join-card-features li { padding: 7px 0; color: #475569; display: flex; align-items: center; gap: 10px; font-size: 14px; }
+        .join-card-features li i { color: #10B981; font-size: 12px; }
 
-        .join-card.employer .btn:hover {
-            box-shadow: 0 10px 30px rgba(231, 76, 60, 0.3);
-            transform: translateY(-2px);
-        }
-
-        .join-card-features {
-            list-style: none;
-            padding: 0;
-            margin: 20px 0 25px;
-            text-align: left;
-        }
-
-        .join-card-features li {
-            padding: 8px 0;
-            color: #555;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .join-card-features li i {
-            color: #28a745;
-            font-size: 0.9em;
-        }
-
-        /* Responsive Modal */
-        @media (max-width: 768px) {
-            .modal-body {
-                padding: 25px;
-            }
-
-            .modal-form .form-row {
-                grid-template-columns: 1fr;
-            }
-
-            .modal-plans {
-                grid-template-columns: 1fr;
-            }
-
-            .form-steps {
-                flex-direction: column;
-                align-items: center;
-                gap: 15px;
-            }
-
-            .join-cards {
-                grid-template-columns: 1fr;
-            }
-        }
+        @media (max-width: 768px) { .join-cards { grid-template-columns: 1fr; gap: 24px; } }
+        @media (max-width: 480px) { .join-card { padding: 32px 24px; } }
     </style>
 </head>
 
@@ -596,26 +86,113 @@
     <!-- Header -->
     <header id="header">
         <div class="container header-container">
-            <a href="/">
-                <div class="logo"><i class="fas fa-briefcase"></i>Acco<span>placers</span></div>
+
+            <!-- Logo -->
+            <a href="/" class="nav-logo">
+                <div class="nav-logo-icon"><i class="fas fa-briefcase"></i></div>
+                <span class="nav-logo-text">Acco<span>placers</span></span>
             </a>
-            <div class="mobile-menu" id="mobileMenu">☰</div>
+
+            <!-- Desktop + Mobile Nav Panel -->
             <nav id="navMenu">
-                <ul>
+                <ul class="nav-links">
                     <li><a href="#home">Home</a></li>
-                    <li><a href="#about">About Us</a></li>
+                    <li><a href="#about">About</a></li>
                     <li><a href="#services">Services</a></li>
                     <li><a href="#register">Register</a></li>
                     <li><a href="#contact">Contact</a></li>
-                    <li class="login-dropdown">
-                        <a href="#" class="login-trigger">Login <i class="fas fa-chevron-down"></i></a>
-                        <div class="login-menu">
-                            <a href="{% url 'employee_login' %}"><i class="fas fa-user"></i> Employee Login</a>
-                            <a href="{% url 'employer_login' %}"><i class="fas fa-building"></i> Employer Login</a>
-                        </div>
-                    </li>
                 </ul>
+
+                <!-- Mobile-only auth section (inside the slide-down panel) -->
+                <div class="nav-mobile-auth">
+                    {% if session_user_type == 'employee' %}
+                    <div class="mob-user-info">
+                        <span class="uavatar">{{ session_user_name|slice:":1"|upper }}</span>
+                        <div>
+                            <div class="mob-uname">{{ session_user_name }}</div>
+                            <div class="mob-urole">Job Seeker</div>
+                        </div>
+                    </div>
+                    <a href="{% url 'employee_dashboard' %}" class="mob-nav-item"><i class="fas fa-th-large"></i> My Dashboard</a>
+                    <a href="{% url 'employee_logout' %}" class="mob-nav-item danger"><i class="fas fa-sign-out-alt"></i> Sign Out</a>
+                    {% elif session_user_type == 'employer' %}
+                    <div class="mob-user-info">
+                        <span class="uavatar employer">{{ session_user_name|slice:":1"|upper }}</span>
+                        <div>
+                            <div class="mob-uname">{{ session_user_name }}</div>
+                            <div class="mob-urole">Employer</div>
+                        </div>
+                    </div>
+                    <a href="{% url 'employer_dashboard' %}" class="mob-nav-item"><i class="fas fa-th-large"></i> Dashboard</a>
+                    <a href="{% url 'employer_logout' %}" class="mob-nav-item danger"><i class="fas fa-sign-out-alt"></i> Sign Out</a>
+                    {% else %}
+                    <div class="mob-auth-grid">
+                        <a href="{% url 'employee_login' %}" class="mob-auth-btn outline">Employee Login</a>
+                        <a href="{% url 'employer_login' %}" class="mob-auth-btn solid">Employer Login</a>
+                    </div>
+                    <a href="{% url 'employee_register' %}" class="mob-auth-cta">Get Started <i class="fas fa-arrow-right"></i></a>
+                    {% endif %}
+                </div>
             </nav>
+
+            <!-- Desktop-only auth section -->
+            <div class="nav-actions">
+                {% if session_user_type == 'employee' %}
+                <div class="user-menu">
+                    <button class="user-trigger login-trigger" type="button">
+                        <span class="uavatar">{{ session_user_name|slice:":1"|upper }}</span>
+                        <span class="uname">{{ session_user_name }}</span>
+                        <i class="fas fa-chevron-down uchevron"></i>
+                    </button>
+                    <div class="user-dropdown">
+                        <div class="udrop-header">
+                            <span class="uavatar lg">{{ session_user_name|slice:":1"|upper }}</span>
+                            <div>
+                                <div class="udrop-name">{{ session_user_name }}</div>
+                                <div class="udrop-role">Job Seeker</div>
+                            </div>
+                        </div>
+                        <div class="udrop-divider"></div>
+                        <a href="{% url 'employee_dashboard' %}" class="udrop-item"><i class="fas fa-th-large"></i> My Dashboard</a>
+                        <div class="udrop-divider"></div>
+                        <a href="{% url 'employee_logout' %}" class="udrop-item danger"><i class="fas fa-sign-out-alt"></i> Sign Out</a>
+                    </div>
+                </div>
+                {% elif session_user_type == 'employer' %}
+                <div class="user-menu">
+                    <button class="user-trigger login-trigger" type="button">
+                        <span class="uavatar employer">{{ session_user_name|slice:":1"|upper }}</span>
+                        <span class="uname">{{ session_user_name }}</span>
+                        <i class="fas fa-chevron-down uchevron"></i>
+                    </button>
+                    <div class="user-dropdown">
+                        <div class="udrop-header">
+                            <span class="uavatar lg employer">{{ session_user_name|slice:":1"|upper }}</span>
+                            <div>
+                                <div class="udrop-name">{{ session_user_name }}</div>
+                                <div class="udrop-role">Employer</div>
+                            </div>
+                        </div>
+                        <div class="udrop-divider"></div>
+                        <a href="{% url 'employer_dashboard' %}" class="udrop-item"><i class="fas fa-th-large"></i> Dashboard</a>
+                        <div class="udrop-divider"></div>
+                        <a href="{% url 'employer_logout' %}" class="udrop-item danger"><i class="fas fa-sign-out-alt"></i> Sign Out</a>
+                    </div>
+                </div>
+                {% else %}
+                <div class="nav-auth">
+                    <a href="{% url 'employee_login' %}" class="auth-link">Employee Login</a>
+                    <span class="auth-sep"></span>
+                    <a href="{% url 'employer_login' %}" class="auth-link">Employer Login</a>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Hamburger -->
+            <button class="mobile-toggle" id="mobileMenu" type="button" aria-label="Toggle menu">
+                <span></span><span></span><span></span>
+            </button>
+
         </div>
     </header>
 
@@ -744,9 +321,9 @@
                         <li><i class="fas fa-check"></i> Interview preparation tips</li>
                         <li><i class="fas fa-check"></i> Career guidance & mentoring</li>
                     </ul>
-                    <button class="btn" id="openEmployeeModal">
-                        <i class="fas fa-user-plus"></i> Register as Employee
-                    </button>
+                    <a href="{% url 'employee_register' %}" class="btn">
+                        <i class="fas fa-user-plus"></i> Register as Job Seeker
+                    </a>
                 </div>
 
                 <!-- Employer Registration Card -->
@@ -865,369 +442,7 @@
         <i class="fab fa-whatsapp"></i>
     </a>
 
-    <!-- Employee Registration Modal -->
-    <div class="modal-overlay" id="employeeModal">
-        <div class="registration-modal">
-            <div class="modal-header">
-                <button class="modal-close" id="closeModal">
-                    <i class="fas fa-times"></i>
-                </button>
-                <div class="logo"><i class="fas fa-briefcase"></i>Acco<span>placers</span></div>
-                <h2>Employee Registration</h2>
-                <p>Join our network of accounting & finance professionals</p>
-            </div>
-
-            <div class="modal-body">
-                <div class="form-steps">
-                    <div class="step active" data-step="1">
-                        <span class="step-number">1</span>
-                        <span>Personal Info</span>
-                    </div>
-                    <div class="step" data-step="2">
-                        <span class="step-number">2</span>
-                        <span>Professional Details</span>
-                    </div>
-                    <div class="step" data-step="3">
-                        <span class="step-number">3</span>
-                        <span>Choose Plan</span>
-                    </div>
-                </div>
-
-                <form id="registrationForm" action="/register/" method="POST" enctype="multipart/form-data"
-                    class="modal-form">
-                    {% csrf_token %}
-
-                    <!-- Step 1: Personal Info -->
-                    <div class="form-step-content" id="step1">
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="name"><i class="fas fa-user"></i> Full Name</label>
-                                <input type="text" id="name" name="name" placeholder="Enter your full name" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="email"><i class="fas fa-envelope"></i> Email Address</label>
-                                <input type="email" id="email" name="email" placeholder="your@email.com" required>
-                            </div>
-                        </div>
-
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="password"><i class="fas fa-lock"></i> Create Password</label>
-                                <input type="password" id="password" name="password" placeholder="Min. 6 characters"
-                                    required minlength="6">
-                            </div>
-                            <div class="form-group">
-                                <label for="confirm_password"><i class="fas fa-lock"></i> Confirm Password</label>
-                                <input type="password" id="confirm_password" name="confirm_password"
-                                    placeholder="Re-enter password" required minlength="6">
-                            </div>
-                        </div>
-
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="phone"><i class="fas fa-phone"></i> Phone Number</label>
-                                <input type="tel" id="phone" name="phone" placeholder="+971 XX XXX XXXX" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="nationality"><i class="fas fa-globe"></i> Nationality</label>
-                                <input type="text" id="nationality" name="nationality" placeholder="Your nationality"
-                                    required>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Step 2: Professional Details -->
-                    <div class="form-step-content" id="step2" style="display: none;">
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="location"><i class="fas fa-map-marker-alt"></i> Current Location</label>
-                                <input type="text" id="location" name="location" placeholder="City, Country" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="qualification"><i class="fas fa-graduation-cap"></i> Highest
-                                    Qualification</label>
-                                <input type="text" id="qualification" name="qualification"
-                                    placeholder="e.g., MBA, CA, CPA" required>
-                            </div>
-                        </div>
-
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="experience"><i class="fas fa-briefcase"></i> Years of Experience</label>
-                                <select id="experience" name="experience" required>
-                                    <option value="">Select experience</option>
-                                    <option value="0-1">0-1 years (Fresher)</option>
-                                    <option value="1-3">1-3 years</option>
-                                    <option value="3-5">3-5 years</option>
-                                    <option value="5-10">5-10 years</option>
-                                    <option value="10+">10+ years</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="role"><i class="fas fa-user-tie"></i> Preferred Role/Industry</label>
-                                <input type="text" id="role" name="role" placeholder="e.g., Senior Accountant" required>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="resume"><i class="fas fa-file-pdf"></i> Upload Resume (PDF or DOC)</label>
-                            <input type="file" id="resume" name="resume" accept=".pdf,.doc,.docx" required>
-                            <small style="color: #888; display: block; margin-top: 6px;">Maximum file size: 5MB</small>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="photo"><i class="fas fa-camera"></i> Professional Photo (Optional)</label>
-                            <input type="file" id="photo" name="photo" accept="image/*">
-                            <small style="color: #888; display: block; margin-top: 6px;">Upload a professional headshot
-                                photo (JPG/PNG)</small>
-                        </div>
-                    </div>
-
-
-                    <!-- Step 3: Choose Plan -->
-                    <div class="form-step-content" id="step3" style="display: none;">
-                        <div class="plans-section">
-                            <h3><i class="fas fa-star"></i> Choose Your Registration Plan</h3>
-
-                            <div class="modal-plans">
-                                <label class="modal-plan-card" for="plan-basic">
-                                    <input type="radio" id="plan-basic" name="plan" value="basic" required>
-                                    <div class="modal-plan-name">Basic</div>
-                                    <div class="modal-plan-price">49 AED</div>
-                                    <ul class="modal-plan-features">
-                                        <li>Job Openings Notifications</li>
-                                        <li>CV Redesign (if needed)</li>
-                                        <li>Interview Coordination</li>
-                                    </ul>
-                                </label>
-
-                                <label class="modal-plan-card" for="plan-intermediate">
-                                    <span class="popular-badge">Popular</span>
-                                    <input type="radio" id="plan-intermediate" name="plan" value="intermediate">
-                                    <div class="modal-plan-name">Intermediate</div>
-                                    <div class="modal-plan-price">89 AED</div>
-                                    <ul class="modal-plan-features">
-                                        <li>Everything in Basic</li>
-                                        <li>LinkedIn Profile Optimization</li>
-                                        <li>Priority job matching</li>
-                                    </ul>
-                                </label>
-
-                                <label class="modal-plan-card" for="plan-premium">
-                                    <input type="radio" id="plan-premium" name="plan" value="premium">
-                                    <div class="modal-plan-name">Premium</div>
-                                    <div class="modal-plan-price">149 AED</div>
-                                    <ul class="modal-plan-features">
-                                        <li>Everything in Intermediate</li>
-                                        <li>1-hour Career Session</li>
-                                        <li>Interview Prep & Tips</li>
-                                    </ul>
-                                </label>
-                            </div>
-
-                            <p style="text-align: center; color: #888; font-size: 0.85em; margin-top: 15px;">
-                                * Registration fees are non-refundable. Success-based service charge may apply after
-                                placement.
-                            </p>
-                        </div>
-
-                        <div class="modal-terms">
-                            <input type="checkbox" id="terms" name="terms" required>
-                            <label for="terms">
-                                I agree to the <a href="/terms/" target="_blank">Terms and Conditions</a> and consent to
-                                the processing of my personal data.
-                            </label>
-                        </div>
-                    </div>
-
-                    <!-- Navigation Buttons -->
-                    <div style="display: flex; gap: 15px; margin-top: 20px;">
-                        <button type="button" class="modal-submit" id="prevBtn"
-                            style="display: none; background: #e9ecef; color: #333;">
-                            <i class="fas fa-arrow-left"></i> Previous
-                        </button>
-                        <button type="button" class="modal-submit" id="nextBtn">
-                            Next <i class="fas fa-arrow-right"></i>
-                        </button>
-                        <button type="submit" class="modal-submit" id="submitBtn" style="display: none;">
-                            <span class="btn-text"><i class="fas fa-check-circle"></i> Complete Registration</span>
-                            <span class="btn-loader"></span>
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
     <script src="{% static 'base/js/script.js' %}"></script>
-    <script src="https://js.stripe.com/v3/"></script>
-
-    <script>
-        // Modal Controls
-        const modal = document.getElementById('employeeModal');
-        const openBtn = document.getElementById('openEmployeeModal');
-        const closeBtn = document.getElementById('closeModal');
-
-        openBtn.addEventListener('click', () => {
-            modal.classList.add('active');
-            document.body.style.overflow = 'hidden';
-        });
-
-        closeBtn.addEventListener('click', () => {
-            modal.classList.remove('active');
-            document.body.style.overflow = 'auto';
-        });
-
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                modal.classList.remove('active');
-                document.body.style.overflow = 'auto';
-            }
-        });
-
-        // Multi-step Form
-        let currentStep = 1;
-        const totalSteps = 3;
-        const steps = document.querySelectorAll('.step');
-        const stepContents = document.querySelectorAll('.form-step-content');
-        const prevBtn = document.getElementById('prevBtn');
-        const nextBtn = document.getElementById('nextBtn');
-        const submitBtn = document.getElementById('submitBtn');
-
-        function showStep(step) {
-            stepContents.forEach((content, index) => {
-                content.style.display = index + 1 === step ? 'block' : 'none';
-            });
-
-            steps.forEach((s, index) => {
-                s.classList.remove('active', 'completed');
-                if (index + 1 < step) s.classList.add('completed');
-                if (index + 1 === step) s.classList.add('active');
-            });
-
-            prevBtn.style.display = step > 1 ? 'flex' : 'none';
-            nextBtn.style.display = step < totalSteps ? 'flex' : 'none';
-            submitBtn.style.display = step === totalSteps ? 'flex' : 'none';
-        }
-
-        function validateStep(step) {
-            const stepContent = document.getElementById(`step${step}`);
-            const inputs = stepContent.querySelectorAll('input[required], select[required]');
-            let valid = true;
-
-            inputs.forEach(input => {
-                if (!input.value.trim()) {
-                    input.style.borderColor = '#e74c3c';
-                    valid = false;
-                } else {
-                    input.style.borderColor = '#e8ecef';
-                }
-            });
-
-            // Password match check for step 1
-            if (step === 1) {
-                const pwd = document.getElementById('password').value;
-                const confirmPwd = document.getElementById('confirm_password').value;
-                if (pwd !== confirmPwd) {
-                    alert('Passwords do not match!');
-                    valid = false;
-                }
-            }
-
-            return valid;
-        }
-
-        nextBtn.addEventListener('click', () => {
-            if (validateStep(currentStep)) {
-                currentStep++;
-                showStep(currentStep);
-            }
-        });
-
-        prevBtn.addEventListener('click', () => {
-            currentStep--;
-            showStep(currentStep);
-        });
-
-        // Plan Selection
-        document.querySelectorAll('.modal-plan-card').forEach(card => {
-            card.addEventListener('click', () => {
-                document.querySelectorAll('.modal-plan-card').forEach(c => c.classList.remove('selected'));
-                card.classList.add('selected');
-            });
-        });
-
-        // Form Submission with Stripe
-        const stripe = Stripe('{{ stripe_public_key }}');
-        const form = document.getElementById('registrationForm');
-
-        form.addEventListener('submit', function (e) {
-            e.preventDefault();
-
-            const resumeInput = document.getElementById('resume');
-            const file = resumeInput.files[0];
-            if (file && file.size > 5 * 1024 * 1024) {
-                alert('File size exceeds 5MB');
-                return;
-            }
-
-            const termsCheckbox = document.getElementById('terms');
-            if (!termsCheckbox.checked) {
-                alert('Please agree with the terms and conditions.');
-                return;
-            }
-
-            const formData = new FormData(form);
-
-            // Add loading state
-            submitBtn.classList.add('loading');
-            submitBtn.disabled = true;
-
-            fetch('/register/temp-save/', {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-CSRFToken': '{{ csrf_token }}'
-                }
-            })
-                .then(res => {
-                    if (!res.ok) throw new Error("Temp-save failed: " + res.status);
-                    return res.json();
-                })
-                .then(data => {
-                    if (data.status !== 'success') throw new Error(data.message || "Temp save failed");
-
-                    const selectedPlan = document.querySelector('input[name="plan"]:checked');
-                    if (!selectedPlan) {
-                        alert('Please select a registration plan.');
-                        return;
-                    }
-
-                    return fetch("{% url 'create_checkout_session' %}", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "X-CSRFToken": "{{ csrf_token }}"
-                        },
-                        body: JSON.stringify({ plan: selectedPlan.value })
-                    });
-                })
-                .then(res => {
-                    if (!res.ok) throw new Error("Stripe session failed: " + res.status);
-                    return res.json();
-                })
-                .then(data => {
-                    if (!data.id) throw new Error("No session ID returned");
-                    return stripe.redirectToCheckout({ sessionId: data.id });
-                })
-                .catch(err => {
-                    console.error(err);
-                    alert("Error: " + err.message);
-                    submitBtn.classList.remove('loading');
-                    submitBtn.disabled = false;
-                });
-        });
-    </script>
 </body>
 
 </html>

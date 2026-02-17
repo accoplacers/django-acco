@@ -2,19 +2,24 @@ document.addEventListener('DOMContentLoaded', function() {
     // Mobile menu toggle
     const mobileMenuBtn = document.getElementById('mobileMenu');
     const navMenu = document.getElementById('navMenu');
-    
+
+    function closeMenu() {
+        navMenu.classList.remove('active');
+        mobileMenuBtn.classList.remove('open');
+        document.body.style.overflow = '';
+    }
+
+    // Toggle mobile menu
     mobileMenuBtn.addEventListener('click', function() {
-        navMenu.classList.toggle('active');
-        this.textContent = this.textContent === '☰' ? '✕' : '☰';
+        const isActive = navMenu.classList.toggle('active');
+        this.classList.toggle('open', isActive);
+        document.body.style.overflow = isActive ? 'hidden' : '';
     });
-    
-    // Close mobile menu when clicking on a nav link
-    const navLinks = document.querySelectorAll('nav ul li a');
+
+    // Close mobile menu when clicking a nav link
+    const navLinks = document.querySelectorAll('.nav-links a, .mob-nav-item, .mob-auth-btn, .mob-auth-cta');
     navLinks.forEach(link => {
-        link.addEventListener('click', function() {
-            navMenu.classList.remove('active');
-            mobileMenuBtn.textContent = '☰';
-        });
+        link.addEventListener('click', closeMenu);
     });
     
     // Form tab switching (UI only)
@@ -46,14 +51,14 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function(e) {
             e.preventDefault();
-            
+
             const targetId = this.getAttribute('href');
             if (targetId === '#') return;
-            
+
             const targetElement = document.querySelector(targetId);
             if (targetElement) {
                 window.scrollTo({
-                    top: targetElement.offsetTop - 80,
+                    top: targetElement.offsetTop - 68,
                     behavior: 'smooth'
                 });
             }
