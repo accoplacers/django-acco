@@ -29,13 +29,22 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-+3j3fd@1)0jioqs9(-jms%##w+@)5#b%3is+pja2p^u&t*cnsdfadgrevdy'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = [
     '127.0.0.1',
     '35.154.23.157',
     'www.accoplacers.com',
     'accoplacers.com',
+]
+
+# Required by Django 4.0+ for HTTPS CSRF validation
+CSRF_TRUSTED_ORIGINS = [
+    'http://127.0.0.1:8080',
+    'http://127.0.0.1',
+    'http://35.154.23.157',
+    'https://accoplacers.com',
+    'https://www.accoplacers.com',
 ]
 
 

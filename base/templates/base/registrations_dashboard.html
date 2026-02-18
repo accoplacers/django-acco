@@ -444,6 +444,103 @@
     .tab-content { display: none; }
     .tab-content.active { display: block; }
 
+    /* ── Profile Modal ── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15,23,42,0.55);
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+    .profile-card {
+      background: var(--card);
+      border-radius: 16px;
+      width: 100%;
+      max-width: 560px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+      transform: translateY(12px);
+      transition: transform 0.2s;
+    }
+    .modal-overlay.open .profile-card { transform: translateY(0); }
+    .pc-header {
+      padding: 20px 22px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .pc-avatar {
+      width: 54px; height: 54px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: 700;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+    .pc-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .pc-name { font-size: 17px; font-weight: 700; color: var(--ink); }
+    .pc-role-sub { font-size: 13px; color: var(--ink-3); margin-top: 2px; }
+    .pc-close {
+      margin-left: auto;
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--ink-3);
+      font-size: 14px;
+      flex-shrink: 0;
+      transition: background 0.15s, color 0.15s;
+    }
+    .pc-close:hover { background: var(--red); color: #fff; border-color: var(--red); }
+    .pc-body { padding: 18px 22px; }
+    .pc-section-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--ink-4);
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+      margin-bottom: 10px;
+      margin-top: 18px;
+    }
+    .pc-section-title:first-child { margin-top: 0; }
+    .pc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .pc-field-label { font-size: 11.5px; font-weight: 600; color: var(--ink-4); margin-bottom: 3px; }
+    .pc-field-value { font-size: 13.5px; font-weight: 500; color: var(--ink); }
+    .pc-skills { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+    .pc-skill-tag {
+      background: var(--primary-light);
+      color: var(--primary);
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .pc-footer {
+      padding: 14px 22px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
     /* ── Responsive ── */
     @media (max-width: 1200px) { .stats { grid-template-columns: repeat(2, 1fr); } }
     @media (max-width: 900px) {
@@ -496,7 +593,10 @@
     <div class="sb-footer">
       <a href="/" class="sb-footer-item"><i class="fas fa-home"></i> Home</a>
       <a href="/admin/" class="sb-footer-item"><i class="fas fa-cog"></i> Django Admin</a>
-      <a href="/admin/logout/" class="sb-footer-item danger"><i class="fas fa-sign-out-alt"></i> Logout</a>
+      <form method="post" action="/admin/logout/" style="margin:0">
+        {% csrf_token %}
+        <button type="submit" class="sb-footer-item danger" style="background:none;border:none;cursor:pointer;width:100%;text-align:left"><i class="fas fa-sign-out-alt"></i> Logout</button>
+      </form>
     </div>
   </aside>
 
@@ -579,7 +679,21 @@
               </thead>
               <tbody>
                 {% for reg in registrations %}
-                <tr>
+                <tr onclick="openProfile(this)" style="cursor:pointer;"
+                  data-name="{{ reg.name }}"
+                  data-id="{{ reg.id }}"
+                  data-email="{{ reg.email }}"
+                  data-phone="{{ reg.phone }}"
+                  data-location="{{ reg.location }}"
+                  data-nationality="{{ reg.nationality }}"
+                  data-role="{{ reg.role }}"
+                  data-experience="{{ reg.experience }}"
+                  data-qualification="{{ reg.qualification }}"
+                  data-skills="{{ reg.skills|default:'' }}"
+                  data-plan="{{ reg.plan }}"
+                  data-photo="{% if reg.photo %}{{ reg.photo.url }}{% endif %}"
+                  data-resume="{% if reg.resume %}{{ reg.resume.url }}{% endif %}"
+                  data-joined="{{ reg.created_at|date:'M d, Y' }}">
                   <td>
                     <div class="avatar-cell">
                       <div class="avatar">
@@ -601,15 +715,15 @@
                     <div class="cell-sub">{{ reg.experience }}</div>
                   </td>
                   <td>{{ reg.qualification }}</td>
-                  <td style="max-width:150px;">
-                    <span style="font-size:12px;color:var(--ink-3);">{{ reg.skills|default:"—" }}</span>
+                  <td style="max-width:160px;">
+                    <span style="font-size:12px;color:var(--ink-3);display:block;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;max-width:150px;" title="{{ reg.skills|default:'' }}">{{ reg.skills|default:"—" }}</span>
                   </td>
                   <td>
                     {% if reg.plan == 'premium' %}<span class="badge badge-rose">{{ reg.plan }}</span>
                     {% elif reg.plan == 'intermediate' %}<span class="badge badge-amber">{{ reg.plan }}</span>
                     {% else %}<span class="badge badge-indigo">{{ reg.plan }}</span>{% endif %}
                   </td>
-                  <td>
+                  <td onclick="event.stopPropagation()">
                     {% if reg.resume %}
                     <a href="{{ reg.resume.url }}" target="_blank" class="btn btn-ghost btn-sm"><i class="fas fa-file-alt"></i> View</a>
                     {% else %}<span style="color:var(--ink-4);">—</span>{% endif %}
@@ -802,6 +916,42 @@
   </div>
 </div>
 
+<!-- Employee Profile Modal -->
+<div class="modal-overlay" id="profileModal" onclick="handleOverlayClick(event)">
+  <div class="profile-card">
+    <div class="pc-header">
+      <div class="pc-avatar" id="pcAvatar"><span id="pcInitial"></span></div>
+      <div style="min-width:0;flex:1;">
+        <div class="pc-name" id="pcName"></div>
+        <div class="pc-role-sub" id="pcRoleSub"></div>
+      </div>
+      <button class="pc-close" onclick="closeProfile()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="pc-body">
+      <div class="pc-section-title">Contact &amp; Location</div>
+      <div class="pc-grid">
+        <div class="pc-field"><div class="pc-field-label">Email</div><div class="pc-field-value" id="pcEmail"></div></div>
+        <div class="pc-field"><div class="pc-field-label">Phone</div><div class="pc-field-value" id="pcPhone"></div></div>
+        <div class="pc-field"><div class="pc-field-label">Location</div><div class="pc-field-value" id="pcLocation"></div></div>
+        <div class="pc-field"><div class="pc-field-label">Nationality</div><div class="pc-field-value" id="pcNationality"></div></div>
+      </div>
+      <div class="pc-section-title">Professional Details</div>
+      <div class="pc-grid">
+        <div class="pc-field"><div class="pc-field-label">Role</div><div class="pc-field-value" id="pcRoleDetail"></div></div>
+        <div class="pc-field"><div class="pc-field-label">Experience</div><div class="pc-field-value" id="pcExperience"></div></div>
+        <div class="pc-field"><div class="pc-field-label">Qualification</div><div class="pc-field-value" id="pcQualification"></div></div>
+        <div class="pc-field"><div class="pc-field-label">Plan</div><div class="pc-field-value" id="pcPlan"></div></div>
+      </div>
+      <div class="pc-section-title">Skills</div>
+      <div class="pc-skills" id="pcSkills"></div>
+    </div>
+    <div class="pc-footer">
+      <span id="pcResumeLink"></span>
+      <span style="margin-left:auto;font-size:12px;color:var(--ink-4);" id="pcJoined"></span>
+    </div>
+  </div>
+</div>
+
 <script>
   const TABS = ['employees','employers','jobs'];
   const TITLES = { employees:'Employees', employers:'Employers', jobs:'Job Openings' };
@@ -836,6 +986,86 @@
   function toggleJobForm() {
     document.getElementById('jobFormPanel').classList.toggle('open');
   }
+
+  function openProfile(row) {
+    const d = row.dataset;
+    const modal = document.getElementById('profileModal');
+
+    // Header
+    document.getElementById('pcName').textContent = d.name || '—';
+    document.getElementById('pcRoleSub').textContent = (d.role || '') + '  ·  EMP-' + (d.id || '');
+
+    // Avatar
+    const avatar = document.getElementById('pcAvatar');
+    const initial = document.getElementById('pcInitial');
+    initial.textContent = d.name ? d.name[0].toUpperCase() : '?';
+    const existingImg = avatar.querySelector('img');
+    if (existingImg) existingImg.remove();
+    if (d.photo) {
+      const img = document.createElement('img');
+      img.src = d.photo;
+      img.alt = '';
+      avatar.appendChild(img);
+      initial.style.display = 'none';
+    } else {
+      initial.style.display = '';
+    }
+
+    // Fields
+    document.getElementById('pcEmail').textContent = d.email || '—';
+    document.getElementById('pcPhone').textContent = d.phone || '—';
+    document.getElementById('pcLocation').textContent = d.location || '—';
+    document.getElementById('pcNationality').textContent = d.nationality || '—';
+    document.getElementById('pcRoleDetail').textContent = d.role || '—';
+    document.getElementById('pcExperience').textContent = d.experience || '—';
+    document.getElementById('pcQualification').textContent = d.qualification || '—';
+    document.getElementById('pcJoined').textContent = 'Joined ' + (d.joined || '—');
+
+    // Plan badge
+    const planColors = { premium: 'badge-rose', intermediate: 'badge-amber', basic: 'badge-indigo' };
+    const planKey = d.plan || 'basic';
+    document.getElementById('pcPlan').innerHTML =
+      '<span class="badge ' + (planColors[planKey] || 'badge-slate') + '">' + planKey + '</span>';
+
+    // Skills
+    const skillsEl = document.getElementById('pcSkills');
+    skillsEl.innerHTML = '';
+    if (d.skills && d.skills.trim()) {
+      d.skills.split(',').forEach(s => {
+        s = s.trim();
+        if (s) {
+          const tag = document.createElement('span');
+          tag.className = 'pc-skill-tag';
+          tag.textContent = s;
+          skillsEl.appendChild(tag);
+        }
+      });
+    } else {
+      skillsEl.innerHTML = '<span style="color:var(--ink-4);font-size:13px;">No skills listed</span>';
+    }
+
+    // Resume
+    const resumeEl = document.getElementById('pcResumeLink');
+    if (d.resume) {
+      resumeEl.innerHTML = '<a href="' + d.resume + '" target="_blank" class="btn btn-ghost btn-sm"><i class="fas fa-file-alt"></i> View Resume</a>';
+    } else {
+      resumeEl.innerHTML = '<span style="color:var(--ink-4);font-size:13px;">No resume uploaded</span>';
+    }
+
+    modal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeProfile() {
+    document.getElementById('profileModal').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  function handleOverlayClick(e) {
+    if (e.target === document.getElementById('profileModal')) closeProfile();
+  }
+
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeProfile(); });
 </script>
 </body>
 </html>

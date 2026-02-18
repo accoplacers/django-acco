@@ -242,7 +242,6 @@
         <div class="job-card-top">
           <div>
             <h3 class="job-title">{{ job.title }}</h3>
-            <p class="job-company">{{ job.employer.company_name }}</p>
           </div>
           <span class="job-type-badge">{{ job.job_type }}</span>
         </div>
@@ -306,6 +305,17 @@
       const changed = JSON.stringify([...skills].sort()) !== JSON.stringify([...originalSkills].sort());
       document.getElementById('saveBtn').classList.toggle('visible', changed);
     }
+
+    // Always use the live CSRF cookie at submit time.
+    // This handles the case where the cookie was rotated (e.g. after a Django
+    // admin login in another tab) while this page was already open.
+    document.getElementById('skillsForm').addEventListener('submit', function () {
+      const match = document.cookie.match(/(?:^|;\s*)csrftoken=([^;]+)/);
+      if (match) {
+        const input = this.querySelector('[name=csrfmiddlewaretoken]');
+        if (input) input.value = decodeURIComponent(match[1]);
+      }
+    });
   </script>
 </body>
 </html>

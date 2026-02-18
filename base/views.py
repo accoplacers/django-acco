@@ -373,7 +373,7 @@ def terms(request):
 
 # DASHBOARD
 
-@login_required(login_url='/admin')
+@login_required(login_url='/admin/login/')
 def registrations_dashboard(request):
     # Handle job opening creation
     if request.method == 'POST' and request.POST.get('action') == 'create_job':
