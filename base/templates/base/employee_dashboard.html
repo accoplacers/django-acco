@@ -132,7 +132,7 @@
       margin-bottom: 16px; display: flex; align-items: center; gap: 8px;
     }
     .section-title i { color: #4F46E5; }
-    .jobs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
+    .jobs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
     .job-card {
       background: #fff; border: 1px solid #E2E8F0; border-radius: 12px;
       padding: 20px; transition: box-shadow 0.2s, transform 0.2s;
@@ -163,13 +163,51 @@
     .no-jobs h3 { font-size: 16px; color: #334155; margin-bottom: 6px; }
     .no-jobs p { font-size: 13.5px; color: #94A3B8; }
 
+    /* Tablet */
+    @media (max-width: 960px) {
+      .container { padding: 24px 20px; }
+    }
+
+    /* Small tablet / large phone landscape */
     @media (max-width: 768px) {
       .header { padding: 0 16px; }
       .user-name { display: none; }
       .container { padding: 20px 16px; }
-      .welcome { flex-direction: column; padding: 20px; }
-      .jobs-grid { grid-template-columns: 1fr; }
+      .welcome { flex-direction: column; padding: 20px; gap: 14px; }
+      .welcome-left h1 { font-size: 18px; }
+      .welcome-badge { align-self: flex-start; }
       .skills-input-row { flex-direction: column; }
+      .add-btn { justify-content: center; min-height: 44px; }
+      .skill-input { min-height: 44px; font-size: 16px; }
+    }
+
+    /* Phone landscape / large phone portrait */
+    @media (max-width: 600px) {
+      .jobs-grid { grid-template-columns: 1fr; }
+      .job-card { padding: 16px; }
+    }
+
+    /* Small phones */
+    @media (max-width: 480px) {
+      body { padding-top: 56px; }
+      .header { height: 56px; padding: 0 12px; }
+      .header-logo-text { font-size: 13px; }
+      .user-chip { padding: 5px 8px; }
+      .logout-link { padding: 6px 10px; gap: 0; }
+      .logout-text { display: none; }
+      .container { padding: 14px 12px; }
+      .welcome { padding: 16px; margin-bottom: 16px; }
+      .welcome-left h1 { font-size: 15px; }
+      .welcome-left p { font-size: 12px; }
+      .welcome-badge { font-size: 12px; padding: 6px 10px; }
+      .card { margin-bottom: 16px; }
+      .card-header { padding: 12px 14px; }
+      .card-body { padding: 14px; }
+      .job-card { padding: 14px; }
+      .job-title { font-size: 14px; }
+      .section-title { font-size: 14px; margin-bottom: 12px; }
+      .save-btn { width: 100%; justify-content: center; }
+      .no-jobs { padding: 40px 16px; }
     }
   </style>
 </head>
@@ -185,7 +223,7 @@
         <div class="user-avatar">{{ employee.name|slice:":1"|upper }}</div>
         <span class="user-name">{{ employee.name }}</span>
       </div>
-      <a href="{% url 'employee_logout' %}" class="logout-link"><i class="fas fa-sign-out-alt"></i> Logout</a>
+      <a href="{% url 'employee_logout' %}" class="logout-link"><i class="fas fa-sign-out-alt"></i> <span class="logout-text">Logout</span></a>
     </div>
   </header>
 

@@ -357,6 +357,35 @@
     .badge-slate { background: var(--surface); border: 1px solid var(--border); color: var(--ink-3); }
     .badge-red { background: #FEF2F2; color: var(--red); }
 
+    /* ── Skill tags ── */
+    .skill-tag {
+      display: inline-flex;
+      padding: 2px 8px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--ink-3);
+      border-radius: 20px;
+      font-size: 11.5px;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    .skills-more-btn {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      background: var(--primary-light);
+      color: var(--primary);
+      border: none;
+      border-radius: 20px;
+      font-size: 11.5px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.15s;
+      line-height: 1.6;
+    }
+    .skills-more-btn:hover { background: #C7D2FE; }
+
     /* ── Buttons ── */
     .btn {
       display: inline-flex;
@@ -541,26 +570,150 @@
       align-items: center;
     }
 
+    /* ── Hamburger Button ── */
+    .hamburger {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      width: 38px; height: 38px;
+      border-radius: 8px;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      cursor: pointer;
+      color: var(--ink-2);
+      font-size: 15px;
+      flex-shrink: 0;
+      transition: background 0.15s;
+    }
+    .hamburger:hover { background: var(--border); }
+
+    /* ── Sidebar Overlay ── */
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15,23,42,0.5);
+      z-index: 99;
+    }
+    .sidebar-overlay.open { display: block; }
+
     /* ── Responsive ── */
     @media (max-width: 1200px) { .stats { grid-template-columns: repeat(2, 1fr); } }
+
     @media (max-width: 900px) {
-      :root { --sidebar-w: 0px; }
-      .sidebar { display: none; }
+      :root { --sidebar-w: 260px; }
+      .hamburger { display: flex; }
+      .sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.25s ease;
+        z-index: 200;
+      }
+      .sidebar.open { transform: translateX(0); }
       .main { margin-left: 0; }
       .stats { grid-template-columns: 1fr 1fr; }
       .form-grid { grid-template-columns: 1fr; }
+      .status-pill { display: none; }
+      .topbar { padding: 0 14px; gap: 10px; }
+      .search-bar input { width: 160px; }
     }
+
     @media (max-width: 640px) {
-      .stats { grid-template-columns: 1fr; }
-      .search-bar input { width: 140px; }
+      .stats { grid-template-columns: 1fr 1fr; }
+      .topbar-title { font-size: 14px; }
+      .search-bar { display: none; }
+      .search-bar.mobile-open {
+        display: flex;
+        position: absolute;
+        top: var(--topbar-h);
+        left: 0; right: 0;
+        border-radius: 0;
+        border-left: none; border-right: none; border-top: none;
+        border-bottom: 2px solid var(--primary);
+        background: var(--card);
+        padding: 0 16px;
+        z-index: 49;
+      }
+      .search-bar.mobile-open input { width: 100%; }
+      .search-toggle { display: flex; }
+      .content { padding: 14px; }
+      .panel-header { gap: 8px; }
+      .panel-search { display: none; }
+      /* Profile modal full-screen on small screens */
+      .modal-overlay { padding: 0; align-items: flex-end; }
+      .profile-card {
+        max-width: 100%;
+        max-height: 92vh;
+        border-radius: 20px 20px 0 0;
+      }
+      /* ── Card-style tables on mobile ── */
+      .table-wrap { overflow-x: visible; }
+      table, thead, tbody, th, td, tr { display: block; }
+      thead tr { display: none; }
+      tbody tr {
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        margin: 0 0 12px;
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        background: var(--card);
+      }
+      tbody tr:last-child td { border-bottom: 1px solid var(--border-2); }
+      tbody td {
+        display: flex;
+        align-items: flex-start;
+        padding: 10px 14px;
+        border-bottom: 1px solid var(--border-2);
+        font-size: 13px;
+        gap: 10px;
+        max-width: none !important;
+        white-space: normal !important;
+      }
+      tbody td:last-child { border-bottom: none !important; }
+      tbody td::before {
+        content: attr(data-label);
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--ink-4);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        min-width: 88px;
+        padding-top: 2px;
+        flex-shrink: 0;
+        line-height: 1.4;
+      }
+      tbody td:not([data-label])::before { display: none; }
+      tbody tr:hover td { background: transparent; }
+      .pc-grid { grid-template-columns: 1fr; }
     }
+
+    @media (max-width: 400px) {
+      .stats { grid-template-columns: 1fr; }
+    }
+
+    /* ── Search toggle icon (mobile only) ── */
+    .search-toggle {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      width: 38px; height: 38px;
+      border-radius: 8px;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      cursor: pointer;
+      color: var(--ink-2);
+      font-size: 15px;
+      flex-shrink: 0;
+      transition: background 0.15s;
+    }
+    .search-toggle:hover { background: var(--border); }
   </style>
 </head>
 <body>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 <div class="layout">
 
   <!-- Sidebar -->
-  <aside class="sidebar">
+  <aside class="sidebar" id="sidebar">
     <div class="sb-brand">
       <a href="/">
         <div class="sb-logo-icon"><i class="fas fa-briefcase"></i></div>
@@ -571,19 +724,19 @@
 
     <nav class="sb-nav">
       <div class="sb-section">People</div>
-      <button class="sb-item active" id="nav-employees" onclick="showTab('employees')">
+      <button class="sb-item active" id="nav-employees" onclick="showTab('employees'); closeSidebar()">
         <i class="fas fa-users"></i>
         <span class="sb-item-label">Employees</span>
         <span class="sb-count">{{ registrations.count }}</span>
       </button>
-      <button class="sb-item" id="nav-employers" onclick="showTab('employers')">
+      <button class="sb-item" id="nav-employers" onclick="showTab('employers'); closeSidebar()">
         <i class="fas fa-building"></i>
         <span class="sb-item-label">Employers</span>
         <span class="sb-count">{{ employers.count }}</span>
       </button>
 
       <div class="sb-section">Listings</div>
-      <button class="sb-item" id="nav-jobs" onclick="showTab('jobs')">
+      <button class="sb-item" id="nav-jobs" onclick="showTab('jobs'); closeSidebar()">
         <i class="fas fa-briefcase"></i>
         <span class="sb-item-label">Job Openings</span>
         <span class="sb-count">{{ job_openings.count }}</span>
@@ -605,12 +758,20 @@
 
     <!-- Top Bar -->
     <header class="topbar">
-      <span class="topbar-title" id="pageTitle">Employees</span>
+      <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;">
+        <button class="hamburger" onclick="toggleSidebar()" aria-label="Menu">
+          <i class="fas fa-bars"></i>
+        </button>
+        <span class="topbar-title" id="pageTitle">Employees</span>
+      </div>
       <div class="topbar-right">
-        <div class="search-bar">
+        <div class="search-bar" id="globalSearchBar">
           <i class="fas fa-search"></i>
           <input type="text" placeholder="Search current view…" id="globalSearch" onkeyup="handleGlobalSearch()">
         </div>
+        <button class="search-toggle" id="searchToggle" onclick="toggleMobileSearch()" aria-label="Search">
+          <i class="fas fa-search"></i>
+        </button>
         <div class="status-pill">
           <span class="status-dot"></span>
           Online
@@ -694,7 +855,7 @@
                   data-photo="{% if reg.photo %}{{ reg.photo.url }}{% endif %}"
                   data-resume="{% if reg.resume %}{{ reg.resume.url }}{% endif %}"
                   data-joined="{{ reg.created_at|date:'M d, Y' }}">
-                  <td>
+                  <td data-label="Employee">
                     <div class="avatar-cell">
                       <div class="avatar">
                         {% if reg.photo %}<img src="{{ reg.photo.url }}" alt="">{% else %}{{ reg.name|slice:":1"|upper }}{% endif %}
@@ -705,25 +866,25 @@
                       </div>
                     </div>
                   </td>
-                  <td>
+                  <td data-label="Contact">
                     <div style="font-size:13px;">{{ reg.email }}</div>
                     <div class="cell-sub">{{ reg.phone }}</div>
                   </td>
-                  <td>{{ reg.location }}</td>
-                  <td>
+                  <td data-label="Location">{{ reg.location }}</td>
+                  <td data-label="Role">
                     <div style="font-weight:600;font-size:13px;">{{ reg.role }}</div>
                     <div class="cell-sub">{{ reg.experience }}</div>
                   </td>
-                  <td>{{ reg.qualification }}</td>
-                  <td style="max-width:160px;">
-                    <span style="font-size:12px;color:var(--ink-3);display:block;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;max-width:150px;" title="{{ reg.skills|default:'' }}">{{ reg.skills|default:"—" }}</span>
+                  <td data-label="Qualification">{{ reg.qualification }}</td>
+                  <td data-label="Skills" class="skills-cell">
+                    <span class="skills-raw" style="display:none">{{ reg.skills|default:"" }}</span>
                   </td>
-                  <td>
+                  <td data-label="Plan">
                     {% if reg.plan == 'premium' %}<span class="badge badge-rose">{{ reg.plan }}</span>
                     {% elif reg.plan == 'intermediate' %}<span class="badge badge-amber">{{ reg.plan }}</span>
                     {% else %}<span class="badge badge-indigo">{{ reg.plan }}</span>{% endif %}
                   </td>
-                  <td onclick="event.stopPropagation()">
+                  <td data-label="Resume" onclick="event.stopPropagation()">
                     {% if reg.resume %}
                     <a href="{{ reg.resume.url }}" target="_blank" class="btn btn-ghost btn-sm"><i class="fas fa-file-alt"></i> View</a>
                     {% else %}<span style="color:var(--ink-4);">—</span>{% endif %}
@@ -763,7 +924,7 @@
               <tbody>
                 {% for emp in employers %}
                 <tr>
-                  <td>
+                  <td data-label="Company">
                     <div class="avatar-cell">
                       <div class="avatar rose">
                         {% if emp.logo %}<img src="{{ emp.logo.url }}" alt="">{% else %}{{ emp.company_name|slice:":1"|upper }}{% endif %}
@@ -774,16 +935,16 @@
                       </div>
                     </div>
                   </td>
-                  <td>
+                  <td data-label="Contact">
                     <div style="font-size:13px;">{{ emp.email }}</div>
                     <div class="cell-sub">{{ emp.phone }}</div>
                   </td>
-                  <td><span class="badge badge-slate">{{ emp.industry }}</span></td>
-                  <td>{{ emp.location }}</td>
-                  <td style="max-width:200px;">
+                  <td data-label="Industry"><span class="badge badge-slate">{{ emp.industry }}</span></td>
+                  <td data-label="Location">{{ emp.location }}</td>
+                  <td data-label="About">
                     <span style="font-size:12px;color:var(--ink-3);">{{ emp.company_description|default:"—"|truncatewords:10 }}</span>
                   </td>
-                  <td style="white-space:nowrap;color:var(--ink-4);">{{ emp.created_at|date:"M d, Y" }}</td>
+                  <td data-label="Joined" style="color:var(--ink-4);">{{ emp.created_at|date:"M d, Y" }}</td>
                 </tr>
                 {% empty %}
                 <tr><td colspan="6"><div class="empty"><i class="fas fa-building"></i><p>No employers registered yet.</p></div></td></tr>
@@ -878,23 +1039,23 @@
               <tbody>
                 {% for job in job_openings %}
                 <tr>
-                  <td>
+                  <td data-label="Job">
                     <div class="cell-main">{{ job.title }}</div>
                     <span class="id-mono">JOB-{{ job.id }}</span>
                   </td>
-                  <td>{{ job.employer.company_name }}</td>
-                  <td>{{ job.location }}</td>
-                  <td><span class="badge badge-slate">{{ job.job_type }}</span></td>
-                  <td>{{ job.salary_range|default:"—" }}</td>
-                  <td>
+                  <td data-label="Company">{{ job.employer.company_name }}</td>
+                  <td data-label="Location">{{ job.location }}</td>
+                  <td data-label="Type"><span class="badge badge-slate">{{ job.job_type }}</span></td>
+                  <td data-label="Salary">{{ job.salary_range|default:"—" }}</td>
+                  <td data-label="Status">
                     {% if job.is_active %}
                     <span class="badge badge-green"><i class="fas fa-circle" style="font-size:7px;"></i> Active</span>
                     {% else %}
                     <span class="badge badge-red"><i class="fas fa-circle" style="font-size:7px;"></i> Inactive</span>
                     {% endif %}
                   </td>
-                  <td style="white-space:nowrap;color:var(--ink-4);">{{ job.created_at|date:"M d, Y" }}</td>
-                  <td>
+                  <td data-label="Posted" style="color:var(--ink-4);">{{ job.created_at|date:"M d, Y" }}</td>
+                  <td data-label="Actions">
                     <form method="POST" style="display:inline;" onsubmit="return confirm('Delete this job opening?');">
                       {% csrf_token %}
                       <input type="hidden" name="action" value="delete_job">
@@ -955,6 +1116,32 @@
 <script>
   const TABS = ['employees','employers','jobs'];
   const TITLES = { employees:'Employees', employers:'Employers', jobs:'Job Openings' };
+
+  function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    sidebar.classList.toggle('open');
+    overlay.classList.toggle('open');
+    document.body.style.overflow = sidebar.classList.contains('open') ? 'hidden' : '';
+  }
+
+  function closeSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    if (sidebar.classList.contains('open')) {
+      sidebar.classList.remove('open');
+      overlay.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+  }
+
+  function toggleMobileSearch() {
+    const bar = document.getElementById('globalSearchBar');
+    bar.classList.toggle('mobile-open');
+    if (bar.classList.contains('mobile-open')) {
+      bar.querySelector('input').focus();
+    }
+  }
 
   function showTab(name) {
     TABS.forEach(t => {
@@ -1065,7 +1252,65 @@
     if (e.target === document.getElementById('profileModal')) closeProfile();
   }
 
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeProfile(); });
+  /* ── Compact skill cells: show first 2, tap +N to expand ── */
+  function initSkillsCells() {
+    document.querySelectorAll('.skills-cell').forEach(cell => {
+      const rawEl = cell.querySelector('.skills-raw');
+      const rawText = rawEl ? rawEl.textContent.trim() : '';
+      if (!rawText) {
+        cell.innerHTML = '<span style="color:var(--ink-4);font-size:12px;">—</span>';
+        return;
+      }
+      const skills = rawText.split(',').map(s => s.trim()).filter(Boolean);
+      if (!skills.length) {
+        cell.innerHTML = '<span style="color:var(--ink-4);font-size:12px;">—</span>';
+        return;
+      }
+      const PREVIEW = 2;
+      const wrap = document.createElement('div');
+      wrap.style.cssText = 'display:flex;flex-wrap:wrap;gap:4px;align-items:center;';
+
+      skills.slice(0, PREVIEW).forEach(s => {
+        const tag = document.createElement('span');
+        tag.className = 'skill-tag';
+        tag.textContent = s;
+        wrap.appendChild(tag);
+      });
+
+      const rest = skills.slice(PREVIEW);
+      if (rest.length) {
+        const btn = document.createElement('button');
+        btn.className = 'skills-more-btn';
+        btn.textContent = '+' + rest.length;
+        btn.type = 'button';
+        btn.title = rest.join(', ');
+        btn.onclick = function(e) {
+          e.stopPropagation();
+          rest.forEach(s => {
+            const tag = document.createElement('span');
+            tag.className = 'skill-tag';
+            tag.textContent = s;
+            wrap.insertBefore(tag, btn);
+          });
+          btn.remove();
+        };
+        wrap.appendChild(btn);
+      }
+
+      cell.innerHTML = '';
+      cell.appendChild(wrap);
+    });
+  }
+  document.addEventListener('DOMContentLoaded', initSkillsCells);
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      closeProfile();
+      closeSidebar();
+      const bar = document.getElementById('globalSearchBar');
+      if (bar.classList.contains('mobile-open')) bar.classList.remove('mobile-open');
+    }
+  });
 </script>
 </body>
 </html>
