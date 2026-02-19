@@ -163,6 +163,70 @@
     .no-jobs h3 { font-size: 16px; color: #334155; margin-bottom: 6px; }
     .no-jobs p { font-size: 13.5px; color: #94A3B8; }
 
+    /* Job card clickable */
+    .job-card { cursor: pointer; }
+
+    /* Modal overlay */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0; z-index: 200;
+      background: rgba(15,23,42,0.5); backdrop-filter: blur(3px);
+      align-items: flex-end; justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    @media (min-width: 600px) {
+      .modal-overlay { align-items: center; }
+    }
+
+    .modal {
+      background: #fff; border-radius: 20px 20px 0 0;
+      width: 100%; max-width: 640px;
+      max-height: 92dvh; overflow-y: auto;
+      padding: 24px 24px 36px;
+      transform: translateY(100%);
+      transition: transform 0.3s cubic-bezier(.4,0,.2,1);
+      position: relative;
+    }
+    .modal-overlay.open .modal { transform: translateY(0); }
+    @media (min-width: 600px) {
+      .modal { border-radius: 16px; max-height: 85dvh; }
+    }
+
+    .modal-close {
+      position: absolute; top: 16px; right: 16px;
+      background: #F1F5F9; border: none; border-radius: 50%;
+      width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+      color: #64748B; cursor: pointer; font-size: 14px; flex-shrink: 0;
+      transition: background 0.15s, color 0.15s;
+    }
+    .modal-close:hover { background: #E2E8F0; color: #0F172A; }
+
+    .modal-badge-row { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+    .modal-type-badge {
+      background: #ECFDF5; color: #059669;
+      font-size: 12px; font-weight: 700;
+      padding: 4px 12px; border-radius: 20px;
+    }
+    .modal-company-badge {
+      background: #EEF2FF; color: #4F46E5;
+      font-size: 12px; font-weight: 600;
+      padding: 4px 12px; border-radius: 20px;
+    }
+    .modal-title { font-size: 20px; font-weight: 800; color: #0F172A; margin-bottom: 14px; line-height: 1.3; }
+    .modal-meta { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+    .modal-meta-item { display: flex; align-items: center; gap: 10px; font-size: 13.5px; color: #475569; }
+    .modal-meta-item i { color: #4F46E5; width: 16px; text-align: center; font-size: 13px; }
+
+    .modal-section { margin-bottom: 20px; }
+    .modal-section-label {
+      font-size: 12px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.07em; color: #94A3B8; margin-bottom: 8px;
+    }
+    .modal-section-body {
+      font-size: 14px; color: #334155; line-height: 1.7;
+      white-space: pre-wrap; word-break: break-word;
+    }
+    .modal-divider { border: none; border-top: 1px solid #E2E8F0; margin: 18px 0; }
+
     /* Tablet */
     @media (max-width: 960px) {
       .container { padding: 24px 20px; }
@@ -276,10 +340,20 @@
     {% if job_openings %}
     <div class="jobs-grid">
       {% for job in job_openings %}
-      <div class="job-card">
+      <div class="job-card"
+           onclick="openJobModal(this)"
+           data-title="{{ job.title }}"
+           data-company="{{ job.employer.company_name }}"
+           data-type="{{ job.job_type }}"
+           data-location="{{ job.location }}"
+           data-salary="{{ job.salary_range }}"
+           data-posted="{{ job.created_at|timesince }}"
+           data-description="{{ job.description }}"
+           data-requirements="{{ job.requirements }}">
         <div class="job-card-top">
           <div>
             <h3 class="job-title">{{ job.title }}</h3>
+            <span class="job-company">{{ job.employer.company_name }}</span>
           </div>
           <span class="job-type-badge">{{ job.job_type }}</span>
         </div>
@@ -302,6 +376,29 @@
     </div>
     {% endif %}
 
+  </div>
+
+  <!-- Job Detail Modal -->
+  <div class="modal-overlay" id="jobModal" onclick="handleOverlayClick(event)">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <button class="modal-close" onclick="closeJobModal()" aria-label="Close"><i class="fas fa-times"></i></button>
+      <div class="modal-badge-row">
+        <span class="modal-type-badge" id="modalType"></span>
+        <span class="modal-company-badge" id="modalCompany"></span>
+      </div>
+      <h2 class="modal-title" id="modalTitle"></h2>
+      <div class="modal-meta" id="modalMeta"></div>
+      <hr class="modal-divider">
+      <div class="modal-section">
+        <p class="modal-section-label">Description</p>
+        <p class="modal-section-body" id="modalDescription"></p>
+      </div>
+      <div class="modal-section" id="modalRequirementsSection">
+        <hr class="modal-divider">
+        <p class="modal-section-label">Requirements</p>
+        <p class="modal-section-body" id="modalRequirements"></p>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -354,6 +451,44 @@
         if (input) input.value = decodeURIComponent(match[1]);
       }
     });
+
+    // Job modal
+    function openJobModal(card) {
+      const d = card.dataset;
+      document.getElementById('modalType').textContent = d.type;
+      document.getElementById('modalCompany').textContent = d.company;
+      document.getElementById('modalTitle').textContent = d.title;
+
+      let metaHtml = `<div class="modal-meta-item"><i class="fas fa-map-marker-alt"></i> ${d.location}</div>`;
+      if (d.salary) metaHtml += `<div class="modal-meta-item"><i class="fas fa-money-bill-wave"></i> ${d.salary}</div>`;
+      metaHtml += `<div class="modal-meta-item"><i class="fas fa-clock"></i> Posted ${d.posted} ago</div>`;
+      document.getElementById('modalMeta').innerHTML = metaHtml;
+
+      document.getElementById('modalDescription').textContent = d.description;
+
+      const reqSection = document.getElementById('modalRequirementsSection');
+      if (d.requirements && d.requirements.trim()) {
+        document.getElementById('modalRequirements').textContent = d.requirements;
+        reqSection.style.display = '';
+      } else {
+        reqSection.style.display = 'none';
+      }
+
+      const overlay = document.getElementById('jobModal');
+      overlay.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeJobModal() {
+      document.getElementById('jobModal').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    function handleOverlayClick(e) {
+      if (e.target === document.getElementById('jobModal')) closeJobModal();
+    }
+
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeJobModal(); });
   </script>
 </body>
 </html>
