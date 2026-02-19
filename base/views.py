@@ -35,6 +35,19 @@ def registration_view(request):
     return render(request, 'base/index.html', context)
 
 
+def homepage_preview(request):
+    context = {
+        'stripe_public_key': settings.STRIPE_PUBLIC_KEY,
+        'session_user_type': request.session.get('user_type'),
+        'session_user_name': (
+            request.session.get('employee_name') if request.session.get('user_type') == 'employee'
+            else request.session.get('employer_name') if request.session.get('user_type') == 'employer'
+            else None
+        ),
+    }
+    return render(request, 'base/index_preview.html', context)
+
+
 def register_user(request):
     if request.method == 'POST':
         name = request.POST.get('name')

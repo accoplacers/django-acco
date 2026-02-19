@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accoplacers - Career Support for Accounting & Finance Professionals</title>
+    <meta name="description"
+        content="Accoplacers - Dubai-based career support and placement firm for Accounting, Audit, and Finance professionals in the GCC region.">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'base/css/style.css' %}">
+    <link rel="icon" href="{% static 'base/img/favicon.ico' %}" type="image/x-icon">
+    <style>
+        /* ═══════════════════════════════════════════
+           HOMEPAGE REDESIGN — SCOPED INLINE STYLES
+           All selectors are specific enough not to
+           break other pages.
+           ═══════════════════════════════════════════ */
+
+        /* ── Utility: suppress global h2 decorations inside redesigned sections ── */
+        .hp-section h2.section-title::after,
+        h2.hp-title::after { display: none !important; }
+        h2.hp-title {
+            text-align: left;
+            margin-bottom: 14px;
+            font-size: clamp(1.75rem, 3vw, 2.25rem);
+            font-weight: 800;
+            letter-spacing: -0.4px;
+            line-height: 1.2;
+            color: #0F172A;
+        }
+        .center-title { text-align: center !important; }
+        .section-eyebrow {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1.3px;
+            text-transform: uppercase;
+            padding: 5px 14px;
+            border-radius: 100px;
+            margin-bottom: 14px;
+        }
+        .eyebrow-blue  { color: #2563EB; background: #EFF6FF; }
+        .eyebrow-white { color: #93C5FD; background: rgba(37,99,235,0.15); }
+
+        /* ─────────────────────────────
+           HERO
+           ───────────────────────────── */
+        .hero {
+            background: linear-gradient(150deg, #0C1445 0%, #1E3A8A 55%, #1D4ED8 100%) !important;
+            background-image: linear-gradient(150deg, #0C1445 0%, #1E3A8A 55%, #1D4ED8 100%) !important;
+            background-attachment: scroll !important;
+            position: relative;
+            overflow: hidden;
+        }
+        /* dot grid overlay */
+        .hero::before {
+            content: '';
+            position: absolute; inset: 0;
+            background-image: radial-gradient(rgba(255,255,255,0.045) 1px, transparent 1px);
+            background-size: 30px 30px;
+            pointer-events: none; z-index: 0;
+        }
+        /* ambient glow */
+        .hero::after {
+            content: '';
+            position: absolute;
+            width: 700px; height: 700px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(59,130,246,0.14) 0%, transparent 65%);
+            top: -220px; right: -180px;
+            pointer-events: none; z-index: 0;
+        }
+        .hero .container { position: relative; z-index: 1; }
+
+        .hero-content {
+            max-width: 780px;
+            margin: 0 auto;
+            padding: 90px 0 80px;
+            transform: none !important;
+            opacity: 1 !important;
+            animation: none !important;
+        }
+        .hero-badge {
+            display: inline-flex;
+            align-items: center; gap: 8px;
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.13);
+            color: rgba(255,255,255,0.8);
+            font-size: 12.5px; font-weight: 500;
+            padding: 6px 16px 6px 10px;
+            border-radius: 100px;
+            margin-bottom: 32px;
+            backdrop-filter: blur(10px);
+        }
+        .badge-dot {
+            width: 7px; height: 7px;
+            border-radius: 50%;
+            background: #34D399;
+            animation: pdot 2s ease infinite;
+        }
+        @keyframes pdot {
+            0%,100% { opacity:1; transform:scale(1); }
+            50%      { opacity:.55; transform:scale(.85); }
+        }
+        .hero-content h1 {
+            font-size: clamp(2.1rem, 4.5vw, 3.7rem);
+            font-weight: 800;
+            letter-spacing: -0.6px;
+            line-height: 1.14;
+            color: white;
+            margin-bottom: 22px;
+            text-shadow: none !important;
+        }
+        .text-grd {
+            background: linear-gradient(120deg, #93C5FD 0%, #34D399 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .hero-content > p {
+            font-size: 1.08rem;
+            color: rgba(255,255,255,0.68);
+            max-width: 550px;
+            margin: 0 auto 44px;
+            line-height: 1.85;
+        }
+        .hero-cta {
+            display: flex;
+            align-items: center; justify-content: center;
+            gap: 14px; flex-wrap: wrap;
+        }
+        .hbtn-primary {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 14px 28px;
+            background: #2563EB; color: white !important;
+            font-weight: 700; font-size: 14.5px;
+            border-radius: 10px; text-decoration: none !important;
+            transition: all .2s ease;
+            box-shadow: 0 4px 22px rgba(37,99,235,.45);
+        }
+        .hbtn-primary:hover {
+            background: #1D4ED8; color: white !important;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 32px rgba(37,99,235,.5);
+        }
+        .hbtn-ghost {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 13px 28px;
+            background: rgba(255,255,255,0.06);
+            color: rgba(255,255,255,0.85) !important;
+            font-weight: 600; font-size: 14.5px;
+            border: 1.5px solid rgba(255,255,255,0.22);
+            border-radius: 10px; text-decoration: none !important;
+            transition: all .2s ease;
+        }
+        .hbtn-ghost:hover {
+            background: rgba(255,255,255,0.11);
+            border-color: rgba(255,255,255,0.42);
+            color: white !important; transform: translateY(-2px);
+        }
+        .hero-trust {
+            margin-top: 52px;
+            display: flex; align-items: center; justify-content: center;
+            gap: 26px; flex-wrap: wrap;
+        }
+        .trust-item {
+            display: flex; align-items: center; gap: 7px;
+            color: rgba(255,255,255,0.52); font-size: 13px;
+        }
+        .trust-item i { color: #34D399; font-size: 13px; }
+        .trust-sep { width: 1px; height: 14px; background: rgba(255,255,255,0.14); }
+
+        /* ─────────────────────────────
+           STATS STRIP
+           ───────────────────────────── */
+        .stats-strip {
+            background: white;
+            border-bottom: 1px solid #E2E8F0;
+            padding: 0;
+        }
+        .stats-strip .container { padding: 0 15px; }
+        .stats-inner {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+        }
+        .stat-cell {
+            padding: 46px 32px;
+            text-align: center;
+            border-right: 1px solid #E2E8F0;
+        }
+        .stat-cell:last-child { border-right: none; }
+        .stat-num {
+            font-size: 2.6rem; font-weight: 800;
+            color: #1E40AF; letter-spacing: -1.5px;
+            line-height: 1; margin-bottom: 7px; display: block;
+        }
+        .stat-num sup { font-size: 1.3rem; letter-spacing: 0; font-weight: 700; }
+        .stat-lbl { font-size: 13px; font-weight: 500; color: #64748B; }
+
+        /* ─────────────────────────────
+           ABOUT
+           ───────────────────────────── */
+        .about.hp-section {
+            background: #F8FAFC !important;
+            padding: 104px 0 !important;
+        }
+        .about-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 76px; align-items: center;
+        }
+        .about-text-lead {
+            font-size: 0.97rem; color: #475569;
+            line-height: 1.88; margin-bottom: 32px; text-align: left;
+        }
+        .about-checkpoints {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+        }
+        .checkpoint {
+            display: flex; align-items: flex-start; gap: 10px;
+            padding: 14px 16px;
+            background: white; border-radius: 12px;
+            border: 1px solid #E2E8F0;
+        }
+        .cp-icon {
+            width: 36px; height: 36px; border-radius: 9px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px; flex-shrink: 0;
+        }
+        .cp-icon.blue   { background: #EFF6FF; color: #2563EB; }
+        .cp-icon.green  { background: #F0FDF4; color: #16A34A; }
+        .cp-icon.orange { background: #FFF7ED; color: #EA580C; }
+        .cp-icon.purple { background: #FDF4FF; color: #9333EA; }
+        .cp-text strong {
+            display: block; font-size: 12.5px; font-weight: 700;
+            color: #0F172A; margin-bottom: 2px;
+        }
+        .cp-text span { font-size: 11.5px; color: #64748B; }
+
+        /* About image side */
+        .about-visual { position: relative; }
+        .about-img-main {
+            width: 100%; border-radius: 20px;
+            box-shadow: 0 28px 64px rgba(0,0,0,0.1); display: block;
+        }
+        .about-float-card {
+            position: absolute; bottom: -18px; left: -24px;
+            background: white; border-radius: 16px; padding: 18px 22px;
+            box-shadow: 0 16px 48px rgba(0,0,0,0.12);
+            display: flex; align-items: center; gap: 14px;
+            border: 1px solid #E2E8F0;
+        }
+        .afc-icon {
+            width: 46px; height: 46px; background: #1E40AF;
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 18px; flex-shrink: 0;
+        }
+        .afc-text strong {
+            display: block; font-size: 1.5rem; font-weight: 800;
+            color: #0F172A; line-height: 1; margin-bottom: 3px;
+        }
+        .afc-text small { font-size: 12px; color: #64748B; font-weight: 500; }
+
+        /* ─────────────────────────────
+           SERVICES
+           ───────────────────────────── */
+        .services.hp-section {
+            background: white !important;
+            padding: 104px 0 !important;
+        }
+        .services-layout-header {
+            text-align: center; margin-bottom: 60px;
+        }
+        .services-layout-header .hp-desc {
+            max-width: 520px; margin: 0 auto; color: #64748B;
+        }
+        .services-grid {
+            display: grid !important;
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 22px !important;
+        }
+        .service-card {
+            background: white !important;
+            border: 1px solid #E2E8F0 !important;
+            border-radius: 16px !important;
+            padding: 32px 28px !important;
+            text-align: left !important;
+            transition: all .22s ease !important;
+            box-shadow: none !important;
+        }
+        .service-card:hover {
+            border-color: #BFDBFE !important;
+            box-shadow: 0 10px 40px rgba(37,99,235,.07) !important;
+            transform: translateY(-4px) !important;
+        }
+        .service-icon {
+            width: 52px !important; height: 52px !important;
+            border-radius: 13px !important;
+            display: flex !important; align-items: center !important;
+            justify-content: center !important;
+            font-size: 1.3rem !important; margin-bottom: 18px !important;
+        }
+        .service-card:hover .service-icon { transform: none !important; }
+        .service-card:nth-child(1) .service-icon { background: #EFF6FF; color: #2563EB !important; }
+        .service-card:nth-child(2) .service-icon { background: #F0FDF4; color: #16A34A !important; }
+        .service-card:nth-child(3) .service-icon { background: #FFF7ED; color: #EA580C !important; }
+        .service-card:nth-child(4) .service-icon { background: #FDF4FF; color: #9333EA !important; }
+        .service-card h3 {
+            font-size: 1.05rem !important; font-weight: 700 !important;
+            color: #0F172A !important; margin-bottom: 9px !important;
+        }
+        .service-card p {
+            font-size: 0.88rem !important; color: #64748B !important;
+            line-height: 1.72 !important; margin: 0 !important;
+        }
+
+        /* ─────────────────────────────
+           WHY CHOOSE US
+           ───────────────────────────── */
+        .why-us.hp-section {
+            background: #0F172A !important;
+            padding: 104px 0 !important;
+            position: relative; overflow: hidden;
+        }
+        .why-us.hp-section::before {
+            content: '';
+            position: absolute; inset: 0;
+            background-image: radial-gradient(rgba(255,255,255,0.025) 1px, transparent 1px);
+            background-size: 28px 28px; pointer-events: none;
+        }
+        /* hide old grid */
+        .why-us.hp-section h2,
+        .why-us.hp-section .features { display: none !important; }
+        .why-us-layout {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 76px; align-items: center;
+            position: relative; z-index: 1;
+        }
+        .wu-title { color: white !important; text-align: left !important; }
+        .wu-desc  { color: rgba(255,255,255,0.58) !important; max-width: 400px; }
+        .wu-list  { margin-top: 38px; display: flex; flex-direction: column; gap: 18px; }
+        .wu-item  { display: flex; align-items: flex-start; gap: 14px; }
+        .wu-icon  {
+            width: 42px; height: 42px; border-radius: 11px;
+            background: rgba(37,99,235,0.18);
+            display: flex; align-items: center; justify-content: center;
+            color: #60A5FA; font-size: 15px; flex-shrink: 0;
+        }
+        .wu-item h4 { font-size: .97rem; font-weight: 700; color: white; margin-bottom: 3px; }
+        .wu-item p  { font-size: .85rem; color: rgba(255,255,255,0.52); margin: 0; line-height: 1.65; }
+
+        /* stat cards (right column) */
+        .wu-visual { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        .wu-card {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 16px; padding: 30px 22px; text-align: center;
+        }
+        .wu-card:first-child { grid-column: span 2; }
+        .wu-card-n {
+            font-size: 2.7rem; font-weight: 800;
+            background: linear-gradient(120deg, #93C5FD, #34D399);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: block; line-height: 1; margin-bottom: 9px;
+        }
+        .wu-card-l { font-size: 12px; color: rgba(255,255,255,0.48); font-weight: 500; }
+
+        /* ─────────────────────────────
+           JOIN / REGISTER
+           ───────────────────────────── */
+        .join-section.hp-section {
+            background: #F8FAFC !important;
+            padding: 104px 0 !important;
+        }
+        /* hide old headings */
+        .join-section.hp-section > .container > h2,
+        .join-section.hp-section > .container > .section-subtitle { display: none; }
+        .join-header { text-align: center; margin-bottom: 52px; }
+        .join-header .hp-title { text-align: center; }
+        .join-header .join-sub {
+            font-size: .97rem; color: #64748B;
+            max-width: 500px; margin: 0 auto; line-height: 1.8;
+        }
+        .join-cards {
+            display: grid !important;
+            grid-template-columns: 1fr 1fr !important;
+            gap: 26px; max-width: 900px; margin: 0 auto;
+        }
+        .join-card {
+            background: white !important;
+            border: 1px solid #E2E8F0 !important;
+            border-radius: 20px !important;
+            padding: 44px 36px !important;
+            text-align: center;
+            transition: all .28s ease !important;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.04) !important;
+            position: relative; overflow: hidden;
+        }
+        .join-card::before {
+            content: ''; position: absolute;
+            top: 0; left: 0; right: 0; height: 3px;
+            border-radius: 20px 20px 0 0;
+        }
+        .join-card.employee::before { background: linear-gradient(90deg, #2563EB, #3B82F6); }
+        .join-card.employer::before { background: linear-gradient(90deg, #DC2626, #EF4444); }
+        .join-card:hover {
+            transform: translateY(-8px) !important;
+            box-shadow: 0 24px 56px rgba(0,0,0,0.09) !important;
+        }
+        .join-card-icon {
+            width: 72px; height: 72px; border-radius: 18px;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 24px; font-size: 26px; color: white;
+        }
+        .join-card.employee .join-card-icon {
+            background: linear-gradient(135deg, #2563EB, #1D4ED8);
+            box-shadow: 0 8px 24px rgba(37,99,235,0.3);
+        }
+        .join-card.employer .join-card-icon {
+            background: linear-gradient(135deg, #DC2626, #B91C1C);
+            box-shadow: 0 8px 24px rgba(220,38,38,0.3);
+        }
+        .join-card h3 {
+            font-size: 1.25rem !important; font-weight: 800 !important;
+            color: #0F172A !important; margin-bottom: 10px !important;
+        }
+        .join-card > p {
+            font-size: .875rem !important; color: #64748B !important;
+            margin-bottom: 0 !important; line-height: 1.72 !important;
+        }
+        .join-card-features {
+            list-style: none; padding: 0;
+            margin: 22px 0 28px !important; text-align: left;
+        }
+        .join-card-features li {
+            padding: 7px 0; color: #374151;
+            display: flex; align-items: center; gap: 10px; font-size: 13.5px;
+        }
+        .join-card-features li i { color: #10B981; font-size: 11px; flex-shrink: 0; }
+        .join-card .btn {
+            width: 100%; border-radius: 10px !important;
+            font-weight: 700 !important; font-size: 14px !important;
+            padding: 13px 20px !important; display: flex !important;
+            align-items: center !important; justify-content: center !important;
+            gap: 8px !important;
+        }
+        .join-card.employee .btn {
+            background: #2563EB !important;
+            box-shadow: 0 4px 16px rgba(37,99,235,.3) !important;
+        }
+        .join-card.employee .btn:hover {
+            background: #1D4ED8 !important;
+            box-shadow: 0 8px 24px rgba(37,99,235,.4) !important;
+        }
+        .join-card.employer .btn {
+            background: #DC2626 !important;
+            box-shadow: 0 4px 16px rgba(220,38,38,.3) !important;
+        }
+        .join-card.employer .btn:hover {
+            background: #B91C1C !important;
+            box-shadow: 0 8px 24px rgba(220,38,38,.4) !important;
+        }
+
+        /* ─────────────────────────────
+           CONTACT — light cleanup
+           ───────────────────────────── */
+        .contact.hp-section { background: white !important; }
+
+        /* ─────────────────────────────
+           RESPONSIVE
+           ───────────────────────────── */
+        @media (max-width: 1024px) {
+            .stats-inner { grid-template-columns: repeat(2, 1fr); }
+            .stat-cell:nth-child(2) { border-right: none; }
+            .stat-cell:nth-child(3) { border-top: 1px solid #E2E8F0; }
+            .stat-cell:nth-child(4) { border-top: 1px solid #E2E8F0; border-right: none; }
+            .about-layout { gap: 44px; }
+            .why-us-layout { gap: 44px; }
+        }
+        @media (max-width: 768px) {
+            .about-layout   { grid-template-columns: 1fr !important; gap: 0 !important; }
+            .about-visual   { display: none; }
+            .about-checkpoints { grid-template-columns: 1fr !important; }
+            .services-grid  { grid-template-columns: 1fr !important; }
+            .why-us-layout  { grid-template-columns: 1fr !important; gap: 40px; }
+            .wu-visual      { display: none; }
+            .join-cards     { grid-template-columns: 1fr !important; max-width: 460px; }
+            .hero-trust     { flex-direction: column; gap: 10px; }
+            .trust-sep      { display: none; }
+        }
+        @media (max-width: 576px) {
+            .stats-inner    { grid-template-columns: repeat(2, 1fr); }
+            .stat-cell      { padding: 32px 20px; }
+            .stat-num       { font-size: 2.1rem; }
+            .hero-cta       { flex-direction: column; align-items: center; }
+            .hbtn-primary, .hbtn-ghost { width: 100%; max-width: 300px; justify-content: center; }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Django Messages -->
+    {% if messages %}
+    <div id="message-popup">
+        {% for message in messages %}
+        <div class="message-box {{ message.tags }}">
+            {{ message }}
+            <span class="close-btn" onclick="this.parentElement.remove();">&times;</span>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- ── HEADER (unchanged) ── -->
+    <header id="header">
+        <div class="container header-container">
+
+            <a href="/" class="nav-logo">
+                <div class="nav-logo-icon"><i class="fas fa-briefcase"></i></div>
+                <span class="nav-logo-text">Acco<span>placers</span></span>
+            </a>
+
+            <nav id="navMenu">
+                <ul class="nav-links">
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#services">Services</a></li>
+                    <li><a href="#register">Register</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+
+                <div class="nav-mobile-auth">
+                    {% if session_user_type == 'employee' %}
+                    <div class="mob-user-info">
+                        <span class="uavatar">{{ session_user_name|slice:":1"|upper }}</span>
+                        <div>
+                            <div class="mob-uname">{{ session_user_name }}</div>
+                            <div class="mob-urole">Job Seeker</div>
+                        </div>
+                    </div>
+                    <a href="{% url 'employee_dashboard' %}" class="mob-nav-item"><i class="fas fa-th-large"></i> My Dashboard</a>
+                    <a href="{% url 'employee_logout' %}" class="mob-nav-item danger"><i class="fas fa-sign-out-alt"></i> Sign Out</a>
+                    {% elif session_user_type == 'employer' %}
+                    <div class="mob-user-info">
+                        <span class="uavatar employer">{{ session_user_name|slice:":1"|upper }}</span>
+                        <div>
+                            <div class="mob-uname">{{ session_user_name }}</div>
+                            <div class="mob-urole">Employer</div>
+                        </div>
+                    </div>
+                    <a href="{% url 'employer_dashboard' %}" class="mob-nav-item"><i class="fas fa-th-large"></i> Dashboard</a>
+                    <a href="{% url 'employer_logout' %}" class="mob-nav-item danger"><i class="fas fa-sign-out-alt"></i> Sign Out</a>
+                    {% else %}
+                    <div class="mob-auth-grid">
+                        <a href="{% url 'employee_login' %}" class="mob-auth-btn outline">Employee Login</a>
+                        <a href="{% url 'employer_login' %}" class="mob-auth-btn solid">Employer Login</a>
+                    </div>
+                    <a href="{% url 'employee_register' %}" class="mob-auth-cta">Get Started <i class="fas fa-arrow-right"></i></a>
+                    {% endif %}
+                </div>
+            </nav>
+
+            <div class="nav-actions">
+                {% if session_user_type == 'employee' %}
+                <div class="user-menu">
+                    <button class="user-trigger login-trigger" type="button">
+                        <span class="uavatar">{{ session_user_name|slice:":1"|upper }}</span>
+                        <span class="uname">{{ session_user_name }}</span>
+                        <i class="fas fa-chevron-down uchevron"></i>
+                    </button>
+                    <div class="user-dropdown">
+                        <div class="udrop-header">
+                            <span class="uavatar lg">{{ session_user_name|slice:":1"|upper }}</span>
+                            <div>
+                                <div class="udrop-name">{{ session_user_name }}</div>
+                                <div class="udrop-role">Job Seeker</div>
+                            </div>
+                        </div>
+                        <div class="udrop-divider"></div>
+                        <a href="{% url 'employee_dashboard' %}" class="udrop-item"><i class="fas fa-th-large"></i> My Dashboard</a>
+                        <div class="udrop-divider"></div>
+                        <a href="{% url 'employee_logout' %}" class="udrop-item danger"><i class="fas fa-sign-out-alt"></i> Sign Out</a>
+                    </div>
+                </div>
+                {% elif session_user_type == 'employer' %}
+                <div class="user-menu">
+                    <button class="user-trigger login-trigger" type="button">
+                        <span class="uavatar employer">{{ session_user_name|slice:":1"|upper }}</span>
+                        <span class="uname">{{ session_user_name }}</span>
+                        <i class="fas fa-chevron-down uchevron"></i>
+                    </button>
+                    <div class="user-dropdown">
+                        <div class="udrop-header">
+                            <span class="uavatar lg employer">{{ session_user_name|slice:":1"|upper }}</span>
+                            <div>
+                                <div class="udrop-name">{{ session_user_name }}</div>
+                                <div class="udrop-role">Employer</div>
+                            </div>
+                        </div>
+                        <div class="udrop-divider"></div>
+                        <a href="{% url 'employer_dashboard' %}" class="udrop-item"><i class="fas fa-th-large"></i> Dashboard</a>
+                        <div class="udrop-divider"></div>
+                        <a href="{% url 'employer_logout' %}" class="udrop-item danger"><i class="fas fa-sign-out-alt"></i> Sign Out</a>
+                    </div>
+                </div>
+                {% else %}
+                <div class="nav-auth">
+                    <a href="{% url 'employee_login' %}" class="auth-link">Employee Login</a>
+                    <span class="auth-sep"></span>
+                    <a href="{% url 'employer_login' %}" class="auth-link">Employer Login</a>
+                </div>
+                {% endif %}
+            </div>
+
+            <button class="mobile-toggle" id="mobileMenu" type="button" aria-label="Toggle menu">
+                <span></span><span></span><span></span>
+            </button>
+
+        </div>
+    </header>
+
+    <!-- ══════════════════════════════════════
+         HERO
+         ══════════════════════════════════════ -->
+    <section class="hero" id="home">
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-badge">
+                    <span class="badge-dot"></span>
+                    Dubai's Premier Finance Placement Firm
+                </div>
+                <h1>The Future of Recruitment<br>Starts with <span class="text-grd">Accoplacers</span></h1>
+                <p>Accoplacers connects talented finance professionals with top employers across the GCC region — with expert guidance every step of the way.</p>
+                <div class="hero-cta">
+                    <a href="{% url 'employee_register' %}" class="hbtn-primary">
+                        <i class="fas fa-user-plus"></i> Register as Job Seeker
+                    </a>
+                    <a href="{% url 'employer_register' %}" class="hbtn-ghost">
+                        <i class="fas fa-building"></i> Register as Employer
+                    </a>
+                </div>
+                <div class="hero-trust">
+                    <div class="trust-item"><i class="fas fa-check-circle"></i> Finance Specialists</div>
+                    <div class="trust-sep"></div>
+                    <div class="trust-item"><i class="fas fa-check-circle"></i> 15+ Years Experience</div>
+                    <div class="trust-sep"></div>
+                    <div class="trust-item"><i class="fas fa-check-circle"></i> Across the GCC Region</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══════════════════════════════════════
+         STATS STRIP
+         ══════════════════════════════════════ -->
+    <section class="stats-strip">
+        <div class="container">
+            <div class="stats-inner">
+                <div class="stat-cell">
+                    <span class="stat-num">15<sup>+</sup></span>
+                    <div class="stat-lbl">Years of Experience</div>
+                </div>
+                <div class="stat-cell">
+                    <span class="stat-num">500<sup>+</sup></span>
+                    <div class="stat-lbl">Professionals Placed</div>
+                </div>
+                <div class="stat-cell">
+                    <span class="stat-num">100<sup>+</sup></span>
+                    <div class="stat-lbl">Partner Companies</div>
+                </div>
+                <div class="stat-cell">
+                    <span class="stat-num">6</span>
+                    <div class="stat-lbl">GCC Countries Covered</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══════════════════════════════════════
+         ABOUT
+         ══════════════════════════════════════ -->
+    <section class="about hp-section" id="about">
+        <div class="container">
+            <div class="about-layout">
+                <!-- Left: Text -->
+                <div class="about-body">
+                    <span class="section-eyebrow eyebrow-blue">About Us</span>
+                    <h2 class="hp-title">Career Enablers,<br>Not Just Recruiters</h2>
+                    <p class="about-text-lead">
+                        <strong>Accoplacers</strong> is a Dubai-based professional career support and placement firm
+                        focused on empowering job seekers in the fields of Accounting, Audit, and Finance.<br><br>
+                        Our promoters are seasoned professionals with over <strong>15 years of experience</strong> in the
+                        industry, having worked closely with reputed firms across the GCC. We bridge the gap between
+                        talent and opportunity through expert advisory, resume matching, and career mentoring.
+                    </p>
+                    <div class="about-checkpoints">
+                        <div class="checkpoint">
+                            <div class="cp-icon blue"><i class="fas fa-search"></i></div>
+                            <div class="cp-text">
+                                <strong>Resume Matching</strong>
+                                <span>Profile-to-role screening</span>
+                            </div>
+                        </div>
+                        <div class="checkpoint">
+                            <div class="cp-icon green"><i class="fas fa-chalkboard-teacher"></i></div>
+                            <div class="cp-text">
+                                <strong>Career Mentoring</strong>
+                                <span>One-on-one guidance</span>
+                            </div>
+                        </div>
+                        <div class="checkpoint">
+                            <div class="cp-icon orange"><i class="fas fa-handshake"></i></div>
+                            <div class="cp-text">
+                                <strong>Employer Support</strong>
+                                <span>End-to-end hiring help</span>
+                            </div>
+                        </div>
+                        <div class="checkpoint">
+                            <div class="cp-icon purple"><i class="fas fa-shield-alt"></i></div>
+                            <div class="cp-text">
+                                <strong>Confidential</strong>
+                                <span>Data protected always</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Right: Image -->
+                <div class="about-visual">
+                    <img src="https://images.unsplash.com/photo-1521791136064-7986c2920216?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
+                        alt="Accoplacers team" class="about-img-main">
+                    <div class="about-float-card">
+                        <div class="afc-icon"><i class="fas fa-award"></i></div>
+                        <div class="afc-text">
+                            <strong>15+</strong>
+                            <small>Years of Finance Expertise</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══════════════════════════════════════
+         SERVICES
+         ══════════════════════════════════════ -->
+    <section class="services hp-section" id="services">
+        <div class="container">
+            <div class="services-layout-header">
+                <span class="section-eyebrow eyebrow-blue">What We Offer</span>
+                <h2 class="hp-title center-title">Comprehensive Career Services</h2>
+                <p class="hp-desc">From resume screening to employer staffing solutions — we cover every aspect of finance career placement in the GCC.</p>
+            </div>
+            <div class="services-grid">
+                <div class="service-card">
+                    <div class="service-icon"><i class="fas fa-file-alt"></i></div>
+                    <h3>Resume Screening &amp; Placement</h3>
+                    <p>We evaluate your profile and connect you with the most suitable openings in accounting, audit, and finance roles across the GCC.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon"><i class="fas fa-chart-line"></i></div>
+                    <h3>Career Guidance &amp; Mentoring</h3>
+                    <p>Our team of experienced professionals provides career coaching, interview preparation tips, and personalised career planning.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon"><i class="fas fa-building"></i></div>
+                    <h3>Employer Staffing Solutions</h3>
+                    <p>For companies, we offer professional staffing solutions — from profile screening to onboarding qualified finance candidates.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon"><i class="fas fa-user-graduate"></i></div>
+                    <h3>Internship Opportunities</h3>
+                    <p>We help freshers find meaningful internships that match their academic background and align with their long-term career goals.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══════════════════════════════════════
+         WHY CHOOSE US
+         ══════════════════════════════════════ -->
+    <section class="why-us hp-section">
+        <div class="container">
+            <!-- Old markup hidden by CSS -->
+            <h2>Why Choose Accoplacers</h2>
+            <div class="features"></div>
+
+            <!-- New layout -->
+            <div class="why-us-layout">
+                <!-- Left: Text + feature list -->
+                <div class="why-us-text">
+                    <span class="section-eyebrow eyebrow-white">Why Accoplacers</span>
+                    <h2 class="hp-title wu-title">Built for Finance.<br>Driven by Results.</h2>
+                    <p class="hp-desc wu-desc">We're not a generic job board — we're a niche finance placement partner with deep industry knowledge and genuine commitment to your success.</p>
+                    <div class="wu-list">
+                        <div class="wu-item">
+                            <div class="wu-icon"><i class="fas fa-award"></i></div>
+                            <div>
+                                <h4>Industry Expertise</h4>
+                                <p>Promoters with over 15 years of hands-on experience in accounting and finance across the GCC region.</p>
+                            </div>
+                        </div>
+                        <div class="wu-item">
+                            <div class="wu-icon"><i class="fas fa-bullseye"></i></div>
+                            <div>
+                                <h4>Finance-Only Focus</h4>
+                                <p>We specialise exclusively in finance-related careers — ensuring targeted, relevant placements every time.</p>
+                            </div>
+                        </div>
+                        <div class="wu-item">
+                            <div class="wu-icon"><i class="fas fa-user-friends"></i></div>
+                            <div>
+                                <h4>Personalised Support</h4>
+                                <p>Each candidate receives individual attention, tailored guidance, and dedicated career mentoring.</p>
+                            </div>
+                        </div>
+                        <div class="wu-item">
+                            <div class="wu-icon"><i class="fas fa-lock"></i></div>
+                            <div>
+                                <h4>Confidential &amp; Secure</h4>
+                                <p>Your data is fully protected and never shared without your explicit consent.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Right: Stat cards -->
+                <div class="wu-visual">
+                    <div class="wu-card">
+                        <span class="wu-card-n">500+</span>
+                        <div class="wu-card-l">Finance Professionals Placed</div>
+                    </div>
+                    <div class="wu-card">
+                        <span class="wu-card-n">15+</span>
+                        <div class="wu-card-l">Years of Experience</div>
+                    </div>
+                    <div class="wu-card">
+                        <span class="wu-card-n">6</span>
+                        <div class="wu-card-l">GCC Countries Covered</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══════════════════════════════════════
+         JOIN / REGISTER
+         ══════════════════════════════════════ -->
+    <section class="join-section hp-section" id="register">
+        <div class="container">
+            <!-- Legacy headings hidden by CSS -->
+            <h2>Join Accoplacers</h2>
+            <p class="section-subtitle"></p>
+
+            <div class="join-header">
+                <span class="section-eyebrow eyebrow-blue">Get Started</span>
+                <h2 class="hp-title">Join Accoplacers Today</h2>
+                <p class="join-sub">Choose your path and start your journey towards career success in the accounting and finance industry.</p>
+            </div>
+
+            <div class="join-cards">
+                <!-- Job Seeker Card -->
+                <div class="join-card employee">
+                    <div class="join-card-icon">
+                        <i class="fas fa-user-tie"></i>
+                    </div>
+                    <h3>Job Seeker</h3>
+                    <p>Looking for your next career opportunity? Register with us and get access to exclusive finance job openings across the GCC.</p>
+                    <ul class="join-card-features">
+                        <li><i class="fas fa-check-circle"></i> Access to exclusive job openings</li>
+                        <li><i class="fas fa-check-circle"></i> Professional CV review &amp; tips</li>
+                        <li><i class="fas fa-check-circle"></i> Interview preparation support</li>
+                        <li><i class="fas fa-check-circle"></i> Career guidance &amp; mentoring</li>
+                    </ul>
+                    <a href="{% url 'employee_register' %}" class="btn">
+                        <i class="fas fa-user-plus"></i> Register as Job Seeker
+                    </a>
+                </div>
+
+                <!-- Employer Card -->
+                <div class="join-card employer">
+                    <div class="join-card-icon">
+                        <i class="fas fa-building"></i>
+                    </div>
+                    <h3>Employer</h3>
+                    <p>Looking to hire qualified finance professionals? Access our curated pool of talented, pre-screened candidates ready to join.</p>
+                    <ul class="join-card-features">
+                        <li><i class="fas fa-check-circle"></i> Access to verified candidates</li>
+                        <li><i class="fas fa-check-circle"></i> Pre-screened finance profiles</li>
+                        <li><i class="fas fa-check-circle"></i> Streamlined hiring process</li>
+                        <li><i class="fas fa-check-circle"></i> Dedicated support team</li>
+                    </ul>
+                    <a href="{% url 'employer_register' %}" class="btn">
+                        <i class="fas fa-building"></i> Register as Employer
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══════════════════════════════════════
+         CONTACT (unchanged layout, minor class added)
+         ══════════════════════════════════════ -->
+    <section class="contact hp-section" id="contact">
+        <div class="container">
+            <h2>Contact Us</h2>
+            <div class="contact-container">
+                <div class="contact-info">
+                    <h3>Get in Touch</h3>
+                    <p><i class="fas fa-phone-alt"></i> +971 589288746</p>
+                    <p><i class="fas fa-map-marker-alt"></i> Abu Hail, Dubai, UAE</p>
+                    <p><i class="fas fa-envelope"></i> accoplacers@gmail.com</p>
+
+                    <div class="social-links">
+                        <a href="https://www.instagram.com/accoplacers"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                <div class="contact-form">
+                    <form id="contactForm" action="/contact/" method="POST">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="contact-name">Name</label>
+                            <input type="text" id="contact-name" name="contact-name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="contact-email">Email</label>
+                            <input type="email" id="contact-email" name="contact-email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="contact-phone">Phone</label>
+                            <input type="tel" id="contact-phone" name="contact-phone" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="contact-message">Message</label>
+                            <textarea id="contact-message" name="contact-message" required></textarea>
+                        </div>
+                        <div class="form-group text-center">
+                            <button type="submit" class="btn">Send Message</button>
+                        </div>
+                        <div id="contactStatus" class="form-status"></div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══════════════════════════════════════
+         FOOTER (unchanged)
+         ══════════════════════════════════════ -->
+    <footer>
+        <div class="container">
+            <div class="footer-container">
+                <div class="footer-col">
+                    <h3>Accoplacers</h3>
+                    <p>Career support and placement services for accounting, audit &amp; finance professionals in the GCC region.</p>
+                    <div class="social-links">
+                        <a href="https://www.instagram.com/accoplacers"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="#home"><i class="fas fa-chevron-right"></i> Home</a></li>
+                        <li><a href="#about"><i class="fas fa-chevron-right"></i> About Us</a></li>
+                        <li><a href="#services"><i class="fas fa-chevron-right"></i> Services</a></li>
+                        <li><a href="#register"><i class="fas fa-chevron-right"></i> Register</a></li>
+                        <li><a href="#contact"><i class="fas fa-chevron-right"></i> Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h3>Services</h3>
+                    <ul>
+                        <li><a href="#services"><i class="fas fa-chevron-right"></i> Resume Screening</a></li>
+                        <li><a href="#services"><i class="fas fa-chevron-right"></i> Career Guidance</a></li>
+                        <li><a href="#services"><i class="fas fa-chevron-right"></i> Employer Assistance</a></li>
+                        <li><a href="#services"><i class="fas fa-chevron-right"></i> Internship Opportunities</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h3>Contact</h3>
+                    <ul>
+                        <li><i class="fas fa-map-marker-alt"></i> Abu Hail, Dubai, UAE</li>
+                        <li><i class="fas fa-phone-alt"></i> +971 589288746</li>
+                        <li><i class="fas fa-envelope"></i> accoplacers@gmail.com</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                <p style="color: rgba(255, 255, 255, 0.747);">&copy; 2025 Accoplacers. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <a href="https://wa.me/+971589288746" class="float-whatsapp" target="_blank">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+
+    <script src="{% static 'base/js/script.js' %}"></script>
+</body>
+
+</html>
