@@ -265,6 +265,8 @@ def temp_save_registration(request):
         # Save resume temporarily
         resume = request.FILES.get('resume')
         if resume:
+            if resume.size > 5 * 1024 * 1024:
+                return JsonResponse({'status': 'error', 'message': 'Resume file size must not exceed 5 MB.'}, status=400)
             tmp_path = os.path.join(tmp_dir, resume.name)
             with open(tmp_path, 'wb+') as f:
                 for chunk in resume.chunks():
@@ -331,6 +333,8 @@ def employee_register(request):
                 plan = 'basic'
             if not resume:
                 raise ValidationError("Please upload your resume.")
+            if resume.size > 5 * 1024 * 1024:
+                raise ValidationError("Resume file size must not exceed 5 MB.")
 
         except ValidationError as e:
             messages.error(request, str(e))
