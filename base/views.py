@@ -412,11 +412,13 @@ def registrations_dashboard(request):
     registrations = Registration.objects.all().order_by('-id')
     employers = Employer.objects.all().order_by('-id')
     job_openings = JobOpening.objects.all().order_by('-created_at')
-    
+    placed_count = registrations.filter(is_placed=True).count()
+
     return render(request, 'base/registrations_dashboard.html', {
         'registrations': registrations,
         'employers': employers,
         'job_openings': job_openings,
+        'placed_count': placed_count,
     })
 
 
@@ -589,6 +591,24 @@ def employer_logout(request):
         del request.session['user_type']
     messages.success(request, "You have been logged out.")
     return redirect('/')
+
+
+@login_required(login_url='/admin/login/')
+def toggle_placed(request):
+    if request.method == 'POST':
+        employee_id = request.POST.get('employee_id')
+        action = request.POST.get('action')
+        try:
+            employee = Registration.objects.get(id=employee_id)
+            employee.is_placed = (action == 'place')
+            employee.save()
+            if employee.is_placed:
+                messages.success(request, f"{employee.name} has been marked as placed.")
+            else:
+                messages.success(request, f"{employee.name} has been marked as available.")
+        except Registration.DoesNotExist:
+            messages.error(request, "Employee not found.")
+    return redirect('registrations_dashboard')
 
 
 def employer_dashboard(request):

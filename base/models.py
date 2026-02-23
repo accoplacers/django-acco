@@ -20,6 +20,7 @@ class Registration(models.Model):
     photo = models.ImageField(upload_to='employee_photos/', blank=True, null=True)  # Professional photo
     skills = models.TextField(blank=True, null=True, help_text="Comma-separated list of skills (e.g., Excel, Tally, SAP, QuickBooks)")
     plan = models.CharField(max_length=20, choices=PLAN_CHOICES, default='basic')
+    is_placed = models.BooleanField(default=False, help_text="Mark this employee as placed (hired by an employer)")
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

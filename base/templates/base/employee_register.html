@@ -119,20 +119,6 @@
     }
     .pwd-toggle:hover { color: #64748B; }
 
-    .terms-box {
-      display: flex; align-items: flex-start; gap: 12px;
-      padding: 16px; background: #F8FAFC;
-      border: 1.5px solid #E2E8F0; border-radius: 10px;
-      margin-top: 8px;
-    }
-    .terms-box input[type="checkbox"] {
-      width: 18px; height: 18px; margin-top: 1px;
-      cursor: pointer; accent-color: #4F46E5; flex-shrink: 0;
-    }
-    .terms-box label { font-size: 13.5px; color: #334155; cursor: pointer; font-weight: 500; }
-    .terms-box a { color: #4F46E5; font-weight: 600; }
-    .terms-box a:hover { text-decoration: underline; }
-
     .submit-btn {
       width: 100%; padding: 13px; background: #4F46E5; color: #fff;
       border: none; border-radius: 8px; font-size: 15px; font-weight: 700;
@@ -141,6 +127,106 @@
       margin-top: 28px;
     }
     .submit-btn:hover { background: #3730A3; transform: translateY(-1px); }
+
+    /* ── Terms Modal ── */
+    .tc-overlay {
+      display: none;
+      position: fixed; inset: 0; z-index: 9999;
+      background: rgba(15,23,42,0.6);
+      backdrop-filter: blur(3px);
+      align-items: center; justify-content: center;
+      padding: 16px;
+    }
+    .tc-overlay.open { display: flex; }
+    .tc-modal {
+      background: #fff;
+      border-radius: 16px;
+      width: 100%; max-width: 680px;
+      max-height: 90vh;
+      display: flex; flex-direction: column;
+      box-shadow: 0 24px 60px rgba(15,23,42,0.25);
+      overflow: hidden;
+    }
+    .tc-header {
+      padding: 20px 24px 16px;
+      border-bottom: 1px solid #E2E8F0;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .tc-header h2 {
+      font-size: 17px; font-weight: 700; color: #0F172A;
+      display: flex; align-items: center; gap: 9px;
+    }
+    .tc-header h2 i { color: #4F46E5; font-size: 15px; }
+    .tc-close {
+      background: none; border: none; cursor: pointer;
+      color: #94A3B8; font-size: 18px; padding: 4px; line-height: 1;
+      transition: color 0.15s;
+    }
+    .tc-close:hover { color: #334155; }
+    .tc-scroll-hint {
+      padding: 8px 24px;
+      background: #F0F4FF;
+      border-bottom: 1px solid #E0E7FF;
+      font-size: 12px; color: #4F46E5; font-weight: 600;
+      display: flex; align-items: center; gap: 7px;
+      flex-shrink: 0;
+    }
+    .tc-body {
+      flex: 1; overflow-y: auto;
+      padding: 24px 28px;
+      color: #334155; font-size: 13.5px; line-height: 1.75;
+    }
+    .tc-body h3 {
+      font-size: 14px; font-weight: 700; color: #0F172A;
+      margin: 20px 0 6px;
+    }
+    .tc-body h3:first-child { margin-top: 0; }
+    .tc-body p { margin-bottom: 8px; }
+    .tc-body ul { margin: 6px 0 8px 20px; }
+    .tc-body ul li { margin-bottom: 4px; }
+    .tc-footer {
+      padding: 16px 24px;
+      border-top: 1px solid #E2E8F0;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 12px; flex-shrink: 0;
+      background: #F8FAFC;
+    }
+    .tc-footer-note {
+      font-size: 12px; color: #64748B;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .tc-footer-note i { color: #94A3B8; }
+    .tc-register-btn {
+      padding: 11px 28px;
+      background: #4F46E5; color: #fff;
+      border: none; border-radius: 8px;
+      font-size: 14px; font-weight: 700;
+      cursor: pointer; font-family: inherit;
+      display: flex; align-items: center; gap: 7px;
+      transition: background 0.2s, opacity 0.2s, transform 0.15s;
+      white-space: nowrap;
+    }
+    .tc-register-btn:disabled {
+      opacity: 0.45; cursor: not-allowed; transform: none;
+    }
+    .tc-register-btn:not(:disabled):hover { background: #3730A3; transform: translateY(-1px); }
+    .scroll-progress {
+      height: 3px; background: #E2E8F0;
+      flex-shrink: 0; position: relative;
+    }
+    .scroll-progress-bar {
+      height: 100%; background: #4F46E5;
+      width: 0%; transition: width 0.1s;
+    }
+    @media (max-width: 640px) {
+      .tc-modal { max-height: 95vh; border-radius: 12px; }
+      .tc-body { padding: 18px 20px; }
+      .tc-header { padding: 16px 20px 14px; }
+      .tc-footer { flex-direction: column; align-items: stretch; }
+      .tc-register-btn { justify-content: center; }
+      .tc-footer-note { justify-content: center; }
+    }
 
     .form-footer {
       text-align: center; margin-top: 24px; padding-top: 20px;
@@ -308,19 +394,65 @@
           </div>
         </div>
 
-        <div class="field full" style="margin-top: 8px;">
-          <div class="terms-box">
-            <input type="checkbox" id="terms" name="terms" required>
-            <label for="terms">
-              I agree to the <a href="/terms/" target="_blank">Terms and Conditions</a> and consent to the processing of my personal data by Accoplacers.
-            </label>
-          </div>
-        </div>
+        <!-- Hidden checkbox – auto-checked when user accepts T&C in the modal -->
+        <input type="checkbox" id="terms" name="terms" style="display:none">
 
-        <button type="submit" class="submit-btn">
-          <i class="fas fa-user-plus"></i> Create My Profile
+        <button type="button" class="submit-btn" id="continueBtn" onclick="openTermsModal()">
+          <i class="fas fa-arrow-right"></i> Continue
         </button>
       </form>
+
+      <!-- Terms & Conditions Modal -->
+      <div class="tc-overlay" id="tcOverlay" role="dialog" aria-modal="true" aria-labelledby="tcTitle">
+        <div class="tc-modal">
+          <div class="tc-header">
+            <h2 id="tcTitle"><i class="fas fa-file-contract"></i> Terms &amp; Conditions</h2>
+            <button class="tc-close" onclick="closeTermsModal()" aria-label="Close">&times;</button>
+          </div>
+          <div class="tc-scroll-hint" id="scrollHint">
+            <i class="fas fa-arrow-down"></i> Please scroll down to read and accept all terms
+          </div>
+          <div class="scroll-progress"><div class="scroll-progress-bar" id="progressBar"></div></div>
+          <div class="tc-body" id="tcBody">
+            <h3>1. Security Deposit Requirement</h3>
+            <p>All candidates are required to pay a refundable security deposit of <strong>AED 500</strong> prior to attending the scheduled interview arranged by Accoplacers.</p>
+
+            <h3>2. Purpose of the Security Deposit</h3>
+            <p>The security deposit confirms the candidate's genuine interest and commitment to the recruitment process and covers administrative and recruitment service costs.</p>
+
+            <h3>3. Adjustment of Deposit Upon Selection</h3>
+            <ul>
+              <li>If the candidate successfully qualifies and is selected for the position, the AED 500 security deposit will be retained and treated as the full service charge.</li>
+              <li>No additional service fee will be charged in such cases.</li>
+            </ul>
+
+            <h3>4. Refund Policy</h3>
+            <ul>
+              <li>If the candidate is not selected, disqualified, or not offered the position, the full security deposit of AED 500 will be refunded.</li>
+              <li>The refund will be processed within <strong>1–2 working days</strong>.</li>
+              <li>The refund will be issued through the same payment method used by the candidate, unless otherwise agreed.</li>
+            </ul>
+
+            <h3>5. Candidate Responsibility</h3>
+            <p>Candidates must attend the interview as scheduled and provide accurate and truthful information throughout the recruitment process.</p>
+
+            <h3>6. Acceptance of Terms</h3>
+            <p>By paying the security deposit and proceeding with the interview process, the candidate confirms their understanding and acceptance of these Terms &amp; Conditions.</p>
+
+            <p style="margin-top:24px; padding-top:16px; border-top:1px solid #E2E8F0; font-size:12px; color:#94A3B8; text-align:center;">
+              &copy; 2025 Accoplacers. All Rights Reserved.
+            </p>
+          </div>
+          <div class="tc-footer">
+            <span class="tc-footer-note" id="tcFooterNote">
+              <i class="fas fa-lock"></i> Scroll to the bottom to enable registration
+            </span>
+            <button class="tc-register-btn" id="tcRegisterBtn" disabled onclick="acceptAndRegister()">
+              <i class="fas fa-user-plus"></i> Register
+            </button>
+          </div>
+        </div>
+      </div>
 
       <div class="form-footer">
         <a href="{% url 'employee_login' %}"><i class="fas fa-sign-in-alt"></i> Already registered? Sign In</a>
@@ -331,6 +463,7 @@
   </div>
 
   <script>
+    /* ── Password toggle ── */
     function togglePwd(inputId, iconId) {
       const input = document.getElementById(inputId);
       const icon = document.getElementById(iconId);
@@ -343,21 +476,92 @@
       }
     }
 
-    document.querySelector('form').addEventListener('submit', function(e) {
+    /* ── Form validation before opening modal ── */
+    function openTermsModal() {
+      const form = document.querySelector('form');
+
+      // Trigger native HTML5 validation
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+      }
+
+      // Password match check
       const pwd = document.getElementById('password').value;
       const confirm = document.getElementById('confirm_password').value;
       if (pwd !== confirm) {
-        e.preventDefault();
         alert('Passwords do not match. Please check and try again.');
         document.getElementById('confirm_password').focus();
+        return;
       }
 
+      // File size check
       const resume = document.getElementById('resume').files[0];
       if (resume && resume.size > 5 * 1024 * 1024) {
-        e.preventDefault();
         alert('Resume file size must be under 5 MB.');
+        return;
+      }
+
+      // All good – open the modal
+      const overlay = document.getElementById('tcOverlay');
+      const body = document.getElementById('tcBody');
+      const btn = document.getElementById('tcRegisterBtn');
+      const hint = document.getElementById('scrollHint');
+      const note = document.getElementById('tcFooterNote');
+      const bar = document.getElementById('progressBar');
+
+      // Reset state
+      btn.disabled = true;
+      bar.style.width = '0%';
+      hint.style.display = 'flex';
+      note.innerHTML = '<i class="fas fa-lock"></i> Scroll to the bottom to enable registration';
+      body.scrollTop = 0;
+
+      overlay.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeTermsModal() {
+      document.getElementById('tcOverlay').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    /* ── Close on backdrop click ── */
+    document.getElementById('tcOverlay').addEventListener('click', function(e) {
+      if (e.target === this) closeTermsModal();
+    });
+
+    /* ── Close on Escape key ── */
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') closeTermsModal();
+    });
+
+    /* ── Scroll tracking ── */
+    document.getElementById('tcBody').addEventListener('scroll', function() {
+      const el = this;
+      const scrolled = el.scrollTop;
+      const total = el.scrollHeight - el.clientHeight;
+      const pct = total > 0 ? Math.min((scrolled / total) * 100, 100) : 100;
+
+      document.getElementById('progressBar').style.width = pct + '%';
+
+      // Enable button when within 20px of the bottom
+      const btn = document.getElementById('tcRegisterBtn');
+      const hint = document.getElementById('scrollHint');
+      const note = document.getElementById('tcFooterNote');
+      if (el.scrollTop + el.clientHeight >= el.scrollHeight - 20) {
+        btn.disabled = false;
+        hint.style.display = 'none';
+        note.innerHTML = '<i class="fas fa-check-circle" style="color:#10B981"></i> You have read all the terms';
       }
     });
+
+    /* ── Accept and submit ── */
+    function acceptAndRegister() {
+      document.getElementById('terms').checked = true;
+      closeTermsModal();
+      document.querySelector('form').submit();
+    }
   </script>
 </body>
 </html>

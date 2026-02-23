@@ -129,6 +129,23 @@
     }
     .view-profile-btn:hover { background: #0F172A; color: #fff; border-color: #0F172A; }
 
+    /* Sold Out */
+    .candidate-card.placed { opacity: 0.85; }
+    .candidate-card.placed .card-head { background: #475569; }
+    .sold-out-banner {
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      background: #DC2626; color: #fff;
+      font-size: 12px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;
+      padding: 7px 0;
+    }
+    .sold-out-banner i { font-size: 12px; }
+    .modal-placed-notice {
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      background: #FEF2F2; border: 1.5px solid #FECACA; border-radius: 9px;
+      padding: 14px 18px; color: #B91C1C; font-size: 13.5px; font-weight: 600;
+    }
+    .modal-placed-notice i { font-size: 18px; flex-shrink: 0; }
+
     /* Modal */
     .modal-overlay {
       display: none; position: fixed; inset: 0; z-index: 999;
@@ -332,7 +349,7 @@
     {% if employees %}
     <div class="candidates-grid" id="candidatesGrid">
       {% for emp in employees %}
-      <div class="candidate-card"
+      <div class="candidate-card{% if emp.is_placed %} placed{% endif %}"
         data-search="{{ emp.name|lower }} {{ emp.role|lower }} {{ emp.location|lower }} emp-{{ emp.id }}"
         data-skills="{{ emp.skills|lower|default:'' }}"
         data-id="{{ emp.id|stringformat:'04d' }}"
@@ -340,11 +357,16 @@
         data-role="{{ emp.role|escapejs }}"
         data-location="{{ emp.location|escapejs }}"
         data-qualification="{{ emp.qualification|escapejs }}"
-        data-experience="{{ emp.experience|escapejs }}"
+        data-experience="{{ emp.experience }}"
         data-skills-raw="{{ emp.skills|default:''|escapejs }}"
         data-photo="{% if emp.photo %}{{ emp.photo.url }}{% endif %}"
         data-initials="{{ emp.name|slice:':1'|upper }}"
+        data-placed="{{ emp.is_placed|yesno:'true,false' }}"
         onclick="openModal(this)" style="cursor:pointer;">
+
+        {% if emp.is_placed %}
+        <div class="sold-out-banner"><i class="fas fa-lock"></i> Sold Out</div>
+        {% endif %}
 
         <div class="card-head">
           <div class="emp-id-pill">EMP-{{ emp.id|stringformat:"04d" }}</div>
@@ -476,13 +498,18 @@
         section.style.display = 'none';
       }
 
-      // WhatsApp link
-      const msg = encodeURIComponent(
-        'Hi Accoplacers,\n\nI am interested in connecting with candidate:\n\n*Employee ID:* EMP-' + d.id +
-        '\n*Name:* ' + d.name + '\n*Role:* ' + d.role +
-        '\n\nPlease share their contact details and CV.\n\nRegards,\n' + employerName
-      );
-      document.getElementById('mWaBtn').href = 'https://wa.me/+971589288746?text=' + msg;
+      // Placed / WhatsApp footer
+      const foot = document.querySelector('.modal-foot');
+      if (d.placed === 'true') {
+        foot.innerHTML = '<div class="modal-placed-notice"><i class="fas fa-user-check"></i> This candidate has already been placed and is no longer available.</div>';
+      } else {
+        const msg = encodeURIComponent(
+          'Hi Accoplacers,\n\nI am interested in connecting with candidate:\n\n*Employee ID:* EMP-' + d.id +
+          '\n*Name:* ' + d.name + '\n*Role:* ' + d.role +
+          '\n\nPlease share their contact details and CV.\n\nRegards,\n' + employerName
+        );
+        foot.innerHTML = '<a id="mWaBtn" href="https://wa.me/+971589288746?text=' + msg + '" class="wa-btn" target="_blank"><i class="fab fa-whatsapp"></i> Connect via WhatsApp</a>';
+      }
 
       document.getElementById('profileModal').classList.add('open');
       document.body.style.overflow = 'hidden';

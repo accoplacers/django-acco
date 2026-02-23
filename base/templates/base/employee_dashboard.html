@@ -343,7 +343,6 @@
       <div class="job-card"
            onclick="openJobModal(this)"
            data-title="{{ job.title }}"
-           data-company="{{ job.employer.company_name }}"
            data-type="{{ job.job_type }}"
            data-location="{{ job.location }}"
            data-salary="{{ job.salary_range }}"
@@ -353,7 +352,6 @@
         <div class="job-card-top">
           <div>
             <h3 class="job-title">{{ job.title }}</h3>
-            <span class="job-company">{{ job.employer.company_name }}</span>
           </div>
           <span class="job-type-badge">{{ job.job_type }}</span>
         </div>
@@ -384,7 +382,6 @@
       <button class="modal-close" onclick="closeJobModal()" aria-label="Close"><i class="fas fa-times"></i></button>
       <div class="modal-badge-row">
         <span class="modal-type-badge" id="modalType"></span>
-        <span class="modal-company-badge" id="modalCompany"></span>
       </div>
       <h2 class="modal-title" id="modalTitle"></h2>
       <div class="modal-meta" id="modalMeta"></div>
@@ -456,7 +453,6 @@
     function openJobModal(card) {
       const d = card.dataset;
       document.getElementById('modalType').textContent = d.type;
-      document.getElementById('modalCompany').textContent = d.company;
       document.getElementById('modalTitle').textContent = d.title;
 
       let metaHtml = `<div class="modal-meta-item"><i class="fas fa-map-marker-alt"></i> ${d.location}</div>`;

@@ -356,6 +356,12 @@
     .badge-rose { background: var(--rose-light); color: var(--rose); }
     .badge-slate { background: var(--surface); border: 1px solid var(--border); color: var(--ink-3); }
     .badge-red { background: #FEF2F2; color: var(--red); }
+    .badge-placed { background: #ECFDF5; color: #065F46; border: 1px solid #A7F3D0; }
+    .badge-available { background: var(--surface); border: 1px solid var(--border); color: var(--ink-4); }
+    .btn-place { background: #ECFDF5; border-color: #A7F3D0; color: #065F46; }
+    .btn-place:hover { background: #059669; color: #fff; border-color: #059669; }
+    .btn-unplace { background: #FEF2F2; border-color: #FECACA; color: var(--red); }
+    .btn-unplace:hover { background: var(--red); color: #fff; border-color: var(--red); }
 
     /* ── Skill tags ── */
     .skill-tag {
@@ -806,10 +812,10 @@
           </div>
         </div>
         <div class="stat-card">
-          <div class="stat-icon rose"><i class="fas fa-handshake"></i></div>
+          <div class="stat-icon rose"><i class="fas fa-user-check"></i></div>
           <div>
-            <div class="stat-label">Total Listings</div>
-            <div class="stat-value">{{ employers.count }}</div>
+            <div class="stat-label">Placed</div>
+            <div class="stat-value">{{ placed_count }}</div>
           </div>
         </div>
       </div>
@@ -835,6 +841,7 @@
                   <th>Qualification</th>
                   <th>Skills</th>
                   <th>Plan</th>
+                  <th>Status</th>
                   <th>Resume</th>
                 </tr>
               </thead>
@@ -854,7 +861,8 @@
                   data-plan="{{ reg.plan }}"
                   data-photo="{% if reg.photo %}{{ reg.photo.url }}{% endif %}"
                   data-resume="{% if reg.resume %}{{ reg.resume.url }}{% endif %}"
-                  data-joined="{{ reg.created_at|date:'M d, Y' }}">
+                  data-joined="{{ reg.created_at|date:'M d, Y' }}"
+                  data-placed="{{ reg.is_placed|yesno:'true,false' }}">
                   <td data-label="Employee">
                     <div class="avatar-cell">
                       <div class="avatar">
@@ -884,6 +892,13 @@
                     {% elif reg.plan == 'intermediate' %}<span class="badge badge-amber">{{ reg.plan }}</span>
                     {% else %}<span class="badge badge-indigo">{{ reg.plan }}</span>{% endif %}
                   </td>
+                  <td data-label="Status">
+                    {% if reg.is_placed %}
+                    <span class="badge badge-placed"><i class="fas fa-check-circle" style="font-size:10px;"></i> Placed</span>
+                    {% else %}
+                    <span class="badge badge-available">Available</span>
+                    {% endif %}
+                  </td>
                   <td data-label="Resume" onclick="event.stopPropagation()">
                     {% if reg.resume %}
                     <a href="{{ reg.resume.url }}" target="_blank" class="btn btn-ghost btn-sm"><i class="fas fa-file-alt"></i> View</a>
@@ -891,7 +906,7 @@
                   </td>
                 </tr>
                 {% empty %}
-                <tr><td colspan="8"><div class="empty"><i class="fas fa-users"></i><p>No employees registered yet.</p></div></td></tr>
+                <tr><td colspan="9"><div class="empty"><i class="fas fa-users"></i><p>No employees registered yet.</p></div></td></tr>
                 {% endfor %}
               </tbody>
             </table>
@@ -1108,6 +1123,12 @@
     </div>
     <div class="pc-footer">
       <span id="pcResumeLink"></span>
+      <form method="POST" action="{% url 'toggle_placed' %}" id="placedForm" style="display:inline;" onclick="event.stopPropagation()">
+        {% csrf_token %}
+        <input type="hidden" name="employee_id" id="pcEmployeeId">
+        <input type="hidden" name="action" id="pcPlacedAction">
+        <button type="submit" class="btn btn-sm" id="pcPlacedBtn"></button>
+      </form>
       <span style="margin-left:auto;font-size:12px;color:var(--ink-4);" id="pcJoined"></span>
     </div>
   </div>
@@ -1237,6 +1258,21 @@
       resumeEl.innerHTML = '<a href="' + d.resume + '" target="_blank" class="btn btn-ghost btn-sm"><i class="fas fa-file-alt"></i> View Resume</a>';
     } else {
       resumeEl.innerHTML = '<span style="color:var(--ink-4);font-size:13px;">No resume uploaded</span>';
+    }
+
+    // Placed toggle
+    document.getElementById('pcEmployeeId').value = d.id;
+    const isPlaced = d.placed === 'true';
+    const actionInput = document.getElementById('pcPlacedAction');
+    const placedBtn = document.getElementById('pcPlacedBtn');
+    if (isPlaced) {
+      actionInput.value = 'unplace';
+      placedBtn.className = 'btn btn-sm btn-unplace';
+      placedBtn.innerHTML = '<i class="fas fa-times-circle"></i> Mark as Available';
+    } else {
+      actionInput.value = 'place';
+      placedBtn.className = 'btn btn-sm btn-place';
+      placedBtn.innerHTML = '<i class="fas fa-user-check"></i> Mark as Placed';
     }
 
     modal.classList.add('open');
