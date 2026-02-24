@@ -413,12 +413,16 @@ def registrations_dashboard(request):
     employers = Employer.objects.all().order_by('-id')
     job_openings = JobOpening.objects.all().order_by('-created_at')
     placed_count = registrations.filter(is_placed=True).count()
+    interests = EmployerInterest.objects.select_related('employer', 'employee').order_by('-created_at')
+    employee_interests = EmployeeInterest.objects.select_related('employee', 'job', 'job__employer').order_by('-created_at')
 
     return render(request, 'base/registrations_dashboard.html', {
         'registrations': registrations,
         'employers': employers,
         'job_openings': job_openings,
         'placed_count': placed_count,
+        'interests': interests,
+        'employee_interests': employee_interests,
     })
 
 
@@ -426,7 +430,7 @@ def registrations_dashboard(request):
 # EMPLOYEE AUTHENTICATION
 # ==========================================
 
-from .models import Employer, JobOpening
+from .models import Employer, JobOpening, EmployerInterest, EmployeeInterest
 
 def employee_login(request):
     if request.session.get('user_type') == 'employee':
@@ -486,11 +490,16 @@ def employee_dashboard(request):
         return redirect('employee_dashboard')
     
     # Get all active job openings
-    job_openings = JobOpening.objects.filter(is_active=True).order_by('-created_at')
-    
+    job_openings = JobOpening.objects.filter(is_active=True).select_related('employer').order_by('-created_at')
+
+    interested_job_ids = set(
+        EmployeeInterest.objects.filter(employee=employee).values_list('job_id', flat=True)
+    )
+
     return render(request, 'base/employee_dashboard.html', {
         'employee': employee,
         'job_openings': job_openings,
+        'interested_job_ids': interested_job_ids,
     })
 
 
@@ -625,8 +634,79 @@ def employer_dashboard(request):
     
     # Get all registered employees
     employees = Registration.objects.all().order_by('-created_at')
-    
+
+    interested_ids = set(
+        EmployerInterest.objects.filter(employer=employer).values_list('employee_id', flat=True)
+    )
+
     return render(request, 'base/employer_dashboard.html', {
         'employer': employer,
         'employees': employees,
+        'interested_ids': interested_ids,
     })
+
+
+def express_interest(request):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
+
+    if 'employer_id' not in request.session or request.session.get('user_type') != 'employer':
+        return JsonResponse({'error': 'Not authenticated'}, status=401)
+
+    employer_id = request.session.get('employer_id')
+    employee_id = request.POST.get('employee_id')
+
+    if not employee_id:
+        return JsonResponse({'error': 'Missing employee_id'}, status=400)
+
+    try:
+        employee_id = int(employee_id)
+    except (ValueError, TypeError):
+        return JsonResponse({'error': 'Invalid employee_id'}, status=400)
+
+    try:
+        employer = Employer.objects.get(id=employer_id)
+        employee = Registration.objects.get(id=employee_id)
+    except (Employer.DoesNotExist, Registration.DoesNotExist):
+        return JsonResponse({'error': 'Not found'}, status=404)
+
+    interest, created = EmployerInterest.objects.get_or_create(employer=employer, employee=employee)
+
+    if not created:
+        interest.delete()
+        return JsonResponse({'status': 'removed'})
+
+    return JsonResponse({'status': 'added'})
+
+
+def employee_express_interest(request):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
+
+    if 'employee_id' not in request.session or request.session.get('user_type') != 'employee':
+        return JsonResponse({'error': 'Not authenticated'}, status=401)
+
+    employee_id = request.session.get('employee_id')
+    job_id = request.POST.get('job_id')
+
+    if not job_id:
+        return JsonResponse({'error': 'Missing job_id'}, status=400)
+
+    try:
+        job_id = int(job_id)
+    except (ValueError, TypeError):
+        return JsonResponse({'error': 'Invalid job_id'}, status=400)
+
+    try:
+        employee = Registration.objects.get(id=employee_id)
+        job = JobOpening.objects.get(id=job_id)
+    except (Registration.DoesNotExist, JobOpening.DoesNotExist):
+        return JsonResponse({'error': 'Not found'}, status=404)
+
+    interest, created = EmployeeInterest.objects.get_or_create(employee=employee, job=job)
+
+    if not created:
+        interest.delete()
+        return JsonResponse({'status': 'removed'})
+
+    return JsonResponse({'status': 'added'})

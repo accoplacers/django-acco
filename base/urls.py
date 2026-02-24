@@ -24,4 +24,6 @@ urlpatterns = [
     path('employer/login/', views.employer_login, name='employer_login'),
     path('employer/logout/', views.employer_logout, name='employer_logout'),
     path('employer/dashboard/', views.employer_dashboard, name='employer_dashboard'),
+    path('employer/interest/', views.express_interest, name='express_interest'),
+    path('employee/interest/', views.employee_express_interest, name='employee_express_interest'),
 ]

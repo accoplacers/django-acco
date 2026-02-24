@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Registration, Contact, Employer, JobOpening
+from .models import Registration, Contact, Employer, JobOpening, EmployerInterest
 
 
 @admin.register(Registration)
@@ -86,3 +86,27 @@ class JobOpeningAdmin(admin.ModelAdmin):
     search_fields = ('title', 'employer__company_name')
     list_filter = ('job_type', 'is_active', 'location', 'created_at')
     ordering = ('-created_at',)
+
+
+@admin.register(EmployerInterest)
+class EmployerInterestAdmin(admin.ModelAdmin):
+    list_display = ('employer', 'employee_id_display', 'employee_name', 'employee_role', 'created_at')
+    search_fields = ('employer__company_name', 'employee__name', 'employee__role')
+    list_filter = ('employer', 'created_at')
+    ordering = ('-created_at',)
+    readonly_fields = ('employer', 'employee', 'created_at')
+
+    def employee_id_display(self, obj):
+        return f"EMP-{obj.employee.id:04d}"
+    employee_id_display.short_description = 'Employee ID'
+    employee_id_display.admin_order_field = 'employee__id'
+
+    def employee_name(self, obj):
+        return obj.employee.name
+    employee_name.short_description = 'Candidate Name'
+    employee_name.admin_order_field = 'employee__name'
+
+    def employee_role(self, obj):
+        return obj.employee.role
+    employee_role.short_description = 'Role'
+    employee_role.admin_order_field = 'employee__role'

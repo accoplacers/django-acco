@@ -191,14 +191,17 @@
     .modal-skills-wrap { display: flex; flex-wrap: wrap; gap: 6px; }
     .modal-skill-chip { background: #EEF2FF; color: #4F46E5; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
     .modal-foot { padding: 16px 24px 24px; }
-    .wa-btn {
+    .interest-btn {
       display: flex; align-items: center; justify-content: center; gap: 8px;
       width: 100%; padding: 13px;
-      background: #25D366; color: #fff; border: none; border-radius: 9px;
-      font-size: 14px; font-weight: 700; text-decoration: none;
-      font-family: inherit; transition: background 0.15s, transform 0.15s;
+      background: #E11D48; color: #fff; border: none; border-radius: 9px;
+      font-size: 14px; font-weight: 700;
+      font-family: inherit; cursor: pointer; transition: background 0.15s, transform 0.15s;
     }
-    .wa-btn:hover { background: #128C7E; transform: translateY(-1px); }
+    .interest-btn:hover { background: #9F1239; transform: translateY(-1px); }
+    .interest-btn.interested { background: #059669; }
+    .interest-btn.interested:hover { background: #047857; }
+    .interest-btn:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
 
     /* No candidates */
     .no-candidates { text-align: center; padding: 80px 20px; background: #fff; border: 1px solid #E2E8F0; border-radius: 12px; }
@@ -326,8 +329,8 @@
     </div>
 
     <div class="info-banner">
-      <i class="fab fa-whatsapp"></i>
-      <p>Click <strong>"Connect via WhatsApp"</strong> on any candidate card to request their details and CV. Mention the <strong>Employee ID</strong> and we'll connect you directly.</p>
+      <i class="fas fa-heart"></i>
+      <p>Click <strong>"Mark as Interested"</strong> on any candidate profile to let us know you're interested. We'll review your request and connect you with the candidate.</p>
     </div>
 
     <div class="section-title">
@@ -353,6 +356,7 @@
         data-search="{{ emp.name|lower }} {{ emp.role|lower }} {{ emp.location|lower }} emp-{{ emp.id }}"
         data-skills="{{ emp.skills|lower|default:'' }}"
         data-id="{{ emp.id|stringformat:'04d' }}"
+        data-pk="{{ emp.id }}"
         data-name="{{ emp.name|escapejs }}"
         data-role="{{ emp.role|escapejs }}"
         data-location="{{ emp.location|escapejs }}"
@@ -362,6 +366,7 @@
         data-photo="{% if emp.photo %}{{ emp.photo.url }}{% endif %}"
         data-initials="{{ emp.name|slice:':1'|upper }}"
         data-placed="{{ emp.is_placed|yesno:'true,false' }}"
+        data-interested="{% if emp.id in interested_ids %}true{% else %}false{% endif %}"
         onclick="openModal(this)" style="cursor:pointer;">
 
         {% if emp.is_placed %}
@@ -439,15 +444,16 @@
         </div>
       </div>
       <div class="modal-foot">
-        <a id="mWaBtn" href="#" class="wa-btn" target="_blank">
-          <i class="fab fa-whatsapp"></i> Connect via WhatsApp
-        </a>
+        <button id="mInterestBtn" class="interest-btn" onclick="markInterest(event)">
+          <i class="fas fa-heart"></i> <span id="mInterestText">Mark as Interested</span>
+        </button>
       </div>
     </div>
   </div>
 
   <script>
-    const employerName = "{{ employer.company_name|escapejs }}";
+    const csrfToken = "{{ csrf_token }}";
+    let currentCardEl = null;
 
     function filterCandidates() {
       const search = document.getElementById('searchInput').value.toLowerCase();
@@ -470,6 +476,7 @@
     }
 
     function openModal(card) {
+      currentCardEl = card;
       const d = card.dataset;
       document.getElementById('mEmpId').textContent = 'EMP-' + d.id;
       document.getElementById('mName').textContent = d.name;
@@ -498,26 +505,60 @@
         section.style.display = 'none';
       }
 
-      // Placed / WhatsApp footer
+      // Footer: placed notice or interest button
       const foot = document.querySelector('.modal-foot');
       if (d.placed === 'true') {
         foot.innerHTML = '<div class="modal-placed-notice"><i class="fas fa-user-check"></i> This candidate has already been placed and is no longer available.</div>';
       } else {
-        const msg = encodeURIComponent(
-          'Hi Accoplacers,\n\nI am interested in connecting with candidate:\n\n*Employee ID:* EMP-' + d.id +
-          '\n*Name:* ' + d.name + '\n*Role:* ' + d.role +
-          '\n\nPlease share their contact details and CV.\n\nRegards,\n' + employerName
-        );
-        foot.innerHTML = '<a id="mWaBtn" href="https://wa.me/+971589288746?text=' + msg + '" class="wa-btn" target="_blank"><i class="fab fa-whatsapp"></i> Connect via WhatsApp</a>';
+        const isInterested = d.interested === 'true';
+        foot.innerHTML =
+          '<button id="mInterestBtn" class="interest-btn' + (isInterested ? ' interested' : '') + '" onclick="markInterest(event)">' +
+          '<i class="fas fa-heart"></i> <span id="mInterestText">' + (isInterested ? 'Interested ✓' : 'Mark as Interested') + '</span>' +
+          '</button>';
       }
 
       document.getElementById('profileModal').classList.add('open');
       document.body.style.overflow = 'hidden';
     }
 
+    function markInterest(e) {
+      e.stopPropagation();
+      if (!currentCardEl) return;
+
+      const btn = document.getElementById('mInterestBtn');
+      const textEl = document.getElementById('mInterestText');
+      const pk = currentCardEl.dataset.pk;
+
+      btn.disabled = true;
+
+      fetch('/employer/interest/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'X-CSRFToken': csrfToken
+        },
+        body: 'employee_id=' + pk
+      })
+      .then(r => r.json())
+      .then(data => {
+        if (data.status === 'added') {
+          btn.classList.add('interested');
+          textEl.textContent = 'Interested ✓';
+          currentCardEl.dataset.interested = 'true';
+        } else if (data.status === 'removed') {
+          btn.classList.remove('interested');
+          textEl.textContent = 'Mark as Interested';
+          currentCardEl.dataset.interested = 'false';
+        }
+        btn.disabled = false;
+      })
+      .catch(() => { btn.disabled = false; });
+    }
+
     function closeModal() {
       document.getElementById('profileModal').classList.remove('open');
       document.body.style.overflow = '';
+      currentCardEl = null;
     }
 
     function closeModalOutside(e) {

@@ -17,6 +17,12 @@ This is a Django-based job placement platform called "Acco Placers" that connect
 - MySQL server running locally
 - Virtual environment in `env/`
 
+### Install dependencies
+```bash
+source env/bin/activate
+pip install -r req.txt
+```
+
 ### Environment Variables
 Create `.env` file in `acco/` directory with:
 ```
@@ -26,35 +32,31 @@ STRIPE_SECRET_KEY=<your_stripe_secret_key>
 
 ### Common Commands
 
-**Activate virtual environment and run server:**
 ```bash
-source env/bin/activate
-python manage.py runserver 8080
-```
+# Run development server
+source env/bin/activate && python manage.py runserver 8080
 
-**Database migrations:**
-```bash
-source env/bin/activate
-python manage.py makemigrations
-python manage.py migrate
-```
+# Database migrations
+python manage.py makemigrations && python manage.py migrate
 
-**Create superuser for admin access:**
-```bash
-source env/bin/activate
-python manage.py createsuperuser
-```
+# Run tests
+python manage.py test base
 
-**Collect static files:**
-```bash
-source env/bin/activate
+# Collect static files
 python manage.py collectstatic
 ```
 
-**Fix plaintext passwords (custom management command):**
+### Custom Management Commands
+
 ```bash
-source env/bin/activate
+# Hash any plaintext passwords still in the database
 python manage.py fix_passwords
+
+# Scan and remove malicious/SQL-injected data
+python manage.py cleanup_all_malicious_data          # all tables
+python manage.py cleanup_all_malicious_data --dry-run # preview without deleting
+python manage.py cleanup_malicious_employers
+python manage.py cleanup_malicious_contacts
 ```
 
 ## Architecture
@@ -62,11 +64,14 @@ python manage.py fix_passwords
 ### Project Structure
 - **acco/** - Django project configuration (settings, root URLs, WSGI/ASGI config)
 - **base/** - Main Django app containing all business logic
-  - Models: Registration (employees), Employer, JobOpening, Contact
-  - Views: Registration flow, authentication, dashboards, Stripe checkout
-  - Templates: All HTML files for the application
-  - Static files: CSS, JS, images
-  - Custom management commands in `management/commands/`
+  - `models.py` - Registration (employees), Employer, JobOpening, Contact
+  - `views.py` - Registration flow, authentication, dashboards, Stripe checkout
+  - `validators.py` - Input validation including SQL injection pattern detection
+  - `decorators.py` - IP-based rate limiting decorator (`@rate_limit`)
+  - `admin.py` - Django admin config with custom list displays and bulk actions
+  - `management/commands/` - Custom management commands
+  - `templates/base/` - All HTML templates
+  - `static/base/` - CSS, JS, images
 
 ### Key Design Decisions
 
@@ -74,80 +79,85 @@ python manage.py fix_passwords
 - Does NOT use Django's built-in `auth.User` model
 - Two separate user types: `Registration` (employees) and `Employer` models
 - Both models store hashed passwords directly in their tables
-- Password hashing is automatic via model `save()` method override
+- Password hashing is automatic via model `save()` method override (checks for `pbkdf2_sha256$` prefix)
 - Authentication uses `check_password()` from Django's hashers
 - Sessions managed via Django's session framework
 
-**Password Handling:**
-- Models auto-hash plaintext passwords on save if not already hashed (checks for `pbkdf2_sha256$` prefix)
-- Custom management command `fix_passwords` available to migrate existing plaintext passwords
-- Password field max length: 128 characters (standard for hashed passwords)
+**Stripe Registration Flow:**
+- Employee fills form → data saved to session via `/register/temp-save/` (rate limited)
+- Stripe checkout session created at `/create-checkout-session/` (@csrf_exempt)
+- After successful payment, Stripe redirects to `/register/success/` which reads session and saves to DB
+- Temporary uploaded files stored in `media/tmp/` during this flow
 
-**Stripe Integration:**
-- Employees select subscription plans during registration (basic/intermediate/premium)
-- Checkout session created with `/create-checkout-session/` endpoint
-- Success URL redirects to `/register/temp-save/` after payment
-- Temporary data saved in session before payment, finalized after successful checkout
+**Security Middleware:**
+- `validators.py` validates all user inputs against SQL injection patterns, length limits, and format rules
+- `@rate_limit` decorator: 5 requests per 60 seconds per IP, 5-minute block on violation (returns HTTP 429)
+- Applied to: `temp_save_registration`, `employee_register`, `employer_register`, `contact_user`
+- File upload limits: 10 MB per file, 15 MB total request
 
 **Media Files:**
-- Employee resumes stored in `media/resumes/`
+- Employee resumes in `media/resumes/`
 - Employee photos in `media/employee_photos/`
 - Employer logos in `media/employer_logos/`
-- MEDIA_ROOT set to `media/` directory
+- Temporary files during checkout in `media/tmp/`
 
 ### Database Configuration
-- Engine: MySQL
-- Database name: `emp`
-- Default credentials: user=`accoplacers`, password=`accoplacers`
-- Host: `localhost:3306`
+- Engine: MySQL, database name: `emp`
+- Credentials: user=`accoplacers`, password=`accoplacers`, host: `localhost:3306`
 - Timezone: Asia/Dubai
 
 ### URL Routing Structure
-Main routes defined in `base/urls.py`:
-- `/` - Employee registration/landing page
-- `/employee/login/` - Employee login
-- `/employee/dashboard/` - Employee dashboard
-- `/employer/register/` - Employer registration
-- `/employer/login/` - Employer login
-- `/employer/dashboard/` - Employer dashboard with job posting
-- `/admin/` - Django admin interface
-- `/contact/` - Contact form
-- `/create-checkout-session/` - Stripe payment initiation
+All routes defined in `base/urls.py`:
+
+| URL | View | Notes |
+|-----|------|-------|
+| `/` | `registration_view` | Landing page |
+| `/contact/` | `contact_user` | Rate limited |
+| `/create-checkout-session/` | `create_checkout_session` | CSRF exempt |
+| `/register/temp-save/` | `temp_save_registration` | Rate limited |
+| `/register/success/` | `registration_success` | Stripe redirect target |
+| `/employee/register/` | `employee_register` | Rate limited |
+| `/employee/login/` | `employee_login` | |
+| `/employee/logout/` | `employee_logout` | |
+| `/employee/dashboard/` | `employee_dashboard` | |
+| `/employer/register/` | `employer_register` | Rate limited |
+| `/employer/login/` | `employer_login` | |
+| `/employer/logout/` | `employer_logout` | |
+| `/employer/dashboard/` | `employer_dashboard` | |
+| `/dashboard/` | `registrations_dashboard` | Requires Django session login |
+| `/dashboard/toggle-placed/` | `toggle_placed` | Requires Django session login |
+| `/terms/` | `terms` | |
+| `/admin/` | Django admin | Separate from `/dashboard/` |
 
 ### Important Model Fields
 
 **Registration (Employee):**
-- Auto-incrementing ID (primary key)
-- Email must be unique
-- Password field is nullable (for users who haven't set passwords yet)
-- Plan choices: 'basic', 'intermediate', 'premium'
-- Skills stored as comma-separated text
+- `email` (unique), `password` (nullable), `plan` (basic/intermediate/premium)
+- `skills` (comma-separated text), `is_placed` (boolean), `resume`, `photo`
+- `role`, `experience`, `qualification`, `nationality`, `location`
 
 **Employer:**
-- Auto-incrementing ID (primary key)
-- Email must be unique
-- Related to JobOpening via foreign key
-- Password field is required
+- `email` (unique), `password` (required), `company_name`, `industry`, `logo`
+- Related JobOpenings via FK (CASCADE delete)
 
 **JobOpening:**
-- Foreign key to Employer with CASCADE delete
-- `is_active` boolean to control visibility
-- No direct employee application tracking (may be future enhancement)
+- FK to Employer (CASCADE delete), `is_active` boolean controls visibility
+- `title`, `description`, `requirements`, `salary_range`, `location`, `job_type`
 
 ## Testing
 
-The project uses Django's test framework. Run tests with:
 ```bash
 source env/bin/activate
 python manage.py test base
 ```
 
-Currently `base/tests.py` contains minimal test coverage.
+`base/tests.py` currently has minimal coverage.
 
 ## Deployment Notes
 
-- Static files collected to `staticfiles/` directory
-- ALLOWED_HOSTS configured for: 127.0.0.1, accoplacers.com, www.accoplacers.com, 35.154.23.157
-- DEBUG mode is currently ON - must be disabled for production
-- SECRET_KEY is hardcoded - should use environment variable in production
-- Media files served via Django in development, should use dedicated storage in production
+- `DEBUG = False` in `settings.py` (production setting)
+- `ALLOWED_HOSTS`: 127.0.0.1, accoplacers.com, www.accoplacers.com, 35.154.23.157
+- `SECRET_KEY` is hardcoded — should be moved to environment variable
+- Static files collected to `staticfiles/`
+- Media files served by Django — should use dedicated object storage in production
+- See `SECURITY_FIXES.md` for prior security audit findings

@@ -82,3 +82,27 @@ class Contact(models.Model):
     def __str__(self):
         return self.name
 
+
+class EmployerInterest(models.Model):
+    employer = models.ForeignKey(Employer, on_delete=models.CASCADE, related_name='interests')
+    employee = models.ForeignKey(Registration, on_delete=models.CASCADE, related_name='interests')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('employer', 'employee')
+
+    def __str__(self):
+        return f"{self.employer.company_name} → EMP-{self.employee.id:04d} ({self.employee.name})"
+
+
+class EmployeeInterest(models.Model):
+    employee = models.ForeignKey(Registration, on_delete=models.CASCADE, related_name='job_interests')
+    job = models.ForeignKey(JobOpening, on_delete=models.CASCADE, related_name='employee_interests')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('employee', 'job')
+
+    def __str__(self):
+        return f"EMP-{self.employee.id:04d} ({self.employee.name}) → {self.job.title} at {self.job.employer.company_name}"
+

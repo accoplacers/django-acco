@@ -217,7 +217,7 @@
     .content { padding: 24px; flex: 1; }
 
     /* ── Stats ── */
-    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+    .stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 16px; margin-bottom: 24px; }
     .stat-card {
       background: var(--card);
       border: 1px solid var(--border);
@@ -604,7 +604,8 @@
     .sidebar-overlay.open { display: block; }
 
     /* ── Responsive ── */
-    @media (max-width: 1200px) { .stats { grid-template-columns: repeat(2, 1fr); } }
+    .stat-icon.pink { background: #FDF2F8; color: #DB2777; }
+    @media (max-width: 1200px) { .stats { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); } }
 
     @media (max-width: 900px) {
       :root { --sidebar-w: 260px; }
@@ -747,6 +748,18 @@
         <span class="sb-item-label">Job Openings</span>
         <span class="sb-count">{{ job_openings.count }}</span>
       </button>
+
+      <div class="sb-section">Activity</div>
+      <button class="sb-item" id="nav-interests" onclick="showTab('interests'); closeSidebar()">
+        <i class="fas fa-heart"></i>
+        <span class="sb-item-label">Employer Interests</span>
+        <span class="sb-count">{{ interests.count }}</span>
+      </button>
+      <button class="sb-item" id="nav-employee-interests" onclick="showTab('employee-interests'); closeSidebar()">
+        <i class="fas fa-hand-holding-heart"></i>
+        <span class="sb-item-label">Employee Interests</span>
+        <span class="sb-count">{{ employee_interests.count }}</span>
+      </button>
     </nav>
 
     <div class="sb-footer">
@@ -816,6 +829,20 @@
           <div>
             <div class="stat-label">Placed</div>
             <div class="stat-value">{{ placed_count }}</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon pink"><i class="fas fa-heart"></i></div>
+          <div>
+            <div class="stat-label">Empr Interests</div>
+            <div class="stat-value">{{ interests.count }}</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#F0FDF4;color:#16A34A;"><i class="fas fa-hand-holding-heart"></i></div>
+          <div>
+            <div class="stat-label">Empl Interests</div>
+            <div class="stat-value">{{ employee_interests.count }}</div>
           </div>
         </div>
       </div>
@@ -1088,6 +1115,145 @@
         </div>
       </div>
 
+      <!-- Employer Interests Tab -->
+      <div id="interests-tab" class="tab-content">
+        <div class="panel">
+          <div class="panel-header">
+            <h2 class="panel-title"><i class="fas fa-heart"></i> Employer Interests</h2>
+            <div class="panel-search">
+              <i class="fas fa-search"></i>
+              <input type="text" placeholder="Search interests…" onkeyup="filterTable('interestsTable', this.value)">
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table id="interestsTable">
+              <thead>
+                <tr>
+                  <th>Employer</th>
+                  <th>Candidate</th>
+                  <th>Role</th>
+                  <th>Plan</th>
+                  <th>Candidate Status</th>
+                  <th>Expressed On</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for interest in interests %}
+                <tr>
+                  <td data-label="Employer">
+                    <div class="avatar-cell">
+                      <div class="avatar rose">
+                        {% if interest.employer.logo %}<img src="{{ interest.employer.logo.url }}" alt="">{% else %}{{ interest.employer.company_name|slice:":1"|upper }}{% endif %}
+                      </div>
+                      <div>
+                        <div class="cell-main">{{ interest.employer.company_name }}</div>
+                        <span class="id-mono">EMPR-{{ interest.employer.id }}</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td data-label="Candidate">
+                    <div class="avatar-cell">
+                      <div class="avatar">
+                        {% if interest.employee.photo %}<img src="{{ interest.employee.photo.url }}" alt="">{% else %}{{ interest.employee.name|slice:":1"|upper }}{% endif %}
+                      </div>
+                      <div>
+                        <div class="cell-main">{{ interest.employee.name }}</div>
+                        <span class="id-mono">EMP-{{ interest.employee.id }}</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td data-label="Role">{{ interest.employee.role }}</td>
+                  <td data-label="Plan">
+                    {% if interest.employee.plan == 'premium' %}<span class="badge badge-rose">{{ interest.employee.plan }}</span>
+                    {% elif interest.employee.plan == 'intermediate' %}<span class="badge badge-amber">{{ interest.employee.plan }}</span>
+                    {% else %}<span class="badge badge-indigo">{{ interest.employee.plan }}</span>{% endif %}
+                  </td>
+                  <td data-label="Status">
+                    {% if interest.employee.is_placed %}
+                    <span class="badge badge-placed"><i class="fas fa-check-circle" style="font-size:10px;"></i> Placed</span>
+                    {% else %}
+                    <span class="badge badge-available">Available</span>
+                    {% endif %}
+                  </td>
+                  <td data-label="Expressed On" style="color:var(--ink-4);">{{ interest.created_at|date:"M d, Y" }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="6"><div class="empty"><i class="fas fa-heart"></i><p>No interests expressed yet.</p></div></td></tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Employee Interests Tab -->
+      <div id="employee-interests-tab" class="tab-content">
+        <div class="panel">
+          <div class="panel-header">
+            <h2 class="panel-title"><i class="fas fa-hand-holding-heart"></i> Employee Interests</h2>
+            <div class="panel-search">
+              <i class="fas fa-search"></i>
+              <input type="text" placeholder="Search interests…" onkeyup="filterTable('empInterestsTable', this.value)">
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table id="empInterestsTable">
+              <thead>
+                <tr>
+                  <th>Employee</th>
+                  <th>Job Title</th>
+                  <th>Company</th>
+                  <th>Employee Role</th>
+                  <th>Plan</th>
+                  <th>Expressed On</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for ei in employee_interests %}
+                <tr>
+                  <td data-label="Employee">
+                    <div class="avatar-cell">
+                      <div class="avatar">
+                        {% if ei.employee.photo %}<img src="{{ ei.employee.photo.url }}" alt="">{% else %}{{ ei.employee.name|slice:":1"|upper }}{% endif %}
+                      </div>
+                      <div>
+                        <div class="cell-main">{{ ei.employee.name }}</div>
+                        <span class="id-mono">EMP-{{ ei.employee.id }}</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td data-label="Job Title">
+                    <div class="cell-main">{{ ei.job.title }}</div>
+                    <span class="id-mono">JOB-{{ ei.job.id }}</span>
+                  </td>
+                  <td data-label="Company">
+                    <div class="avatar-cell">
+                      <div class="avatar rose">
+                        {% if ei.job.employer.logo %}<img src="{{ ei.job.employer.logo.url }}" alt="">{% else %}{{ ei.job.employer.company_name|slice:":1"|upper }}{% endif %}
+                      </div>
+                      <div>
+                        <div class="cell-main">{{ ei.job.employer.company_name }}</div>
+                        <span class="id-mono">EMPR-{{ ei.job.employer.id }}</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td data-label="Employee Role">{{ ei.employee.role }}</td>
+                  <td data-label="Plan">
+                    {% if ei.employee.plan == 'premium' %}<span class="badge badge-rose">{{ ei.employee.plan }}</span>
+                    {% elif ei.employee.plan == 'intermediate' %}<span class="badge badge-amber">{{ ei.employee.plan }}</span>
+                    {% else %}<span class="badge badge-indigo">{{ ei.employee.plan }}</span>{% endif %}
+                  </td>
+                  <td data-label="Expressed On" style="color:var(--ink-4);">{{ ei.created_at|date:"M d, Y" }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="6"><div class="empty"><i class="fas fa-hand-holding-heart"></i><p>No employee interests expressed yet.</p></div></td></tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
@@ -1135,8 +1301,8 @@
 </div>
 
 <script>
-  const TABS = ['employees','employers','jobs'];
-  const TITLES = { employees:'Employees', employers:'Employers', jobs:'Job Openings' };
+  const TABS = ['employees','employers','jobs','interests','employee-interests'];
+  const TITLES = { employees:'Employees', employers:'Employers', jobs:'Job Openings', interests:'Employer Interests', 'employee-interests':'Employee Interests' };
 
   function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
