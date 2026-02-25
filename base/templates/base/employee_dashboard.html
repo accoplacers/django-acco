@@ -188,6 +188,23 @@
     }
     .modal-interest-btn:hover { background: #EEF2FF; color: #4F46E5; border-color: #C7D2FE; }
     .modal-interest-btn.interested { background: #EEF2FF; color: #4F46E5; border-color: #C7D2FE; }
+    .modal-foot-btns { display: flex; flex-direction: column; gap: 10px; }
+    .wa-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 600;
+      background: #25D366; color: #fff; border: none;
+      transition: background 0.15s, transform 0.15s; width: 100%; justify-content: center;
+      text-decoration: none; margin-top: 10px;
+    }
+    .wa-btn:hover { background: #128C7E; color: #fff; transform: translateY(-1px); }
+    .modal-wa-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      width: 100%; padding: 12px 18px; justify-content: center;
+      border-radius: 9px; font-size: 14px; font-weight: 600;
+      background: #25D366; color: #fff; border: none;
+      transition: background 0.15s, transform 0.15s; text-decoration: none;
+    }
+    .modal-wa-btn:hover { background: #128C7E; color: #fff; transform: translateY(-1px); }
 
     /* Modal overlay */
     .modal-overlay {
@@ -394,6 +411,12 @@
           <i class="fas fa-heart"></i>
           {% if job.id in interested_job_ids %}Interested{% else %}Express Interest{% endif %}
         </button>
+        <a class="wa-btn"
+           href="https://wa.me/971589288746?text=Hi%2C+I+am+interested+in+the+{{ job.title|urlencode }}+position+from+Acco+Placers."
+           target="_blank" rel="noopener noreferrer"
+           onclick="event.stopPropagation()">
+          <i class="fab fa-whatsapp"></i> Send Interest on WhatsApp
+        </a>
       </div>
       {% endfor %}
     </div>
@@ -427,9 +450,14 @@
         <p class="modal-section-body" id="modalRequirements"></p>
       </div>
       <div class="modal-footer">
-        <button class="modal-interest-btn" id="modalInterestBtn" onclick="toggleJobInterestFromModal()">
-          <i class="fas fa-heart"></i> <span id="modalInterestLabel">Express Interest</span>
-        </button>
+        <div class="modal-foot-btns">
+          <button class="modal-interest-btn" id="modalInterestBtn" onclick="toggleJobInterestFromModal()">
+            <i class="fas fa-heart"></i> <span id="modalInterestLabel">Express Interest</span>
+          </button>
+          <a class="modal-wa-btn" id="modalWaBtn" href="#" target="_blank" rel="noopener noreferrer">
+            <i class="fab fa-whatsapp"></i> Send Interest on WhatsApp
+          </a>
+        </div>
       </div>
     </div>
   </div>
@@ -521,6 +549,10 @@
       // Sync interest button state in modal
       const interested = d.interested === 'true';
       updateModalInterestBtn(interested);
+
+      // Set WhatsApp link for this job
+      const waMsg = encodeURIComponent('Hi, I am interested in the ' + d.title + ' position from Acco Placers.');
+      document.getElementById('modalWaBtn').href = 'https://wa.me/971589288746?text=' + waMsg;
 
       const overlay = document.getElementById('jobModal');
       overlay.classList.add('open');
