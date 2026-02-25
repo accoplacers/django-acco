@@ -390,7 +390,7 @@
               <i class="fas fa-camera input-icon"></i>
               <input type="file" id="photo" name="photo" accept="image/*">
             </div>
-            <p class="file-hint">JPG or PNG headshot · Recommended 400×400px</p>
+            <p class="file-hint">JPG or PNG headshot · Recommended 400×400px · Max 2 MB</p>
           </div>
         </div>
 
@@ -495,10 +495,18 @@
         return;
       }
 
-      // File size check
+      // File size checks
       const resume = document.getElementById('resume').files[0];
       if (resume && resume.size > 5 * 1024 * 1024) {
-        alert('Resume file size must be under 5 MB.');
+        alert('Resume file is too large. Please upload a file under 5 MB.');
+        document.getElementById('resume').focus();
+        return;
+      }
+
+      const photo = document.getElementById('photo').files[0];
+      if (photo && photo.size > 2 * 1024 * 1024) {
+        alert('Photo file is too large. Please upload an image under 2 MB.');
+        document.getElementById('photo').focus();
         return;
       }
 
