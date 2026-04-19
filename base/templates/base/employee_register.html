@@ -7,334 +7,106 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   {% load static %}
+  <link rel="stylesheet" href="{% static 'base/css/ds.css' %}">
   <link rel="icon" href="{% static 'base/img/favicon.ico' %}" type="image/x-icon">
-  <style>
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: 'Inter', -apple-system, sans-serif;
-      min-height: 100vh;
-      display: flex;
-      background: #F8FAFC;
-    }
-    .panel-left {
-      width: 38%;
-      background: #0F172A;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      padding: 48px;
-      position: sticky;
-      top: 0;
-      height: 100vh;
-      overflow: hidden;
-    }
-    .panel-left::before {
-      content: '';
-      position: absolute;
-      top: -100px; right: -80px;
-      width: 350px; height: 350px;
-      background: radial-gradient(circle, rgba(79,70,229,0.2) 0%, transparent 70%);
-    }
-    .panel-left::after {
-      content: '';
-      position: absolute;
-      bottom: -60px; left: -60px;
-      width: 260px; height: 260px;
-      background: radial-gradient(circle, rgba(79,70,229,0.12) 0%, transparent 70%);
-    }
-    .pl-top { position: relative; z-index: 1; }
-    .pl-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; margin-bottom: 48px; }
-    .pl-logo-icon { width: 36px; height: 36px; background: #4F46E5; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 16px; }
-    .pl-logo-text { font-size: 18px; font-weight: 700; color: #fff; }
-    .pl-logo-text span { color: #818CF8; }
-    .pl-headline { font-size: 28px; font-weight: 800; color: #fff; line-height: 1.3; margin-bottom: 14px; letter-spacing: -0.4px; }
-    .pl-sub { font-size: 14px; color: rgba(255,255,255,0.5); line-height: 1.7; }
-    .pl-features { list-style: none; margin-top: 36px; display: flex; flex-direction: column; gap: 13px; position: relative; z-index: 1; }
-    .pl-features li { display: flex; align-items: center; gap: 11px; color: rgba(255,255,255,0.7); font-size: 13.5px; font-weight: 500; }
-    .feat-icon { width: 28px; height: 28px; border-radius: 7px; background: rgba(79,70,229,0.2); border: 1px solid rgba(79,70,229,0.35); display: flex; align-items: center; justify-content: center; color: #818CF8; font-size: 12px; flex-shrink: 0; }
-    .pl-bottom { position: relative; z-index: 1; font-size: 12px; color: rgba(255,255,255,0.2); }
-
-    .panel-right {
-      flex: 1;
-      padding: 48px 56px;
-      overflow-y: auto;
-    }
-    .form-card { max-width: 640px; margin: 0 auto; }
-    .form-eyebrow {
-      display: inline-flex; align-items: center; gap: 7px;
-      background: #EEF2FF; color: #4F46E5;
-      font-size: 12.5px; font-weight: 700;
-      padding: 5px 12px; border-radius: 20px; margin-bottom: 20px;
-    }
-    .form-heading { font-size: 26px; font-weight: 800; color: #0F172A; margin-bottom: 6px; letter-spacing: -0.4px; }
-    .form-sub { font-size: 14px; color: #64748B; margin-bottom: 32px; }
-    .msg {
-      padding: 12px 16px; border-radius: 8px; font-size: 13.5px; font-weight: 500;
-      margin-bottom: 20px; display: flex; align-items: center; gap: 10px;
-    }
-    .msg.error { background: #FEF2F2; color: #B91C1C; border: 1px solid #FECACA; }
-    .msg.success { background: #ECFDF5; color: #065F46; border: 1px solid #A7F3D0; }
-
-    .section-divider {
-      font-size: 11.5px; font-weight: 700; color: #94A3B8;
-      text-transform: uppercase; letter-spacing: 0.8px;
-      margin-bottom: 16px; margin-top: 28px;
-      display: flex; align-items: center; gap: 10px;
-    }
-    .section-divider::after { content: ''; flex: 1; height: 1px; background: #E2E8F0; }
-
-    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    .field { margin-bottom: 0; }
-    .field.full { grid-column: 1 / -1; }
-    .field label { display: block; font-size: 13px; font-weight: 600; color: #334155; margin-bottom: 7px; }
-    .input-wrap { position: relative; }
-    .input-icon { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: #94A3B8; font-size: 13px; pointer-events: none; }
-    .field input,
-    .field select {
-      width: 100%; padding: 11px 14px 11px 38px;
-      border: 1.5px solid #E2E8F0; border-radius: 8px;
-      font-size: 14px; font-family: inherit; color: #0F172A;
-      background: #fff; outline: none; transition: border-color 0.2s, box-shadow 0.2s;
-    }
-    .field select { appearance: none; cursor: pointer; }
-    .field input:focus, .field select:focus {
-      border-color: #4F46E5; box-shadow: 0 0 0 3px rgba(79,70,229,0.1);
-    }
-    .field input::placeholder { color: #94A3B8; }
-    .field input[type="file"] { padding: 10px 14px; cursor: pointer; }
-    .field input[type="file"]::file-selector-button {
-      background: #4F46E5; color: #fff; border: none;
-      padding: 5px 12px; border-radius: 6px; cursor: pointer;
-      font-weight: 600; margin-right: 12px; font-size: 12px;
-    }
-    .file-hint { font-size: 12px; color: #94A3B8; margin-top: 5px; }
-
-    .select-wrap { position: relative; }
-    .select-caret { position: absolute; right: 13px; top: 50%; transform: translateY(-50%); color: #94A3B8; font-size: 12px; pointer-events: none; }
-
-    .pwd-wrap { position: relative; }
-    .pwd-toggle {
-      position: absolute; right: 13px; top: 50%; transform: translateY(-50%);
-      background: none; border: none; color: #94A3B8; cursor: pointer; font-size: 14px; padding: 0;
-    }
-    .pwd-toggle:hover { color: #64748B; }
-
-    .submit-btn {
-      width: 100%; padding: 13px; background: #4F46E5; color: #fff;
-      border: none; border-radius: 8px; font-size: 15px; font-weight: 700;
-      cursor: pointer; font-family: inherit; transition: background 0.2s, transform 0.15s;
-      display: flex; align-items: center; justify-content: center; gap: 8px;
-      margin-top: 28px;
-    }
-    .submit-btn:hover { background: #3730A3; transform: translateY(-1px); }
-
-    /* ── Terms Modal ── */
-    .tc-overlay {
-      display: none;
-      position: fixed; inset: 0; z-index: 9999;
-      background: rgba(15,23,42,0.6);
-      backdrop-filter: blur(3px);
-      align-items: center; justify-content: center;
-      padding: 16px;
-    }
-    .tc-overlay.open { display: flex; }
-    .tc-modal {
-      background: #fff;
-      border-radius: 16px;
-      width: 100%; max-width: 680px;
-      max-height: 90vh;
-      display: flex; flex-direction: column;
-      box-shadow: 0 24px 60px rgba(15,23,42,0.25);
-      overflow: hidden;
-    }
-    .tc-header {
-      padding: 20px 24px 16px;
-      border-bottom: 1px solid #E2E8F0;
-      display: flex; align-items: center; justify-content: space-between;
-      flex-shrink: 0;
-    }
-    .tc-header h2 {
-      font-size: 17px; font-weight: 700; color: #0F172A;
-      display: flex; align-items: center; gap: 9px;
-    }
-    .tc-header h2 i { color: #4F46E5; font-size: 15px; }
-    .tc-close {
-      background: none; border: none; cursor: pointer;
-      color: #94A3B8; font-size: 18px; padding: 4px; line-height: 1;
-      transition: color 0.15s;
-    }
-    .tc-close:hover { color: #334155; }
-    .tc-scroll-hint {
-      padding: 8px 24px;
-      background: #F0F4FF;
-      border-bottom: 1px solid #E0E7FF;
-      font-size: 12px; color: #4F46E5; font-weight: 600;
-      display: flex; align-items: center; gap: 7px;
-      flex-shrink: 0;
-    }
-    .tc-body {
-      flex: 1; overflow-y: auto;
-      padding: 24px 28px;
-      color: #334155; font-size: 13.5px; line-height: 1.75;
-    }
-    .tc-body h3 {
-      font-size: 14px; font-weight: 700; color: #0F172A;
-      margin: 20px 0 6px;
-    }
-    .tc-body h3:first-child { margin-top: 0; }
-    .tc-body p { margin-bottom: 8px; }
-    .tc-body ul { margin: 6px 0 8px 20px; }
-    .tc-body ul li { margin-bottom: 4px; }
-    .tc-footer {
-      padding: 16px 24px;
-      border-top: 1px solid #E2E8F0;
-      display: flex; align-items: center; justify-content: space-between;
-      gap: 12px; flex-shrink: 0;
-      background: #F8FAFC;
-    }
-    .tc-footer-note {
-      font-size: 12px; color: #64748B;
-      display: flex; align-items: center; gap: 6px;
-    }
-    .tc-footer-note i { color: #94A3B8; }
-    .tc-register-btn {
-      padding: 11px 28px;
-      background: #4F46E5; color: #fff;
-      border: none; border-radius: 8px;
-      font-size: 14px; font-weight: 700;
-      cursor: pointer; font-family: inherit;
-      display: flex; align-items: center; gap: 7px;
-      transition: background 0.2s, opacity 0.2s, transform 0.15s;
-      white-space: nowrap;
-    }
-    .tc-register-btn:disabled {
-      opacity: 0.45; cursor: not-allowed; transform: none;
-    }
-    .tc-register-btn:not(:disabled):hover { background: #3730A3; transform: translateY(-1px); }
-    .scroll-progress {
-      height: 3px; background: #E2E8F0;
-      flex-shrink: 0; position: relative;
-    }
-    .scroll-progress-bar {
-      height: 100%; background: #4F46E5;
-      width: 0%; transition: width 0.1s;
-    }
-    @media (max-width: 640px) {
-      .tc-modal { max-height: 95vh; border-radius: 12px; }
-      .tc-body { padding: 18px 20px; }
-      .tc-header { padding: 16px 20px 14px; }
-      .tc-footer { flex-direction: column; align-items: stretch; }
-      .tc-register-btn { justify-content: center; }
-      .tc-footer-note { justify-content: center; }
-    }
-
-    .form-footer {
-      text-align: center; margin-top: 24px; padding-top: 20px;
-      border-top: 1px solid #E2E8F0;
-      display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap;
-    }
-    .form-footer a { color: #4F46E5; font-size: 13.5px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; }
-    .form-footer a:hover { text-decoration: underline; }
-    .form-footer .sep { color: #CBD5E1; }
-
-    @media (max-width: 1000px) { .panel-left { display: none; } .panel-right { padding: 40px 32px; } }
-    @media (max-width: 640px) { .form-grid { grid-template-columns: 1fr; } .panel-right { padding: 32px 20px; } .form-heading { font-size: 22px; } }
-  </style>
 </head>
-<body>
+<body class="portal-body theme-employee">
 
   <!-- Left Branding -->
-  <div class="panel-left">
+  <div class="portal-left">
+    <div class="portal-left-bg-glow"></div>
+    <div class="portal-left-bg" style="background-image: url('https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&q=80');"></div>
     <div class="pl-top">
-      <a href="/" class="pl-logo">
-        <div class="pl-logo-icon"><i class="fas fa-briefcase"></i></div>
-        <span class="pl-logo-text">Acco<span>placers</span></span>
+      <a href="/" class="dash-logo" style="margin-bottom: var(--space-12);">
+        <div class="dash-logo-icon"><img src="{% static 'base/img/android-chrome-192x192.png' %}" alt="Logo" style="width:32px; height:32px;"></div>
+        <span class="dash-logo-text" style="color:#fff;">Acco<span style="color:#818CF8;">placers</span></span>
       </a>
-      <h1 class="pl-headline">Launch your accounting &amp; finance career</h1>
-      <p class="pl-sub">Join hundreds of finance professionals who found their next opportunity through Accoplacers in the GCC region.</p>
-      <ul class="pl-features">
-        <li><div class="feat-icon"><i class="fas fa-briefcase"></i></div> Access exclusive job openings</li>
-        <li><div class="feat-icon"><i class="fas fa-file-alt"></i></div> Professional CV review &amp; guidance</li>
-        <li><div class="feat-icon"><i class="fas fa-chalkboard-teacher"></i></div> Interview preparation support</li>
-        <li><div class="feat-icon"><i class="fas fa-headset"></i></div> Dedicated career mentoring</li>
-      </ul>
+      <h1 class="pl-title">Launch your accounting career</h1>
+      <p class="pl-subtitle">Join hundreds of finance professionals who found their next opportunity through Accoplacers in the GCC region.</p>
+      
+      <div class="pl-features-container">
+        <div class="pl-feature-item">
+           <div class="pl-feature-icon"><i class="fas fa-briefcase"></i></div>
+           Exclusive job openings
+        </div>
+        <div class="pl-feature-item">
+           <div class="pl-feature-icon"><i class="fas fa-file-alt"></i></div>
+           Professional CV guidance
+        </div>
+        <div class="pl-feature-item">
+           <div class="pl-feature-icon"><i class="fas fa-chalkboard-teacher"></i></div>
+           Interview prep support
+        </div>
+      </div>
     </div>
-    <div class="pl-bottom">&copy; 2025 Accoplacers. All rights reserved.</div>
+    <div class="pl-footer">&copy; 2025 Accoplacers. GCC Managed Placements.</div>
   </div>
 
   <!-- Right Form -->
-  <div class="panel-right">
-    <div class="form-card">
-      <span class="form-eyebrow"><i class="fas fa-user-tie"></i> Job Seeker Portal</span>
-      <h1 class="form-heading">Create Your Profile</h1>
-      <p class="form-sub">Register to access curated finance &amp; accounting opportunities</p>
-
-      {% if messages %}
-        {% for message in messages %}
-        <div class="msg {{ message.tags }}">
-          <i class="fas {% if message.tags == 'error' %}fa-exclamation-circle{% else %}fa-check-circle{% endif %}"></i>
-          {{ message }}
-        </div>
-        {% endfor %}
-      {% endif %}
-
+  <div class="portal-right">
+    <div class="portal-card">
+      <span class="portal-eyebrow"><i class="fas fa-user-tie"></i> Job Seeker Portal</span>
+      <h1 class="form-heading" style="font-size: 26px; font-weight: 800; color: var(--slate-900); margin-bottom: 8px;">Create Your Profile</h1>
+      <p class="form-sub" style="font-size: 14px; color: var(--slate-500); margin-bottom: 32px;">Register to access curated finance &amp; accounting opportunities</p>
       <form method="POST" enctype="multipart/form-data">
         {% csrf_token %}
         <input type="hidden" name="plan" value="basic">
+        <!-- Honeypot Bot Trap -->
+        <input type="text" name="fax_number" style="display:none !important;" tabindex="-1" autocomplete="off">
 
-        <div class="section-divider">Personal Information</div>
-        <div class="form-grid">
+        <div class="section-divider-dash">Personal Information</div>
+        <div class="field-grid">
           <div class="field">
-            <label for="name">Full Name *</label>
+            <label class="field-label" for="name">Full Name *</label>
             <div class="input-wrap">
-              <i class="fas fa-user input-icon"></i>
-              <input type="text" id="name" name="name" placeholder="Your full name" required value="{{ form_data.name|default:'' }}">
+              <i class="fas fa-user input-icon-left"></i>
+              <input type="text" id="name" name="name" class="form-input" placeholder="Your full name" required value="{{ form_data.name|default:'' }}">
             </div>
           </div>
           <div class="field">
-            <label for="email">Email Address *</label>
+            <label class="field-label" for="email">Email Address *</label>
             <div class="input-wrap">
-              <i class="fas fa-envelope input-icon"></i>
-              <input type="email" id="email" name="email" placeholder="your@email.com" required value="{{ form_data.email|default:'' }}">
+              <i class="fas fa-envelope input-icon-left"></i>
+              <input type="email" id="email" name="email" class="form-input" placeholder="your@email.com" required value="{{ form_data.email|default:'' }}">
             </div>
           </div>
           <div class="field">
-            <label for="phone">Phone Number *</label>
+            <label class="field-label" for="phone">Phone Number *</label>
             <div class="input-wrap">
-              <i class="fas fa-phone input-icon"></i>
-              <input type="tel" id="phone" name="phone" placeholder="+971 XX XXX XXXX" required value="{{ form_data.phone|default:'' }}">
+              <i class="fas fa-phone input-icon-left"></i>
+              <input type="tel" id="phone" name="phone" class="form-input" placeholder="+971 XX XXX XXXX" required value="{{ form_data.phone|default:'' }}">
             </div>
           </div>
           <div class="field">
-            <label for="nationality">Nationality *</label>
+            <label class="field-label" for="nationality">Nationality *</label>
             <div class="input-wrap">
-              <i class="fas fa-globe input-icon"></i>
-              <input type="text" id="nationality" name="nationality" placeholder="Your nationality" required value="{{ form_data.nationality|default:'' }}">
+              <i class="fas fa-globe input-icon-left"></i>
+              <input type="text" id="nationality" name="nationality" class="form-input" placeholder="Your nationality" required value="{{ form_data.nationality|default:'' }}">
             </div>
           </div>
         </div>
 
-        <div class="section-divider">Professional Details</div>
-        <div class="form-grid">
+        <div class="section-divider-dash">Professional Details</div>
+        <div class="field-grid">
           <div class="field">
-            <label for="location">Current Location *</label>
+            <label class="field-label" for="location">Current Location *</label>
             <div class="input-wrap">
-              <i class="fas fa-map-marker-alt input-icon"></i>
-              <input type="text" id="location" name="location" placeholder="City, Country" required value="{{ form_data.location|default:'' }}">
+              <i class="fas fa-map-marker-alt input-icon-left"></i>
+              <input type="text" id="location" name="location" class="form-input" placeholder="City, Country" required value="{{ form_data.location|default:'' }}">
             </div>
           </div>
           <div class="field">
-            <label for="qualification">Highest Qualification *</label>
+            <label class="field-label" for="qualification">Highest Qualification *</label>
             <div class="input-wrap">
-              <i class="fas fa-graduation-cap input-icon"></i>
-              <input type="text" id="qualification" name="qualification" placeholder="e.g., MBA, CA, CPA" required value="{{ form_data.qualification|default:'' }}">
+              <i class="fas fa-graduation-cap input-icon-left"></i>
+              <input type="text" id="qualification" name="qualification" class="form-input" placeholder="e.g., MBA, CA, CPA" required value="{{ form_data.qualification|default:'' }}">
             </div>
           </div>
           <div class="field">
-            <label for="experience">Years of Experience *</label>
+            <label class="field-label" for="experience">Years of Experience *</label>
             <div class="input-wrap select-wrap">
-              <i class="fas fa-briefcase input-icon"></i>
-              <select id="experience" name="experience" required>
+              <i class="fas fa-briefcase input-icon-left"></i>
+              <select id="experience" name="experience" class="form-input" required>
                 <option value="">Select experience…</option>
                 <option value="0-1" {% if form_data.experience == '0-1' %}selected{% endif %}>0–1 years (Fresher)</option>
                 <option value="1-3" {% if form_data.experience == '1-3' %}selected{% endif %}>1–3 years</option>
@@ -342,72 +114,62 @@
                 <option value="5-10" {% if form_data.experience == '5-10' %}selected{% endif %}>5–10 years</option>
                 <option value="10+" {% if form_data.experience == '10+' %}selected{% endif %}>10+ years</option>
               </select>
-              <i class="fas fa-chevron-down select-caret"></i>
+              <i class="fas fa-chevron-down select-caret" style="position: absolute; right: 13px; top: 50%; transform: translateY(-50%); color: var(--slate-400); font-size: 12px; pointer-events: none;"></i>
             </div>
           </div>
           <div class="field">
-            <label for="role">Preferred Role / Industry *</label>
+            <label class="field-label" for="role">Preferred Role / Industry *</label>
             <div class="input-wrap">
-              <i class="fas fa-user-tie input-icon"></i>
-              <input type="text" id="role" name="role" placeholder="e.g., Senior Accountant" required value="{{ form_data.role|default:'' }}">
+              <i class="fas fa-user-tie input-icon-left"></i>
+              <input type="text" id="role" name="role" class="form-input" placeholder="e.g., Senior Accountant" required value="{{ form_data.role|default:'' }}">
             </div>
           </div>
         </div>
 
-        <div class="section-divider">Account Security</div>
-        <div class="form-grid">
+        <div class="section-divider-dash">Account Security</div>
+        <div class="field-grid">
           <div class="field">
-            <label for="password">Password *</label>
+            <label class="field-label" for="password">Password *</label>
             <div class="input-wrap pwd-wrap">
-              <i class="fas fa-lock input-icon"></i>
-              <input type="password" id="password" name="password" placeholder="Min. 6 characters" required minlength="6">
-              <button type="button" class="pwd-toggle" onclick="togglePwd('password','pwdIcon1')"><i class="fas fa-eye" id="pwdIcon1"></i></button>
+              <i class="fas fa-lock input-icon-left"></i>
+              <input type="password" id="password" name="password" class="form-input" placeholder="Min. 6 characters" required minlength="6">
+              <button type="button" class="pwd-toggle" onclick="togglePwd('password','pwdIcon1')" style="position: absolute; right: 13px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--slate-400); cursor: pointer;"><i class="fas fa-eye" id="pwdIcon1"></i></button>
             </div>
           </div>
           <div class="field">
-            <label for="confirm_password">Confirm Password *</label>
+            <label class="field-label" for="confirm_password">Confirm Password *</label>
             <div class="input-wrap pwd-wrap">
-              <i class="fas fa-lock input-icon"></i>
-              <input type="password" id="confirm_password" name="confirm_password" placeholder="Re-enter password" required minlength="6">
-              <button type="button" class="pwd-toggle" onclick="togglePwd('confirm_password','pwdIcon2')"><i class="fas fa-eye" id="pwdIcon2"></i></button>
+              <i class="fas fa-lock input-icon-left"></i>
+              <input type="password" id="confirm_password" name="confirm_password" class="form-input" placeholder="Re-enter password" required minlength="6">
+              <button type="button" class="pwd-toggle" onclick="togglePwd('confirm_password','pwdIcon2')" style="position: absolute; right: 13px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--slate-400); cursor: pointer;"><i class="fas fa-eye" id="pwdIcon2"></i></button>
             </div>
           </div>
         </div>
 
-        <div class="section-divider">Documents</div>
-        <div class="form-grid">
-          <div class="field full">
-            <label for="resume">Resume (PDF or DOC) *</label>
+        <div class="section-divider-dash">Documents</div>
+        <div class="field-grid">
+          <div class="field field-full">
+            <label class="field-label" for="resume"><i class="fas fa-lock" style="margin-right:5px; font-size: 11px; opacity: 0.6;"></i> Resume (PDF or DOC) *</label>
             <div class="input-wrap">
-              <i class="fas fa-file-pdf input-icon"></i>
-              <input type="file" id="resume" name="resume" accept=".pdf,.doc,.docx" required>
+              <input type="file" id="resume" name="resume" class="form-input" style="padding-left:14px;" accept=".pdf,.doc,.docx" required>
             </div>
-            <p class="file-hint">PDF, DOC or DOCX · Max 5 MB</p>
-          </div>
-          <div class="field full">
-            <label for="photo">Professional Photo <span style="color:#94A3B8;font-weight:400;">(optional)</span></label>
-            <div class="input-wrap">
-              <i class="fas fa-camera input-icon"></i>
-              <input type="file" id="photo" name="photo" accept="image/*">
-            </div>
-            <p class="file-hint">JPG or PNG headshot · Recommended 400×400px · Max 2 MB</p>
+            <p class="file-hint" style="font-size: 12px; color: var(--slate-400); margin-top: 5px;">PDF, DOC or DOCX · Max 5 MB</p>
           </div>
         </div>
 
-        <!-- Hidden checkbox – auto-checked when user accepts T&C in the modal -->
         <input type="checkbox" id="terms" name="terms" style="display:none">
 
-        <button type="button" class="submit-btn" id="continueBtn" onclick="openTermsModal()">
-          <i class="fas fa-arrow-right"></i> Continue
+        <button type="button" class="btn-premium btn-employee" id="continueBtn" style="width:100%; margin-top: 32px;" onclick="openTermsModal()">
+          <i class="fas fa-id-card"></i> Accept Terms & Pay Deposit
         </button>
       </form>
 
       <!-- Terms & Conditions Modal -->
-      <div class="tc-overlay" id="tcOverlay" role="dialog" aria-modal="true" aria-labelledby="tcTitle">
-        <div class="tc-modal">
-          <div class="tc-header">
-            <h2 id="tcTitle"><i class="fas fa-file-contract"></i> Terms &amp; Conditions</h2>
-            <button class="tc-close" onclick="closeTermsModal()" aria-label="Close">&times;</button>
+      <div class="modal-tc-overlay" id="tcOverlay" role="dialog" aria-modal="true" aria-labelledby="tcTitle">
+        <div class="modal-tc-card">
+          <div class="tc-header" style="padding: 20px 24px; border-bottom: 1px solid var(--slate-200); display: flex; align-items: center; justify-content: space-between;">
+            <h2 id="tcTitle" style="font-size: 17px; font-weight: 700;"><i class="fas fa-file-contract" style="color: var(--clr-primary); margin-right: 8px;"></i> Terms &amp; Conditions</h2>
+            <button class="tc-close" onclick="closeTermsModal()" style="background:none; border:none; cursor:pointer; color: var(--slate-400); font-size: 20px;">&times;</button>
           </div>
           <div class="tc-scroll-hint" id="scrollHint">
             <i class="fas fa-arrow-down"></i> Please scroll down to read and accept all terms

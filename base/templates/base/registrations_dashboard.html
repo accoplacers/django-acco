@@ -7,7 +7,10 @@
   <title>Admin Dashboard · Accoplacers</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="icon" href="{% static 'base/img/favicon.ico' %}" type="image/x-icon">
+  <link rel="icon" type="image/x-icon" href="{% static 'base/img/favicon.ico' %}">
+  <link rel="icon" type="image/png" sizes="32x32" href="{% static 'base/img/favicon-32x32.png' %}">
+  <link rel="icon" type="image/png" sizes="16x16" href="{% static 'base/img/favicon-16x16.png' %}">
+  <link rel="apple-touch-icon" sizes="180x180" href="{% static 'base/img/apple-touch-icon.png' %}">
   <style>
     :root {
       --primary: #4F46E5;
@@ -64,13 +67,13 @@
     }
     .sb-logo-icon {
       width: 34px; height: 34px;
-      background: var(--primary);
+      background: transparent;
       border-radius: 8px;
       display: flex;
       align-items: center;
       justify-content: center;
       color: #fff;
-      font-size: 15px;
+      overflow: hidden;
       flex-shrink: 0;
     }
     .sb-logo-text { font-size: 17px; font-weight: 700; color: #fff; }
@@ -173,7 +176,7 @@
       align-items: center;
       gap: 8px;
       background: var(--surface);
-      border: 1.5px solid var(--border);
+      border: 1px solid var(--border);
       border-radius: 8px;
       padding: 0 12px;
       transition: border-color 0.2s, box-shadow 0.2s;
@@ -268,7 +271,7 @@
       align-items: center;
       gap: 7px;
       background: var(--surface);
-      border: 1.5px solid var(--border);
+      border: 1px solid var(--border);
       border-radius: 7px;
       padding: 0 10px;
     }
@@ -449,7 +452,7 @@
     .form-group textarea {
       width: 100%;
       padding: 9px 12px;
-      border: 1.5px solid var(--border);
+      border: 1px solid var(--border);
       border-radius: 7px;
       font-size: 13.5px;
       font-family: inherit;
@@ -584,7 +587,7 @@
       width: 38px; height: 38px;
       border-radius: 8px;
       background: var(--surface);
-      border: 1.5px solid var(--border);
+      border: 1px solid var(--border);
       cursor: pointer;
       color: var(--ink-2);
       font-size: 15px;
@@ -705,7 +708,7 @@
       width: 38px; height: 38px;
       border-radius: 8px;
       background: var(--surface);
-      border: 1.5px solid var(--border);
+      border: 1px solid var(--border);
       cursor: pointer;
       color: var(--ink-2);
       font-size: 15px;
@@ -723,7 +726,9 @@
   <aside class="sidebar" id="sidebar">
     <div class="sb-brand">
       <a href="/">
-        <div class="sb-logo-icon"><i class="fas fa-briefcase"></i></div>
+        <div class="sb-logo-icon">
+          <img src="{% static 'base/img/android-chrome-192x192.png' %}" alt="Accoplacers Logo" style="width:100%; height:100%; object-fit:cover;">
+        </div>
         <span class="sb-logo-text">Acco<span>placers</span></span>
         <span class="sb-badge">Admin</span>
       </a>

@@ -1,20 +1,20 @@
 /* Global Styles */
 :root {
-    --primary-color: #2c3e50;
-    --secondary-color: #3498db;
-    --accent-color: #e74c3c;
-    --light-color: #f8f9fa;
-    --dark-color: #2c3e50;
-    --text-color: #333;
-    --text-light: #7f8c8d;
-    --transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    --primary-color: var(--slate-900);
+    --secondary-color: var(--clr-primary);
+    --accent-color: var(--clr-accent);
+    --light-color: var(--slate-50);
+    --dark-color: var(--slate-900);
+    --text-color: var(--slate-700);
+    --text-light: var(--slate-500);
+    --transition: var(--transition-normal);
 }
 
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: var(--font-main);
 }
 
 body {
@@ -104,7 +104,7 @@ a:hover {
 }
 
 .btn:hover {
-    background: #2980b9;
+    background: var(--clr-primary);
     color: white;
     transform: translateY(-3px);
     box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
@@ -150,37 +150,7 @@ header.scrolled {
 }
 
 /* Logo */
-.nav-logo {
-    display: flex;
-    align-items: center;
-    gap: 9px;
-    text-decoration: none;
-    flex-shrink: 0;
-    margin-right: 28px;
-}
-
-.nav-logo-icon {
-    width: 32px;
-    height: 32px;
-    background: var(--secondary-color);
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-    font-size: 13px;
-    flex-shrink: 0;
-}
-
-.nav-logo-text {
-    font-size: 17px;
-    font-weight: 800;
-    color: var(--primary-color);
-    letter-spacing: -0.3px;
-    line-height: 1;
-}
-
-.nav-logo-text span { color: var(--secondary-color); }
+/* Nav container */
 
 /* Nav container */
 nav#navMenu {
@@ -312,7 +282,7 @@ nav#navMenu {
 .auth-cta::after { display: none !important; }
 
 .auth-cta:hover {
-    background: #2980b9;
+    background: var(--clr-primary);
     color: #fff !important;
     transform: translateY(-1px);
     box-shadow: 0 4px 14px rgba(52, 152, 219, 0.35);
@@ -491,28 +461,22 @@ nav#navMenu {
     background: var(--light-color);
 }
 
-.about-content {
+.about-grid, .about-content {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 50px;
+    gap: var(--space-8);
     align-items: center;
 }
 
 .about-text {
-    text-align: justify;
-    text-justify: inter-word;
+    line-height: 1.8;
 }
 
 .about-img {
-    border-radius: 10px;
+    border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
-    transform: rotate(-2deg);
+    box-shadow: var(--shadow-lg);
     transition: var(--transition);
-}
-
-.about-img:hover {
-    transform: rotate(0deg);
 }
 
 .about-img img {
@@ -523,7 +487,7 @@ nav#navMenu {
 }
 
 .about-img:hover img {
-    transform: scale(1.03);
+    transform: scale(1.02);
 }
 
 /* Services Section */
@@ -738,6 +702,8 @@ nav#navMenu {
     padding: 40px;
     border-radius: 10px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    max-width: 800px;
+    margin: 0 auto;
 }
 
 .form-status {
@@ -817,20 +783,28 @@ footer {
 }
 
 .social-links a {
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 40px;
-    height: 40px;
-    background: rgba(255, 255, 255, 0.1);
+    width: 44px;
+    height: 44px;
+    background: var(--clr-primary) !important;
     border-radius: 50%;
-    color: white;
-    transition: var(--transition);
+    color: white !important;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: none; /* No transition as per "no hover effects" */
 }
 
-.social-links a:hover {
-    background: var(--secondary-color);
-    transform: translateY(-3px);
+.social-links a i {
+    font-size: 20px;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
 }
 
 .copyright {
@@ -1002,7 +976,7 @@ footer {
     .mob-auth-btn::after { display: none !important; }
 
     .mob-auth-btn.outline {
-        border: 1.5px solid #E2E8F0;
+        border: 1px solid #E2E8F0;
         color: var(--primary-color) !important;
     }
 
@@ -1013,7 +987,7 @@ footer {
         color: #fff !important;
     }
 
-    .mob-auth-btn.solid:hover { background: #2980b9; }
+    .mob-auth-btn.solid:hover { background: var(--clr-primary); }
 
     .mob-auth-cta {
         display: flex;
@@ -1030,7 +1004,7 @@ footer {
     }
 
     .mob-auth-cta::after { display: none !important; }
-    .mob-auth-cta:hover { background: #2980b9; color: #fff !important; }
+    .mob-auth-cta:hover { background: var(--clr-primary); color: #fff !important; }
 
     .hero {
         min-height: 600px;
@@ -1496,3 +1470,87 @@ footer {
         font-size: 0.85rem;
     }
 }
+
+/* Landing Page Upsell Section */
+.upsell-landing-card {
+    background: white;
+    border-radius: 20px;
+    padding: var(--space-12) var(--space-16);
+    box-shadow: var(--shadow-xl);
+    border: 1px solid var(--slate-200);
+    position: relative;
+    overflow: hidden;
+}
+
+.upsell-landing-card::before {
+    content: '';
+    position: absolute;
+    top: -100px;
+    right: -100px;
+    width: 300px;
+    height: 300px;
+    background: var(--clr-primary);
+    opacity: 0.03;
+    border-radius: 50%;
+}
+
+.upsell-landing-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-12);
+    position: relative;
+    z-index: 1;
+}
+
+.upsell-landing-text {
+    flex: 1;
+}
+
+.upsell-landing-text h2 {
+    text-align: left;
+    margin-bottom: var(--space-4);
+    font-size: 2.5rem;
+}
+
+.upsell-landing-text h2::after {
+    margin: 15px 0;
+}
+
+.upsell-landing-text p {
+    font-size: 1.2rem;
+    color: var(--slate-600);
+    max-width: 700px;
+    margin-bottom: 0;
+}
+
+.badge-premium {
+    display: inline-block;
+    padding: 6px 16px;
+    background: var(--clr-primary-light);
+    color: var(--clr-primary);
+    border-radius: 100px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: var(--space-4);
+}
+
+@media (max-width: 968px) {
+    .upsell-landing-content {
+        flex-direction: column;
+        text-align: center;
+    }
+    .upsell-landing-text h2 {
+        text-align: center;
+    }
+    .upsell-landing-text h2::after {
+        margin: 15px auto;
+    }
+    .upsell-landing-card {
+        padding: var(--space-8) var(--space-4);
+    }
+}
+
+

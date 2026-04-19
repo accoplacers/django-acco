@@ -1,4 +1,59 @@
 from django.db import models
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+
+class UserAccountManager(BaseUserManager):
+    def create_user(self, email, password=None, **extra_fields):
+        if not email:
+            raise ValueError('The Email field must be set')
+        email = self.normalize_email(email)
+        user = self.model(email=email, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, email, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+        extra_fields.setdefault('role', 'admin') # Default for superusers
+
+        if extra_fields.get('is_staff') is not True:
+            raise ValueError('Superuser must have is_staff=True.')
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError('Superuser must have is_superuser=True.')
+
+        return self.create_user(email, password, **extra_fields)
+
+class UserAccount(AbstractBaseUser, PermissionsMixin):
+    ROLE_CHOICES = [
+        ('employer', 'Employer'),
+        ('employee', 'Employee'),
+        ('admin', 'Admin'),
+    ]
+
+    email = models.EmailField(unique=True)
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES)
+    profile_id = models.IntegerField(null=True, blank=True) # ID of Employer or Registration record
+    
+    is_active = models.BooleanField(default=True)
+    is_staff = models.BooleanField(default=False)
+    
+    date_joined = models.DateTimeField(auto_now_add=True)
+
+    objects = UserAccountManager()
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = []
+
+    def __str__(self):
+        return self.email
+
+
+class Skill(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name
 
 class Registration(models.Model):
     PLAN_CHOICES = [
@@ -18,13 +73,17 @@ class Registration(models.Model):
     role = models.CharField(max_length=100)
     resume = models.FileField(upload_to='resumes/')
     photo = models.ImageField(upload_to='employee_photos/', blank=True, null=True)  # Professional photo
-    skills = models.TextField(blank=True, null=True, help_text="Comma-separated list of skills (e.g., Excel, Tally, SAP, QuickBooks)")
+    skills = models.ManyToManyField(Skill, blank=True)
     plan = models.CharField(max_length=20, choices=PLAN_CHOICES, default='basic')
     is_placed = models.BooleanField(default=False, help_text="Mark this employee as placed (hired by an employer)")
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.name} - {self.role} ({self.plan})"
+
+    @property
+    def skills_list(self):
+        return ", ".join(self.skills.values_list('name', flat=True))
 
     def save(self, *args, **kwargs):
         # Auto-hash password if it's plaintext

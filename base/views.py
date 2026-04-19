@@ -8,28 +8,35 @@ import os
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib import messages
+from django.contrib.auth import login, authenticate, logout as django_logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import make_password, check_password
+from django.db import transaction
 from django.core.exceptions import ValidationError
+from .models import Registration, Contact, Employer, JobOpening, EmployerInterest, EmployeeInterest, UserAccount
 from .validators import (
     validate_company_name,
     validate_phone_number,
     validate_safe_email,
     validate_text_input
 )
+import logging
 from .decorators import rate_limit
+
+logger = logging.getLogger(__name__)
+from .services.resume_parser import extract_text_from_pdf, parse_resume_with_llm, ParsedResume
+from .models import Skill
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
 
 def registration_view(request):
+    user = request.user if request.user.is_authenticated else None
     context = {
         'stripe_public_key': settings.STRIPE_PUBLIC_KEY,
-        'session_user_type': request.session.get('user_type'),
+        'session_user_type': user.role if user else None,
         'session_user_name': (
-            request.session.get('employee_name') if request.session.get('user_type') == 'employee'
-            else request.session.get('employer_name') if request.session.get('user_type') == 'employer'
-            else None
+            user.email if user else None
         ),
     }
     return render(request, 'base/index.html', context)
@@ -105,14 +112,8 @@ def create_checkout_session(request):
             data = json.loads(request.body.decode('utf-8'))
             plan = data.get('plan', 'basic')
 
-            # ✅ Map plan to price (in AED)
-            plan_prices = {
-                'basic': 49,
-                'intermediate': 89,
-                'premium': 149,
-            }
-
-            amount_aed = plan_prices.get(plan, 49)
+            # ✅ Map plan to price (in AED) - Consumed from settings
+            amount_aed = settings.STRIPE_PLAN_PRICES.get(plan, settings.STRIPE_PLAN_PRICES['basic'])
             amount = int(amount_aed * 100)  # Stripe expects amount in fils
 
             session = stripe.checkout.Session.create(
@@ -164,40 +165,49 @@ def registration_success(request):
         messages.error(request, "Registration error: Missing password. Please try again.")
         return redirect('/')
 
-    registration = Registration(
-        name=data['name'],
-        email=data['email'],
-        password=make_password(password),
-        phone=data['phone'],
-        nationality=data['nationality'],
-        location=data['location'],
-        qualification=data['qualification'],
-        experience=data['experience'],
-        role=data['role'],
-        plan=data.get('plan', 'basic'),
-    )
+    with transaction.atomic():
+        registration = Registration(
+            name=data['name'],
+            email=data['email'],
+            password=make_password(password),
+            phone=data['phone'],
+            nationality=data['nationality'],
+            location=data['location'],
+            qualification=data['qualification'],
+            experience=data['experience'],
+            role=data['role'],
+            plan=data.get('plan', 'basic'),
+        )
 
-    # Assign resume if it exists
-    if resume_tmp_path and os.path.exists(resume_tmp_path):
-        f = open(resume_tmp_path, 'rb')
-        registration.resume.save(os.path.basename(resume_tmp_path), File(f))
-        f.close()
-        os.remove(resume_tmp_path)
+        # Assign resume if it exists
+        if resume_tmp_path and os.path.exists(resume_tmp_path):
+            f = open(resume_tmp_path, 'rb')
+            registration.resume.save(os.path.basename(resume_tmp_path), File(f))
+            f.close()
+            os.remove(resume_tmp_path)
 
-    # Assign photo if it exists
-    if photo_tmp_path and os.path.exists(photo_tmp_path):
-        f = open(photo_tmp_path, 'rb')
-        registration.photo.save(os.path.basename(photo_tmp_path), File(f))
-        f.close()
-        os.remove(photo_tmp_path)
+        # Assign photo if it exists
+        if photo_tmp_path and os.path.exists(photo_tmp_path):
+            f = open(photo_tmp_path, 'rb')
+            registration.photo.save(os.path.basename(photo_tmp_path), File(f))
+            f.close()
+            os.remove(photo_tmp_path)
 
-    registration.save()
+        registration.save()
+
+        # Create auth user
+        UserAccount.objects.create(
+            email=registration.email,
+            password=registration.password, # Already hashed
+            role='employee',
+            profile_id=registration.id
+        )
 
     # Clean session
     del request.session['registration_data']
 
-    messages.success(request, "Your registration was successful!")
-    return redirect('/')
+    messages.success(request, "Your registration was successful! Please login.")
+    return redirect('employee_login')
 
 
 
@@ -288,11 +298,19 @@ def temp_save_registration(request):
     return JsonResponse({'status': 'error'}, status=400)
 
 
-@rate_limit(max_requests=5, time_window=60, block_duration=300)
+@rate_limit(max_requests=3, time_window=3600, block_duration=7200)
 def employee_register(request):
-    if request.session.get('user_type') == 'employee':
-        return redirect('employee_dashboard')
+    if request.user.is_authenticated:
+        if request.user.role == 'employee':
+            return redirect('employee_dashboard')
+        elif request.user.role == 'employer':
+            return redirect('employer_dashboard')
     if request.method == 'POST':
+        # --- TASK 1: HONEYPOT BOT TRAP ---
+        if request.POST.get('fax_number'):
+            logger.warning(f"Bot detected: Honeypot field filled. IP: {request.META.get('REMOTE_ADDR')}")
+            return HttpResponse("Bad Request", status=400)
+
         name = request.POST.get('name', '').strip()
         email = request.POST.get('email', '').strip()
         password = request.POST.get('password', '')
@@ -340,29 +358,75 @@ def employee_register(request):
             messages.error(request, str(e))
             return render(request, 'base/employee_register.html', {'form_data': form_data})
 
+        # Phase 0: Photo upload size cap
+        if photo and photo.size > 5 * 1024 * 1024:
+            messages.error(request, "Photo file size must not exceed 5 MB.")
+            return render(request, 'base/employee_register.html', {'form_data': form_data})
+
         if Registration.objects.filter(email=email).exists():
             messages.error(request, "An account with this email already exists. Please login.")
             return render(request, 'base/employee_register.html', {'form_data': form_data})
 
-        registration = Registration(
-            name=name,
-            email=email,
-            password=make_password(password),
-            phone=phone,
-            nationality=nationality,
-            location=location,
-            qualification=qualification,
-            experience=experience,
-            role=role,
-            plan=plan,
-        )
+        with transaction.atomic():
+            registration = Registration(
+                name=name,
+                email=email,
+                password=make_password(password),
+                phone=phone,
+                nationality=nationality,
+                location=location,
+                qualification=qualification,
+                experience=experience,
+                role=role,
+                plan=plan,
+            )
 
-        if resume:
-            registration.resume.save(resume.name, resume, save=False)
-        if photo:
-            registration.photo.save(photo.name, photo, save=False)
+            if resume:
+                registration.resume.save(resume.name, resume, save=False)
+            if photo:
+                registration.photo.save(photo.name, photo, save=False)
 
-        registration.save()
+            registration.save()
+
+            # --- AI INGESTION PIPELINE ---
+            # Extract and parse resume to auto-populate skills and score profile.
+            try:
+                resume_path = registration.resume.path
+                if os.path.exists(resume_path):
+                    raw_text = extract_text_from_pdf(resume_path)
+                    parsed_data = parse_resume_with_llm(raw_text)
+
+                    # 1. Experience Mapping
+                    if parsed_data.years_of_experience > 0:
+                        registration.experience = str(parsed_data.years_of_experience)
+
+                    # 2. Skill & Competency Mapping (M2M)
+                    # Combine all extracted semantic fields into Skill objects
+                    all_skill_items = (
+                        parsed_data.certifications + 
+                        parsed_data.erp_software + 
+                        parsed_data.core_competencies +
+                        parsed_data.regulatory_knowledge
+                    )
+                    
+                    for item in all_skill_items:
+                        skill_obj, _ = Skill.objects.get_or_create(name=item.strip())
+                        registration.skills.add(skill_obj)
+
+                    registration.save()
+                    
+            except Exception as e:
+                # Log the error but do NOT roll back registration. 
+                # We want the user to be registered even if the AI parsing fails.
+                print(f"AI Ingestion Failed for {email}: {str(e)}")
+
+            # Create auth user
+            UserAccount.objects.create(
+                email=email,
+                password=registration.password, # Reuse hash
+                role='employee',
+                profile_id=registration.id
+            )
 
         messages.success(request, "Registration successful! Please login to access your dashboard.")
         return redirect('employee_login')
@@ -430,52 +494,47 @@ def registrations_dashboard(request):
 # EMPLOYEE AUTHENTICATION
 # ==========================================
 
-from .models import Employer, JobOpening, EmployerInterest, EmployeeInterest
-
 def employee_login(request):
-    if request.session.get('user_type') == 'employee':
-        return redirect('employee_dashboard')
+    if request.user.is_authenticated:
+        if request.user.role == 'employee':
+            return redirect('employee_dashboard')
+        elif request.user.role == 'employer':
+            return redirect('employer_dashboard')
+
     if request.method == 'POST':
         email = request.POST.get('email')
         password = request.POST.get('password')
         
-        try:
-            employee = Registration.objects.get(email=email)
-            
-            if employee.password and check_password(password, employee.password):
-                # Set session
-                request.session['employee_id'] = employee.id
-                request.session['employee_name'] = employee.name
-                request.session['user_type'] = 'employee'
-                messages.success(request, f"Welcome back, {employee.name}!")
-                return redirect('employee_dashboard')
-            else:
-                messages.error(request, "Invalid email or password.")
-        except Registration.DoesNotExist:
-            messages.error(request, "No account found with this email.")
+        # Phase 0: Password Length Guard
+        if not password or len(password) > 1000:
+            messages.error(request, "Invalid email or password.")
+            return render(request, 'base/employee_login.html')
+
+        user = authenticate(request, email=email, password=password)
+        
+        if user is not None and user.role == 'employee':
+            login(request, user)
+            messages.success(request, f"Welcome back, {email}!")
+            return redirect('employee_dashboard')
+        else:
+            messages.error(request, "Invalid email or password.")
     
     return render(request, 'base/employee_login.html')
 
 
 def employee_logout(request):
-    # Clear employee session
-    if 'employee_id' in request.session:
-        del request.session['employee_id']
-    if 'employee_name' in request.session:
-        del request.session['employee_name']
-    if 'user_type' in request.session:
-        del request.session['user_type']
+    django_logout(request)
     messages.success(request, "You have been logged out.")
     return redirect('/')
 
 
+@login_required(login_url='employee_login')
 def employee_dashboard(request):
-    # Check if employee is logged in
-    if 'employee_id' not in request.session or request.session.get('user_type') != 'employee':
-        messages.error(request, "Please login to access your dashboard.")
-        return redirect('employee_login')
+    if request.user.role != 'employee':
+        messages.error(request, "Unauthorized access.")
+        return redirect('registration_view')
     
-    employee_id = request.session.get('employee_id')
+    employee_id = request.user.profile_id
     try:
         employee = Registration.objects.get(id=employee_id)
     except Registration.DoesNotExist:
@@ -483,8 +542,14 @@ def employee_dashboard(request):
     
     # Handle skills update
     if request.method == 'POST' and request.POST.get('action') == 'update_skills':
-        skills = request.POST.get('skills', '')
-        employee.skills = skills
+        from .models import Skill
+        skills_raw = request.POST.get('skills', '')
+        skill_names = [s.strip() for s in skills_raw.split(',') if s.strip()]
+        skill_objs = []
+        for name in skill_names:
+            obj, created = Skill.objects.get_or_create(name=name)
+            skill_objs.append(obj)
+        employee.skills.set(skill_objs)
         employee.save()
         messages.success(request, "Skills updated successfully!")
         return redirect('employee_dashboard')
@@ -509,8 +574,11 @@ def employee_dashboard(request):
 
 @rate_limit(max_requests=5, time_window=60, block_duration=300)
 def employer_register(request):
-    if request.session.get('user_type') == 'employer':
-        return redirect('employer_dashboard')
+    if request.user.is_authenticated:
+        if request.user.role == 'employer':
+            return redirect('employer_dashboard')
+        elif request.user.role == 'employee':
+            return redirect('employee_dashboard')
     if request.method == 'POST':
         company_name = request.POST.get('company_name', '').strip()
         email = request.POST.get('email', '').strip()
@@ -548,17 +616,26 @@ def employer_register(request):
             messages.error(request, "An account with this email already exists.")
             return render(request, 'base/employer_register.html')
 
-        # Create employer with hashed password
-        employer = Employer.objects.create(
-            company_name=company_name,
-            email=email,
-            password=make_password(password),
-            phone=phone,
-            company_description=company_description,
-            location=location,
-            industry=industry,
-            logo=logo
-        )
+        # Create employer and user atomically
+        with transaction.atomic():
+            employer = Employer.objects.create(
+                company_name=company_name,
+                email=email,
+                password=make_password(password),
+                phone=phone,
+                company_description=company_description,
+                location=location,
+                industry=industry,
+                logo=logo
+            )
+
+            # Create auth user
+            UserAccount.objects.create(
+                email=email,
+                password=employer.password, # Reuse hash
+                role='employer',
+                profile_id=employer.id
+            )
 
         messages.success(request, "Registration successful! Please login.")
         return redirect('employer_login')
@@ -567,37 +644,35 @@ def employer_register(request):
 
 
 def employer_login(request):
-    if request.session.get('user_type') == 'employer':
-        return redirect('employer_dashboard')
+    if request.user.is_authenticated:
+        if request.user.role == 'employer':
+            return redirect('employer_dashboard')
+        elif request.user.role == 'employee':
+            return redirect('employee_dashboard')
+
     if request.method == 'POST':
         email = request.POST.get('email')
         password = request.POST.get('password')
         
-        try:
-            employer = Employer.objects.get(email=email)
-            if check_password(password, employer.password):
-                # Set session
-                request.session['employer_id'] = employer.id
-                request.session['employer_name'] = employer.company_name
-                request.session['user_type'] = 'employer'
-                messages.success(request, f"Welcome back, {employer.company_name}!")
-                return redirect('employer_dashboard')
-            else:
-                messages.error(request, "Invalid email or password.")
-        except Employer.DoesNotExist:
-            messages.error(request, "No account found with this email.")
+        # Phase 0: Password Length Guard
+        if not password or len(password) > 1000:
+            messages.error(request, "Invalid email or password.")
+            return render(request, 'base/employer_login.html')
+
+        user = authenticate(request, email=email, password=password)
+        
+        if user is not None and user.role == 'employer':
+            login(request, user)
+            messages.success(request, f"Welcome back, {email}!")
+            return redirect('employer_dashboard')
+        else:
+            messages.error(request, "Invalid email or password.")
     
     return render(request, 'base/employer_login.html')
 
 
 def employer_logout(request):
-    # Clear employer session
-    if 'employer_id' in request.session:
-        del request.session['employer_id']
-    if 'employer_name' in request.session:
-        del request.session['employer_name']
-    if 'user_type' in request.session:
-        del request.session['user_type']
+    django_logout(request)
     messages.success(request, "You have been logged out.")
     return redirect('/')
 
@@ -620,20 +695,55 @@ def toggle_placed(request):
     return redirect('registrations_dashboard')
 
 
+@login_required(login_url='employer_login')
 def employer_dashboard(request):
-    # Check if employer is logged in
-    if 'employer_id' not in request.session or request.session.get('user_type') != 'employer':
-        messages.error(request, "Please login to access your dashboard.")
-        return redirect('employer_login')
+    if request.user.role != 'employer':
+        messages.error(request, "Unauthorized access.")
+        return redirect('registration_view')
     
-    employer_id = request.session.get('employer_id')
+    employer_id = request.user.profile_id
     try:
         employer = Employer.objects.get(id=employer_id)
     except Employer.DoesNotExist:
         return redirect('employer_login')
     
-    # Get all registered employees
+    from django.db.models import Q
+    from django.core.paginator import Paginator
+
+    # Base queryset
     employees = Registration.objects.all().order_by('-created_at')
+
+    # Get search parameters
+    search_query = request.GET.get('q', '').strip()
+    skill_query = request.GET.get('skill', '').strip()
+
+    # Apply text filter
+    if search_query:
+        if search_query.lower().startswith('emp-'):
+            emp_id = ''.join(filter(str.isdigit, search_query))
+            if emp_id:
+                employees = employees.filter(id=int(emp_id))
+            else:
+                employees = employees.none()
+        else:
+            employees = employees.filter(
+                Q(name__icontains=search_query) | 
+                Q(role__icontains=search_query) | 
+                Q(location__icontains=search_query)
+            ).distinct()
+
+    # Apply skills filter using the new M2M relationship
+    if skill_query:
+        req_skills = [s.strip() for s in skill_query.split(',') if s.strip()]
+        for skill in req_skills:
+            employees = employees.filter(skills__name__icontains=skill)
+    
+    employees = employees.distinct()
+
+    # Paginate results (20 per page)
+    paginator = Paginator(employees, 20)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
 
     interested_ids = set(
         EmployerInterest.objects.filter(employer=employer).values_list('employee_id', flat=True)
@@ -641,19 +751,23 @@ def employer_dashboard(request):
 
     return render(request, 'base/employer_dashboard.html', {
         'employer': employer,
-        'employees': employees,
+        'employees': page_obj,
         'interested_ids': interested_ids,
+        'search_q': search_query,
+        'search_skill': skill_query,
     })
 
 
+@rate_limit(max_requests=30, time_window=60, block_duration=120)
+@login_required
 def express_interest(request):
     if request.method != 'POST':
         return JsonResponse({'error': 'Method not allowed'}, status=405)
 
-    if 'employer_id' not in request.session or request.session.get('user_type') != 'employer':
-        return JsonResponse({'error': 'Not authenticated'}, status=401)
+    if request.user.role != 'employer':
+        return JsonResponse({'error': 'Unauthorized'}, status=403)
 
-    employer_id = request.session.get('employer_id')
+    employer_id = request.user.profile_id
     employee_id = request.POST.get('employee_id')
 
     if not employee_id:
@@ -679,14 +793,15 @@ def express_interest(request):
     return JsonResponse({'status': 'added'})
 
 
+@login_required
 def employee_express_interest(request):
     if request.method != 'POST':
         return JsonResponse({'error': 'Method not allowed'}, status=405)
 
-    if 'employee_id' not in request.session or request.session.get('user_type') != 'employee':
-        return JsonResponse({'error': 'Not authenticated'}, status=401)
+    if request.user.role != 'employee':
+        return JsonResponse({'error': 'Unauthorized'}, status=403)
 
-    employee_id = request.session.get('employee_id')
+    employee_id = request.user.profile_id
     job_id = request.POST.get('job_id')
 
     if not job_id:

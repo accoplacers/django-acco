@@ -9,65 +9,15 @@
         content="Accoplacers - Dubai-based career support and placement firm for Accounting, Audit, and Finance professionals in the GCC region.">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link
-        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
     {% load static %}
+    <link rel="stylesheet" href="{% static 'base/css/ds.css' %}">
     <link rel="stylesheet" href="{% static 'base/css/style.css' %}">
-    <link rel="icon" href="{% static 'base/img/favicon.ico' %}" type="image/x-icon">
-    <style>
-        /* ── Join Section ── */
-        .join-section {
-            background: linear-gradient(135deg, #F8FAFC 0%, #EEF2FF 100%);
-            padding: 100px 0;
-        }
-        .join-section h2 { text-align: center; margin-bottom: 15px; }
-        .join-section .section-subtitle {
-            text-align: center; color: #64748B;
-            font-size: 1.1em; max-width: 600px; margin: 0 auto 50px;
-        }
-        .join-cards {
-            display: grid; grid-template-columns: repeat(2, 1fr);
-            gap: 32px; max-width: 880px; margin: 0 auto;
-        }
-        .join-card {
-            background: #fff; border: 1px solid #E2E8F0;
-            border-radius: 20px; padding: 40px 36px;
-            text-align: center;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-            transition: all 0.3s ease;
-            position: relative; overflow: hidden;
-        }
-        .join-card::before {
-            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
-        }
-        .join-card.employee::before { background: linear-gradient(90deg, #4F46E5, #6366F1); }
-        .join-card.employer::before { background: linear-gradient(90deg, #E11D48, #BE123C); }
-        .join-card:hover { transform: translateY(-8px); box-shadow: 0 20px 60px rgba(0,0,0,0.1); }
-        .join-card-icon {
-            width: 80px; height: 80px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            margin: 0 auto 22px; font-size: 2em; color: #fff;
-        }
-        .join-card.employee .join-card-icon { background: linear-gradient(135deg, #4F46E5, #3730A3); }
-        .join-card.employer .join-card-icon { background: linear-gradient(135deg, #E11D48, #BE123C); }
-        .join-card h3 { font-size: 1.4em; color: #0F172A; margin-bottom: 10px; }
-        .join-card p { color: #64748B; margin-bottom: 22px; line-height: 1.7; }
-        .join-card .btn {
-            padding: 14px 30px; border-radius: 8px;
-            font-weight: 700; text-decoration: none;
-            display: inline-block; transition: all 0.2s ease; font-size: 14px;
-        }
-        .join-card.employee .btn { background: #4F46E5; color: #fff; }
-        .join-card.employee .btn:hover { background: #3730A3; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(79,70,229,0.3); }
-        .join-card.employer .btn { background: #E11D48; color: #fff; }
-        .join-card.employer .btn:hover { background: #BE123C; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(225,29,72,0.3); }
-        .join-card-features { list-style: none; padding: 0; margin: 18px 0 22px; text-align: left; }
-        .join-card-features li { padding: 7px 0; color: #475569; display: flex; align-items: center; gap: 10px; font-size: 14px; }
-        .join-card-features li i { color: #10B981; font-size: 12px; }
-
-        @media (max-width: 768px) { .join-cards { grid-template-columns: 1fr; gap: 24px; } }
-        @media (max-width: 480px) { .join-card { padding: 32px 24px; } }
-    </style>
+    <link rel="icon" type="image/x-icon" href="{% static 'base/img/favicon.ico' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'base/img/favicon-32x32.png' %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'base/img/favicon-16x16.png' %}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'base/img/apple-touch-icon.png' %}">
 </head>
 
 <body>
@@ -89,7 +39,9 @@
 
             <!-- Logo -->
             <a href="/" class="nav-logo">
-                <div class="nav-logo-icon"><i class="fas fa-briefcase"></i></div>
+                <div class="nav-logo-icon">
+                    <img src="{% static 'base/img/android-chrome-192x192.png' %}" alt="Accoplacers Logo" class="main-logo-img">
+                </div>
                 <span class="nav-logo-text">Acco<span>placers</span></span>
             </a>
 
@@ -197,151 +149,179 @@
     </header>
 
     <!-- Hero Section -->
-    <section class="hero" id="home">
-        <div class="container">
-            <div class="hero-content">
-                <h1>The Future of Recruitment Starts with Accoplacers</h1>
-                <p>Accoplacers connects talented Professionals with Top Employers
-                    across the GCC region.</p>
-                <div class="hero-btns">
-                    <a href="#register" class="btn btn-accent">Register With Us</a>
+    <section class="hero hero-premium" id="home">
+        <div class="container hero-container-premium">
+            <div class="hero-content text-premium">
+                <h1 class="hero-title">Accelerate Your Finance <span class="gradient-text">Hiring</span></h1>
+                <p class="hero-subtitle">Bypass the noise. Access the GCC's pre-verified, elite accounting & finance network with Zero Time-to-Hire friction.</p>
+                <div class="hero-btns-premium">
+                    <a href="{% url 'employee_login' %}" class="btn-premium btn-employee">Apply for Placement</a>
+                    <a href="{% url 'employer_login' %}" class="btn-premium btn-employer-outline">Hire Verified Talent</a>
+                </div>
+                <div class="hero-stats-bar">
+                    <div class="h-stat"><strong>15+</strong> <span>Years Exp.</span></div>
+                    <div class="h-stat"><strong>500+</strong> <span>Verified Profiles</span></div>
+                    <div class="h-stat"><strong>72h</strong> <span>Avg. Hiring Cycle</span></div>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- About Section -->
-    <section class="about" id="about">
+    <section class="section-premium section-white" id="about">
         <div class="container">
-            <h2>About Accoplacers</h2>
-            <div class="about-content">
+            <div class="section-header">
+                <h2>The Institutional Standard</h2>
+                <p>We do not just forward resumes. We act as your fractional hiring partner.</p>
+            </div>
+            <div class="about-grid">
                 <div class="about-text">
-                    <p><strong>Accoplacers</strong> is a Dubai-based professional career support and placement firm
-                        focused on empowering job seekers in the fields of Accounting, Audit, and Finance.</p>
-                    <p>Our promoters are seasoned professionals with over <strong>15 years of experience</strong> in the
-                        industry, having worked closely with reputed firms across the GCC.</p>
-                    <p>We understand the unique needs of both candidates and employers, and bridge this gap through our
-                        expert advisory, resume matching, and career mentoring services.</p>
-                    <p>At <strong>Accoplacers</strong>, we are not just recruiters — we are career enablers.</p>
+                    <p style="margin-bottom: var(--space-4);">We are a specialized Dubai-based career stewardship firm. We exclusively serve the Accounting, Audit, and Finance sectors across the GCC.</p>
+                    <ul style="list-style: none; display: flex; flex-direction: column; gap: var(--space-3); margin-bottom: var(--space-6);">
+                        <li style="display: flex; gap: var(--space-2); align-items: flex-start;">
+                            <i class="fas fa-check-circle" style="color: var(--clr-primary); margin-top: 5px;"></i>
+                            <span><strong>15+ Years Domain Expertise:</strong> Built by industry veterans who understand technical finance roles.</span>
+                        </li>
+                        <li style="display: flex; gap: var(--space-2); align-items: flex-start;">
+                            <i class="fas fa-check-circle" style="color: var(--clr-primary); margin-top: 5px;"></i>
+                            <span><strong>Zero-Noise Candidates:</strong> Every profile is heavily vetted before reaching your desk.</span>
+                        </li>
+                        <li style="display: flex; gap: var(--space-2); align-items: flex-start;">
+                            <i class="fas fa-check-circle" style="color: var(--clr-primary); margin-top: 5px;"></i>
+                            <span><strong>Full-Cycle Enablers:</strong> We provide strategic CV repositioning, mentorship, and final placement.</span>
+                        </li>
+                    </ul>
                 </div>
                 <div class="about-img">
                     <img src="https://images.unsplash.com/photo-1521791136064-7986c2920216?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
-                        alt="Team meeting">
+                        alt="Accoplacers professional team collaborating in Dubai office" loading="lazy" width="1350" height="900" style="width: 100%; height: auto; display: block;">
                 </div>
             </div>
         </div>
     </section>
 
     <!-- Services Section -->
-    <section class="services" id="services">
+    <section class="section-premium section-white" id="services">
         <div class="container">
-            <h2>Our Services</h2>
-            <div class="services-grid">
-                <div class="service-card">
-                    <div class="service-icon"><i class="fas fa-file-alt"></i></div>
-                    <h3>Resume Screening & Placement</h3>
-                    <p>We evaluate your profile and connect you with the most suitable openings in accounting, audit,
-                        and finance roles.</p>
+            <div class="section-header">
+                <h2>Our Managed Placement Services</h2>
+                <p>We provide end-to-end support for the finance sector, ensuring perfect alignment between talent and opportunity.</p>
+            </div>
+            <div class="service-premium-grid">
+                <div class="service-premium-card">
+                    <i class="fas fa-file-invoice-dollar" aria-hidden="true"></i>
+                    <h4>Financial Placement</h4>
+                    <p>Strategic matching for Accounting, Audit, and Finance roles across the GCC with high-growth firms.</p>
                 </div>
-                <div class="service-card">
-                    <div class="service-icon"><i class="fas fa-chart-line"></i></div>
-                    <h3>Career Guidance & Mentoring</h3>
-                    <p>Our team of experienced professionals provides career coaching, interview tips, and personalized
-                        guidance.</p>
+                <div class="service-premium-card">
+                    <i class="fas fa-user-shield"></i>
+                    <h4>Career Stewardship</h4>
+                    <p>Expert coaching and interview survival training to help you navigate competitive UAE job markets.</p>
                 </div>
-                <div class="service-card">
-                    <div class="service-icon"><i class="fas fa-building"></i></div>
-                    <h3>Employer Assistance</h3>
-                    <p>For companies, we offer professional staffing solutions, from screening to onboarding of
-                        qualified candidates in finance roles.</p>
+                <div class="service-premium-card">
+                    <i class="fas fa-users-gear"></i>
+                    <h4>Elite Staffing</h4>
+                    <p>Managed technical screening and onboarding for employers seeking verified top-tier finance talent.</p>
                 </div>
-                <div class="service-card">
-                    <div class="service-icon"><i class="fas fa-user-graduate"></i></div>
-                    <h3>Internship Opportunities</h3>
-                    <p>We help freshers find meaningful internships that match their academic background and career
-                        goals.</p>
+                <div class="service-premium-card">
+                    <i class="fas fa-graduation-cap"></i>
+                    <h4>Future Leaders</h4>
+                    <p>Curated internship paths for fresh finance graduates to kickstart their regional professional journey.</p>
+                </div>
+                <div class="service-premium-card">
+                    <i class="fas fa-magic"></i>
+                    <h4>Resume Enhancement</h4>
+                    <p>Expert repositioning and rewriting of your resume to highlight technical strengths and GCC market compatibility.</p>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- Why Choose Us Section -->
-    <section class="why-us">
+    <section class="section-premium section-slate" style="background: var(--slate-50);" id="advantage">
         <div class="container">
-            <h2>Why Choose Accoplacers</h2>
-            <div class="features">
-                <div class="feature">
-                    <div class="feature-icon"><i class="fas fa-award"></i></div>
-                    <h3>Industry Expertise</h3>
-                    <p>Promoters with over 15 years of experience in the accounting and finance sector.</p>
+            <div class="section-header">
+                <h2>The Accoplacers Advantage</h2>
+                <p>The asymmetric edge for serious employers and high-impact candidates.</p>
+            </div>
+            <div class="service-premium-grid" style="margin-top: var(--space-8);">
+                <div class="service-premium-card" style="background: white; border: 1px solid rgba(0,0,0,0.05);">
+                    <i class="fas fa-filter" aria-hidden="true" style="color: var(--clr-primary);"></i>
+                    <h4>Signal Over Noise</h4>
+                    <p>We reject generic algorithms. We manually audit and technically verify every profile against rigorous financial benchmarks.</p>
                 </div>
-                <div class="feature">
-                    <div class="feature-icon"><i class="fas fa-bullseye"></i></div>
-                    <h3>Focused Approach</h3>
-                    <p>We specialize only in finance-related careers — ensuring targeted results.</p>
+                <div class="service-premium-card" style="background: white; border: 1px solid rgba(0,0,0,0.05);">
+                    <i class="fas fa-stopwatch"></i>
+                    <h4>Speed-To-Hire</h4>
+                    <p>Access our curated pipeline instantly. We reduce average hiring cycles from 6 weeks down to 72 hours.</p>
                 </div>
-                <div class="feature">
-                    <div class="feature-icon"><i class="fas fa-hands-helping"></i></div>
-                    <h3>Personalized Support</h3>
-                    <p>Each candidate receives individual attention and career mentoring.</p>
-                </div>
-                <div class="feature">
-                    <div class="feature-icon"><i class="fas fa-map-marker-alt"></i></div>
-                    <h3>Local Presence</h3>
-                    <p>Our team operates from Dubai and understands the UAE job market in depth.</p>
-                </div>
-                <div class="feature">
-                    <div class="feature-icon"><i class="fas fa-lock"></i></div>
-                    <h3>Confidential & Secure</h3>
-                    <p>Your data is protected with us and is never shared without consent.</p>
+                <div class="service-premium-card" style="background: white; border: 1px solid rgba(0,0,0,0.05);">
+                    <i class="fas fa-lock"></i>
+                    <h4>Absolute Confidentiality</h4>
+                    <p>Your search is siloed and secure. We protect candidate privacy and execute discreet hiring mandates for elite firms.</p>
                 </div>
             </div>
         </div>
     </section>
-
-    <!-- Join Accoplacers Section - NEW DESIGN -->
-    <section class="join-section" id="register">
+    
+    <!-- Resume Upsell Section -->
+    <section class="section-premium" style="background: linear-gradient(135deg, var(--clr-primary-light) 0%, white 100%);">
         <div class="container">
-            <h2>Join Accoplacers</h2>
-            <p class="section-subtitle">Choose your path and start your journey towards career success in the accounting
-                and finance industry.</p>
-
-            <div class="join-cards">
-                <!-- Employee Registration Card -->
-                <div class="join-card employee">
-                    <div class="join-card-icon">
-                        <i class="fas fa-user-tie"></i>
+            <div class="upsell-landing-card">
+                <div class="upsell-landing-content">
+                    <div class="upsell-landing-text">
+                        <span class="badge-premium">Premium Service</span>
+                        <h2>Boost Your Hiring Chances by <span class="gradient-text">3x</span></h2>
+                        <p>Our experts will reposition and rewrite your resume to highlight your technical strengths and GCC market compatibility. Stand out to top recruiters instantly.</p>
                     </div>
-                    <h3>Job Seeker</h3>
-                    <p>Looking for your next career opportunity? Register with us and get access to exclusive job
-                        openings.</p>
-                    <ul class="join-card-features">
-                        <li><i class="fas fa-check"></i> Access to job opportunities</li>
-                        <li><i class="fas fa-check"></i> Professional CV review</li>
-                        <li><i class="fas fa-check"></i> Interview preparation tips</li>
-                        <li><i class="fas fa-check"></i> Career guidance & mentoring</li>
+                    <div class="upsell-landing-cta">
+                        <a href="https://wa.me/{{ WHATSAPP_NUMBER }}?text=Please%20rewrite%20my%20resume" class="btn-premium btn-employee" target="_blank" rel="noopener noreferrer">
+                            <i class="fab fa-whatsapp"></i> Get Expert Help
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Join Accoplacers Section - REFINED -->
+    <section class="section-premium section-slate" id="register">
+        <div class="container">
+            <div class="section-header">
+                <h2>Secure Your Competitive Edge</h2>
+                <p>Select your track to join the most exclusive finance career network in the GCC.</p>
+            </div>
+
+            <div class="join-tracks">
+                <!-- Employee Track -->
+                <div class="track-card employee-track">
+                    <div class="track-icon"><i class="fas fa-user-tie"></i></div>
+                    <h3>Finance Professionals</h3>
+                    <p>Secure premium internal placements with the GCC's top investment firms, banks, and conglomerates.</p>
+                    <ul class="track-list">
+                        <li><i class="fas fa-check-circle"></i> Exclusive Access to Managed Openings</li>
+                        <li><i class="fas fa-check-circle"></i> Strategic CV Repositioning</li>
+                        <li><i class="fas fa-check-circle"></i> High-Intent Regional Mentorship</li>
+                        <li><i class="fas fa-check-circle"></i> Direct Exposure to C-Suite Hiring</li>
                     </ul>
-                    <a href="{% url 'employee_register' %}" class="btn">
-                        <i class="fas fa-user-plus"></i> Register as Job Seeker
+                    <a href="{% url 'employee_register' %}" class="btn-premium btn-employee track-cta">
+                        <i class="fas fa-rocket"></i> Launch Career Track
                     </a>
                 </div>
 
-                <!-- Employer Registration Card -->
-                <div class="join-card employer">
-                    <div class="join-card-icon">
-                        <i class="fas fa-building"></i>
-                    </div>
-                    <h3>Employer</h3>
-                    <p>Looking to hire qualified finance professionals? Access our curated pool of talented candidates.
-                    </p>
-                    <ul class="join-card-features">
-                        <li><i class="fas fa-check"></i> Access to verified candidates</li>
-                        <li><i class="fas fa-check"></i> Pre-screened profiles</li>
-                        <li><i class="fas fa-check"></i> Quick hiring process</li>
-                        <li><i class="fas fa-check"></i> Dedicated support team</li>
+                <!-- Employer Track -->
+                <div class="track-card employer-track">
+                    <div class="track-icon"><i class="fas fa-building"></i></div>
+                    <h3>Strategic Employers</h3>
+                    <p>Eliminate hiring friction. Access a pre-verified pool of accounting and finance elite.</p>
+                    <ul class="track-list">
+                        <li><i class="fas fa-check-circle"></i> Instant Access to Vetted Talent</li>
+                        <li><i class="fas fa-check-circle"></i> Pre-Screened Technical Audits</li>
+                        <li><i class="fas fa-check-circle"></i> Reduced Time-to-Hire (TTH)</li>
+                        <li><i class="fas fa-check-circle"></i> Dedicated Placement Stewardship</li>
                     </ul>
-                    <a href="{% url 'employer_register' %}" class="btn">
-                        <i class="fas fa-building"></i> Register as Employer
+                    <a href="{% url 'employer_register' %}" class="btn-premium btn-employer track-cta">
+                        <i class="fas fa-bolt"></i> Access Premium Talent
                     </a>
                 </div>
             </div>
@@ -352,17 +332,6 @@
     <section class="contact" id="contact">
         <div class="container">
             <h2>Contact Us</h2>
-            <div class="contact-container">
-                <div class="contact-info">
-                    <h3>Get in Touch</h3>
-                    <p><i class="fas fa-phone-alt"></i> +971 589288746</p>
-                    <p><i class="fas fa-map-marker-alt"></i> Abu Hail, Dubai, UAE</p>
-                    <p><i class="fas fa-envelope"></i> accoplacers@gmail.com</p>
-
-                    <div class="social-links">
-                        <a href="https://www.instagram.com/accoplacers"><i class="fab fa-instagram"></i></a>
-                    </div>
-                </div>
                 <div class="contact-form">
                     <form id="contactForm" action="/contact/" method="POST">
                         {% csrf_token %}
@@ -389,7 +358,6 @@
                     </form>
                 </div>
             </div>
-        </div>
     </section>
 
     <!-- Footer -->
@@ -400,9 +368,6 @@
                     <h3>Accoplacers</h3>
                     <p>Career support and placement services for accounting, audit & finance professionals in the GCC
                         region.</p>
-                    <div class="social-links">
-                        <a href="https://www.instagram.com/accoplacers"><i class="fab fa-instagram"></i></a>
-                    </div>
                 </div>
                 <div class="footer-col">
                     <h3>Quick Links</h3>
@@ -429,6 +394,7 @@
                         <li><i class="fas fa-map-marker-alt"></i> Abu Hail, Dubai, UAE</li>
                         <li><i class="fas fa-phone-alt"></i> +971 589288746</li>
                         <li><i class="fas fa-envelope"></i> accoplacers@gmail.com</li>
+                        <li><a href="https://www.instagram.com/accoplacers?igsh=OGs5eW1uYzU0Mnlv" target="_blank"><i class="fab fa-instagram"></i> Instagram</a></li>
                     </ul>
                 </div>
             </div>

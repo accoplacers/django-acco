@@ -12,24 +12,24 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 from pathlib import Path
 import os
-
 from environ import Env
-
-env = Env()
-Env.read_env()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+env = Env()
+# Phase 1 Hardening: Explicitly load .env from BASE_DIR to ensure boot stability
+Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-+3j3fd@1)0jioqs9(-jms%##w+@)5#b%3is+pja2p^u&t*cnsdfadgrevdy'
+SECRET_KEY = env("DJANGO_SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = env.bool("DJANGO_DEBUG", default=False)
 
 ALLOWED_HOSTS = [
     '127.0.0.1',
@@ -84,6 +84,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'base.context_processors.site_config',
             ],
         },
     },
@@ -96,6 +97,8 @@ WSGI_APPLICATION = 'acco.wsgi.application'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 # Database
+# https://docs.djangoproject.com/en/5.0/ref/settings/#databases
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
@@ -106,6 +109,29 @@ DATABASES = {
         'PASSWORD': 'accoplacers'
     }
 }
+
+# Fallback to SQLite for local development if MySQL is not available or connection fails
+if os.environ.get('DJANGO_LOCAL_SQLITE', 'True') == 'True':
+    try:
+        import MySQLdb
+        # We'll check if we can actually connect. If not, we fall back.
+        # This is slightly slow but robust for "booting up" anywhere.
+        conn = MySQLdb.connect(
+            host=DATABASES['default']['HOST'],
+            user=DATABASES['default']['USER'],
+            passwd=DATABASES['default']['PASSWORD'],
+            db=DATABASES['default']['NAME'],
+            port=int(DATABASES['default']['PORT']),
+            connect_timeout=1
+        )
+        conn.close()
+    except (ImportError, Exception):
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.sqlite3',
+                'NAME': BASE_DIR / 'db.sqlite3',
+            }
+        }
 
 
 # Password validation
@@ -164,3 +190,19 @@ STRIPE_SECRET_KEY = env("STRIPE_SECRET_KEY")
 # File upload size limits (10 MB per file, 15 MB total request)
 DATA_UPLOAD_MAX_MEMORY_SIZE = 15 * 1024 * 1024   # 15 MB
 FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024   # 10 MB
+
+# Phase 1: Config Centralization
+STRIPE_PLAN_PRICES = {
+    'basic': int(env("STRIPE_PRICE_BASIC", default="49")),
+    'intermediate': int(env("STRIPE_PRICE_INTERMEDIATE", default="89")),
+    'premium': int(env("STRIPE_PRICE_PREMIUM", default="149")),
+}
+
+WHATSAPP_CONTACT_NUMBER = env("WHATSAPP_NUMBER", default="971589288746")
+
+# Phase 0: Session Hardening
+SESSION_COOKIE_AGE = 60 * 60 * 8  # 8 hours in seconds
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+
+# Phase 3: Auth System Hardening
+AUTH_USER_MODEL = 'base.UserAccount'

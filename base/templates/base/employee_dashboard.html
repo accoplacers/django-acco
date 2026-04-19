@@ -8,319 +8,17 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   {% load static %}
   <link rel="icon" href="{% static 'base/img/favicon.ico' %}" type="image/x-icon">
-  <style>
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Inter', -apple-system, sans-serif; background: #F8FAFC; color: #0F172A; font-size: 14px; padding-top: 64px; }
-
-    /* Header */
-    .header {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-      height: 64px; background: #fff;
-      border-bottom: 1px solid #E2E8F0;
-      padding: 0 28px;
-      display: flex; align-items: center; justify-content: space-between;
-    }
-    .header-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
-    .header-logo-icon { width: 32px; height: 32px; background: #4F46E5; border-radius: 7px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 14px; }
-    .header-logo-text { font-size: 16px; font-weight: 700; color: #0F172A; }
-    .header-logo-text span { color: #4F46E5; }
-    .header-right { display: flex; align-items: center; gap: 12px; }
-    .user-chip {
-      display: flex; align-items: center; gap: 8px;
-      background: #F1F5F9; border: 1px solid #E2E8F0;
-      padding: 6px 12px; border-radius: 8px;
-    }
-    .user-avatar {
-      width: 28px; height: 28px;
-      background: #4F46E5; color: #fff;
-      border-radius: 50%; display: flex; align-items: center; justify-content: center;
-      font-size: 12px; font-weight: 700; flex-shrink: 0;
-    }
-    .user-name { font-size: 13px; font-weight: 600; color: #334155; }
-    .logout-link {
-      display: flex; align-items: center; gap: 6px;
-      padding: 7px 14px; border-radius: 7px;
-      background: #FEF2F2; color: #E11D48;
-      text-decoration: none; font-size: 13px; font-weight: 600;
-      border: 1px solid #FECACA; transition: background 0.15s;
-    }
-    .logout-link:hover { background: #E11D48; color: #fff; border-color: #E11D48; }
-
-    /* Container */
-    .container { max-width: 1100px; margin: 0 auto; padding: 28px 24px; }
-
-    /* Messages */
-    .msg { padding: 13px 16px; border-radius: 8px; font-size: 13.5px; font-weight: 500; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
-    .msg.success { background: #ECFDF5; color: #065F46; border: 1px solid #A7F3D0; }
-    .msg.error { background: #FEF2F2; color: #B91C1C; border: 1px solid #FECACA; }
-
-    /* Welcome Banner */
-    .welcome {
-      background: linear-gradient(135deg, #4F46E5 0%, #3730A3 100%);
-      border-radius: 14px; padding: 28px 32px;
-      color: #fff; margin-bottom: 24px;
-      display: flex; align-items: center; justify-content: space-between;
-      gap: 20px;
-    }
-    .welcome-left h1 { font-size: 20px; font-weight: 800; margin-bottom: 4px; }
-    .welcome-left p { font-size: 13.5px; opacity: 0.8; }
-    .welcome-badge {
-      background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2);
-      padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600;
-      white-space: nowrap; flex-shrink: 0;
-      display: flex; align-items: center; gap: 8px;
-    }
-
-    /* Cards */
-    .card { background: #fff; border: 1px solid #E2E8F0; border-radius: 12px; overflow: hidden; margin-bottom: 24px; }
-    .card-header {
-      padding: 16px 20px; border-bottom: 1px solid #E2E8F0;
-      display: flex; align-items: center; justify-content: space-between;
-    }
-    .card-title { font-size: 15px; font-weight: 700; color: #0F172A; display: flex; align-items: center; gap: 8px; }
-    .card-title i { color: #4F46E5; }
-    .card-body { padding: 20px; }
-
-    /* Skills */
-    .skills-input-row { display: flex; gap: 10px; margin-bottom: 16px; }
-    .skill-input {
-      flex: 1; padding: 10px 14px;
-      border: 1.5px solid #E2E8F0; border-radius: 8px;
-      font-size: 14px; font-family: inherit; color: #0F172A;
-      outline: none; transition: border-color 0.2s, box-shadow 0.2s;
-    }
-    .skill-input:focus { border-color: #4F46E5; box-shadow: 0 0 0 3px rgba(79,70,229,0.1); }
-    .skill-input::placeholder { color: #94A3B8; }
-    .add-btn {
-      padding: 10px 18px; background: #4F46E5; color: #fff;
-      border: none; border-radius: 8px; font-size: 13.5px; font-weight: 600;
-      cursor: pointer; font-family: inherit; display: flex; align-items: center; gap: 6px;
-      transition: background 0.15s; white-space: nowrap;
-    }
-    .add-btn:hover { background: #3730A3; }
-    .skills-tags { display: flex; flex-wrap: wrap; gap: 8px; min-height: 36px; }
-    .skill-tag {
-      display: inline-flex; align-items: center; gap: 6px;
-      background: #EEF2FF; color: #4F46E5;
-      padding: 6px 12px; border-radius: 20px;
-      font-size: 13px; font-weight: 600;
-      animation: fadeIn 0.2s ease;
-    }
-    @keyframes fadeIn { from { opacity: 0; transform: scale(0.85); } to { opacity: 1; transform: scale(1); } }
-    .skill-tag button {
-      background: none; border: none; color: #6366F1; cursor: pointer;
-      padding: 0; font-size: 11px; line-height: 1;
-      width: 16px; height: 16px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      transition: background 0.15s, color 0.15s;
-    }
-    .skill-tag button:hover { background: #E11D48; color: #fff; }
-    .no-skills { color: #94A3B8; font-size: 13.5px; font-style: italic; padding: 6px 0; }
-    .save-btn {
-      display: none; margin-top: 14px;
-      padding: 9px 18px; background: #10B981; color: #fff;
-      border: none; border-radius: 8px; font-size: 13.5px; font-weight: 600;
-      cursor: pointer; font-family: inherit; align-items: center; gap: 6px;
-      transition: background 0.15s;
-    }
-    .save-btn.visible { display: inline-flex; }
-    .save-btn:hover { background: #059669; }
-
-    /* Jobs Grid */
-    .section-title {
-      font-size: 16px; font-weight: 700; color: #0F172A;
-      margin-bottom: 16px; display: flex; align-items: center; gap: 8px;
-    }
-    .section-title i { color: #4F46E5; }
-    .jobs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
-    .job-card {
-      background: #fff; border: 1px solid #E2E8F0; border-radius: 12px;
-      padding: 20px; transition: box-shadow 0.2s, transform 0.2s;
-      border-left: 4px solid #4F46E5;
-    }
-    .job-card:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.08); transform: translateY(-2px); }
-    .job-card-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 12px; }
-    .job-title { font-size: 15px; font-weight: 700; color: #0F172A; margin-bottom: 2px; }
-    .job-company { font-size: 13px; color: #64748B; }
-    .job-type-badge {
-      background: #ECFDF5; color: #059669;
-      font-size: 11.5px; font-weight: 700;
-      padding: 4px 10px; border-radius: 20px; white-space: nowrap; flex-shrink: 0;
-    }
-    .job-meta { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
-    .job-meta-item { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #64748B; }
-    .job-meta-item i { color: #4F46E5; width: 14px; text-align: center; font-size: 12px; }
-    .job-desc {
-      font-size: 13px; color: #64748B; line-height: 1.6;
-      display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3;
-      -webkit-box-orient: vertical; overflow: hidden;
-    }
-    .no-jobs {
-      text-align: center; padding: 60px 20px;
-      background: #fff; border: 1px solid #E2E8F0; border-radius: 12px;
-    }
-    .no-jobs i { font-size: 40px; color: #CBD5E1; margin-bottom: 14px; display: block; }
-    .no-jobs h3 { font-size: 16px; color: #334155; margin-bottom: 6px; }
-    .no-jobs p { font-size: 13.5px; color: #94A3B8; }
-
-    /* Job card clickable */
-    .job-card { cursor: pointer; }
-
-    /* Interest button */
-    .interest-btn {
-      display: inline-flex; align-items: center; gap: 6px;
-      margin-top: 14px; padding: 8px 14px;
-      border-radius: 8px; font-size: 13px; font-weight: 600;
-      cursor: pointer; font-family: inherit; border: 1.5px solid #E2E8F0;
-      background: #F8FAFC; color: #64748B;
-      transition: all 0.15s; width: 100%; justify-content: center;
-    }
-    .interest-btn:hover { background: #EEF2FF; color: #4F46E5; border-color: #C7D2FE; }
-    .interest-btn.interested { background: #EEF2FF; color: #4F46E5; border-color: #C7D2FE; }
-    .interest-btn.interested i { color: #4F46E5; }
-    .modal-footer { margin-top: 20px; padding-top: 16px; border-top: 1px solid #E2E8F0; }
-    .modal-interest-btn {
-      display: inline-flex; align-items: center; gap: 8px;
-      width: 100%; padding: 12px 18px; justify-content: center;
-      border-radius: 9px; font-size: 14px; font-weight: 600;
-      cursor: pointer; font-family: inherit; border: 1.5px solid #E2E8F0;
-      background: #F8FAFC; color: #64748B; transition: all 0.15s;
-    }
-    .modal-interest-btn:hover { background: #EEF2FF; color: #4F46E5; border-color: #C7D2FE; }
-    .modal-interest-btn.interested { background: #EEF2FF; color: #4F46E5; border-color: #C7D2FE; }
-    .modal-foot-btns { display: flex; flex-direction: column; gap: 10px; }
-    .wa-btn {
-      display: inline-flex; align-items: center; gap: 6px;
-      padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 600;
-      background: #25D366; color: #fff; border: none;
-      transition: background 0.15s, transform 0.15s; width: 100%; justify-content: center;
-      text-decoration: none; margin-top: 10px;
-    }
-    .wa-btn:hover { background: #128C7E; color: #fff; transform: translateY(-1px); }
-    .modal-wa-btn {
-      display: inline-flex; align-items: center; gap: 8px;
-      width: 100%; padding: 12px 18px; justify-content: center;
-      border-radius: 9px; font-size: 14px; font-weight: 600;
-      background: #25D366; color: #fff; border: none;
-      transition: background 0.15s, transform 0.15s; text-decoration: none;
-    }
-    .modal-wa-btn:hover { background: #128C7E; color: #fff; transform: translateY(-1px); }
-
-    /* Modal overlay */
-    .modal-overlay {
-      display: none; position: fixed; inset: 0; z-index: 200;
-      background: rgba(15,23,42,0.5); backdrop-filter: blur(3px);
-      align-items: flex-end; justify-content: center;
-    }
-    .modal-overlay.open { display: flex; }
-    @media (min-width: 600px) {
-      .modal-overlay { align-items: center; }
-    }
-
-    .modal {
-      background: #fff; border-radius: 20px 20px 0 0;
-      width: 100%; max-width: 640px;
-      max-height: 92dvh; overflow-y: auto;
-      padding: 24px 24px 36px;
-      transform: translateY(100%);
-      transition: transform 0.3s cubic-bezier(.4,0,.2,1);
-      position: relative;
-    }
-    .modal-overlay.open .modal { transform: translateY(0); }
-    @media (min-width: 600px) {
-      .modal { border-radius: 16px; max-height: 85dvh; }
-    }
-
-    .modal-close {
-      position: absolute; top: 16px; right: 16px;
-      background: #F1F5F9; border: none; border-radius: 50%;
-      width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
-      color: #64748B; cursor: pointer; font-size: 14px; flex-shrink: 0;
-      transition: background 0.15s, color 0.15s;
-    }
-    .modal-close:hover { background: #E2E8F0; color: #0F172A; }
-
-    .modal-badge-row { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
-    .modal-type-badge {
-      background: #ECFDF5; color: #059669;
-      font-size: 12px; font-weight: 700;
-      padding: 4px 12px; border-radius: 20px;
-    }
-    .modal-company-badge {
-      background: #EEF2FF; color: #4F46E5;
-      font-size: 12px; font-weight: 600;
-      padding: 4px 12px; border-radius: 20px;
-    }
-    .modal-title { font-size: 20px; font-weight: 800; color: #0F172A; margin-bottom: 14px; line-height: 1.3; }
-    .modal-meta { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
-    .modal-meta-item { display: flex; align-items: center; gap: 10px; font-size: 13.5px; color: #475569; }
-    .modal-meta-item i { color: #4F46E5; width: 16px; text-align: center; font-size: 13px; }
-
-    .modal-section { margin-bottom: 20px; }
-    .modal-section-label {
-      font-size: 12px; font-weight: 700; text-transform: uppercase;
-      letter-spacing: 0.07em; color: #94A3B8; margin-bottom: 8px;
-    }
-    .modal-section-body {
-      font-size: 14px; color: #334155; line-height: 1.7;
-      white-space: pre-wrap; word-break: break-word;
-    }
-    .modal-divider { border: none; border-top: 1px solid #E2E8F0; margin: 18px 0; }
-
-    /* Tablet */
-    @media (max-width: 960px) {
-      .container { padding: 24px 20px; }
-    }
-
-    /* Small tablet / large phone landscape */
-    @media (max-width: 768px) {
-      .header { padding: 0 16px; }
-      .user-name { display: none; }
-      .container { padding: 20px 16px; }
-      .welcome { flex-direction: column; padding: 20px; gap: 14px; }
-      .welcome-left h1 { font-size: 18px; }
-      .welcome-badge { align-self: flex-start; }
-      .skills-input-row { flex-direction: column; }
-      .add-btn { justify-content: center; min-height: 44px; }
-      .skill-input { min-height: 44px; font-size: 16px; }
-    }
-
-    /* Phone landscape / large phone portrait */
-    @media (max-width: 600px) {
-      .jobs-grid { grid-template-columns: 1fr; }
-      .job-card { padding: 16px; }
-    }
-
-    /* Small phones */
-    @media (max-width: 480px) {
-      body { padding-top: 56px; }
-      .header { height: 56px; padding: 0 12px; }
-      .header-logo-text { font-size: 13px; }
-      .user-chip { padding: 5px 8px; }
-      .logout-link { padding: 6px 10px; gap: 0; }
-      .logout-text { display: none; }
-      .container { padding: 14px 12px; }
-      .welcome { padding: 16px; margin-bottom: 16px; }
-      .welcome-left h1 { font-size: 15px; }
-      .welcome-left p { font-size: 12px; }
-      .welcome-badge { font-size: 12px; padding: 6px 10px; }
-      .card { margin-bottom: 16px; }
-      .card-header { padding: 12px 14px; }
-      .card-body { padding: 14px; }
-      .job-card { padding: 14px; }
-      .job-title { font-size: 14px; }
-      .section-title { font-size: 14px; margin-bottom: 12px; }
-      .save-btn { width: 100%; justify-content: center; }
-      .no-jobs { padding: 40px 16px; }
-    }
-  </style>
+  <link rel="stylesheet" href="{% static 'base/css/ds.css' %}">
+  <link rel="stylesheet" href="{% static 'base/css/employee_dashboard.css' %}">
 </head>
-<body>
+<body class="theme-employee">
 
   <header class="header">
-    <a href="/" class="header-logo">
-      <div class="header-logo-icon"><i class="fas fa-briefcase"></i></div>
-      <span class="header-logo-text">Acco<span>placers</span></span>
+    <a href="/" class="nav-logo nav-logo-white">
+      <div class="nav-logo-icon">
+        <img src="{% static 'base/img/android-chrome-192x192.png' %}" alt="Accoplacers Logo" class="main-logo-img">
+      </div>
+      <span class="nav-logo-text">Acco<span>placers</span></span>
     </a>
     <div class="header-right">
       <div class="user-chip">
@@ -331,7 +29,7 @@
     </div>
   </header>
 
-  <div class="container">
+  <div class="dash-container">
 
     {% if messages %}
       {% for message in messages %}
@@ -368,9 +66,22 @@
         <form method="POST" id="skillsForm">
           {% csrf_token %}
           <input type="hidden" name="action" value="update_skills">
-          <input type="hidden" name="skills" id="skillsHidden" value="{{ employee.skills|default:'' }}">
+          <input type="hidden" name="skills" id="skillsHidden" value="{{ employee.skills_list|default:'' }}">
           <button type="submit" class="save-btn" id="saveBtn"><i class="fas fa-save"></i> Save Changes</button>
         </form>
+      </div>
+    </div>
+
+    <!-- Resume Enhancement Upsell -->
+    <div class="upsell-card">
+      <div class="upsell-content">
+        <div class="upsell-text">
+          <h3><i class="fas fa-magic"></i> Boost Your Hiring Chances</h3>
+          <p>Want to improve your visibility to top recruiters? Send us your resume, and our experts will reposition and rewrite it to highlight your strengths.</p>
+        </div>
+        <a href="https://wa.me/{{ WHATSAPP_NUMBER }}?text=Please%20rewrite%20my%20resume" class="upsell-btn" target="_blank" rel="noopener noreferrer">
+          <i class="fab fa-whatsapp"></i> Send through WhatsApp
+        </a>
       </div>
     </div>
 
