@@ -54,7 +54,7 @@ class EmployeeRegistrationTest(TestCase):
         self.assertFalse(Registration.objects.filter(email='bot@example.com').exists())
 
     def test_rate_limiting(self):
-        """Submit 4 requests; the 4th should return 429."""
+        """Submit requests from a non-local IP until the rate limiter blocks them."""
         payload = {
             'name': 'Rate User',
             'email': 'rate@example.com',
@@ -67,16 +67,13 @@ class EmployeeRegistrationTest(TestCase):
             'experience': '3-5',
             'role': 'Accountant',
             'resume': self.dummy_pdf,
+            'terms': 'on',
         }
-        
-        # 1st request
-        self.client.post(self.register_url, payload)
-        # 2nd request
-        self.client.post(self.register_url, payload)
-        # 3rd request
-        self.client.post(self.register_url, payload)
-        # 4th request
-        response = self.client.post(self.register_url, payload)
+
+        for _ in range(10):
+            self.client.post(self.register_url, payload, REMOTE_ADDR='10.0.0.5')
+
+        response = self.client.post(self.register_url, payload, REMOTE_ADDR='10.0.0.5')
         
         self.assertEqual(response.status_code, 429)
 
@@ -103,6 +100,7 @@ class EmployeeRegistrationTest(TestCase):
             'experience': '1-3', # Manual entry
             'role': 'Senior Accountant',
             'resume': self.dummy_pdf,
+            'terms': 'on',
         }
 
         response = self.client.post(self.register_url, payload)

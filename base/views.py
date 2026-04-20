@@ -298,8 +298,22 @@ def temp_save_registration(request):
     return JsonResponse({'status': 'error'}, status=400)
 
 
-@rate_limit(max_requests=3, time_window=3600, block_duration=7200)
+@rate_limit(max_requests=10, time_window=600, block_duration=600)
 def employee_register(request):
+    def render_employee_register(form_data=None, initial_step=1):
+        context = {'initial_step': initial_step}
+        if form_data:
+            context['form_data'] = form_data
+        return render(request, 'base/employee_register.html', context)
+
+    def get_initial_step(error_message):
+        message = (error_message or '').lower()
+        if any(token in message for token in ['resume', 'deposit', 'refund', 'terms', 'photo']):
+            return 3
+        if any(token in message for token in ['phone', 'nationality', 'location', 'qualification', 'experience', 'role']):
+            return 2
+        return 1
+
     if request.user.is_authenticated:
         if request.user.role == 'employee':
             return redirect('employee_dashboard')
@@ -324,6 +338,7 @@ def employee_register(request):
         resume = request.FILES.get('resume')
         photo = request.FILES.get('photo')
         plan = request.POST.get('plan', 'basic')
+        terms_accepted = request.POST.get('terms') == 'on'
 
         form_data = {
             'name': name, 'email': email, 'phone': phone,
@@ -353,19 +368,24 @@ def employee_register(request):
                 raise ValidationError("Please upload your resume.")
             if resume.size > 5 * 1024 * 1024:
                 raise ValidationError("Resume file size must not exceed 5 MB.")
+            if not terms_accepted:
+                raise ValidationError("Please confirm the deposit and refund policy to continue.")
 
         except ValidationError as e:
-            messages.error(request, str(e))
-            return render(request, 'base/employee_register.html', {'form_data': form_data})
+            error_message = str(e)
+            messages.error(request, error_message)
+            return render_employee_register(form_data, get_initial_step(error_message))
 
         # Phase 0: Photo upload size cap
         if photo and photo.size > 5 * 1024 * 1024:
-            messages.error(request, "Photo file size must not exceed 5 MB.")
-            return render(request, 'base/employee_register.html', {'form_data': form_data})
+            error_message = "Photo file size must not exceed 5 MB."
+            messages.error(request, error_message)
+            return render_employee_register(form_data, get_initial_step(error_message))
 
         if Registration.objects.filter(email=email).exists():
-            messages.error(request, "An account with this email already exists. Please login.")
-            return render(request, 'base/employee_register.html', {'form_data': form_data})
+            error_message = "An account with this email already exists. Please login."
+            messages.error(request, error_message)
+            return render_employee_register(form_data, get_initial_step(error_message))
 
         with transaction.atomic():
             registration = Registration(
@@ -431,7 +451,7 @@ def employee_register(request):
         messages.success(request, "Registration successful! Please login to access your dashboard.")
         return redirect('employee_login')
 
-    return render(request, 'base/employee_register.html')
+    return render_employee_register()
 
 
 def terms(request):
@@ -553,18 +573,126 @@ def employee_dashboard(request):
         employee.save()
         messages.success(request, "Skills updated successfully!")
         return redirect('employee_dashboard')
-    
+
+    employee_skills = list(employee.skills.values_list('name', flat=True))
+    employee_skill_set = {skill.lower() for skill in employee_skills}
+
+    profile_checks = [
+        bool(employee.name),
+        bool(employee.email),
+        bool(employee.phone),
+        bool(employee.location),
+        bool(employee.nationality),
+        bool(employee.qualification),
+        bool(employee.experience),
+        bool(employee.role),
+        bool(employee.resume),
+        bool(employee_skill_set),
+    ]
+    profile_completion = int((sum(profile_checks) / len(profile_checks)) * 100)
+
     # Get all active job openings
-    job_openings = JobOpening.objects.filter(is_active=True).select_related('employer').order_by('-created_at')
+    job_openings = list(JobOpening.objects.filter(is_active=True).select_related('employer').order_by('-created_at'))
 
     interested_job_ids = set(
         EmployeeInterest.objects.filter(employee=employee).values_list('job_id', flat=True)
     )
 
+    role_tokens = {token.lower() for token in employee.role.replace('/', ' ').replace(',', ' ').split() if len(token) > 2}
+    suggested_skills_pool = [
+        'IFRS', 'Excel', 'VAT', 'SAP', 'Power BI', 'Financial Reporting',
+        'Internal Audit', 'Reconciliation', 'Budgeting', 'Payroll',
+    ]
+    suggested_skills = [skill for skill in suggested_skills_pool if skill.lower() not in employee_skill_set][:5]
+
+    job_cards = []
+    recommended_count = 0
+
+    for job in job_openings:
+        haystack = " ".join(filter(None, [job.title, job.description, job.requirements, job.location])).lower()
+        matched_skills = [skill for skill in employee_skills if skill.lower() in haystack]
+
+        match_score = 0
+        match_reasons = []
+
+        if any(token in haystack for token in role_tokens):
+            match_score += 3
+            match_reasons.append("Role aligned")
+
+        if matched_skills:
+            match_score += min(len(matched_skills), 3) * 2
+            match_reasons.append(f"{len(matched_skills)} skill match" if len(matched_skills) > 1 else "1 skill match")
+
+        if employee.location and employee.location.lower() in haystack:
+            match_score += 1
+            match_reasons.append("Location aligned")
+
+        is_interested = job.id in interested_job_ids
+        if is_interested:
+            match_score += 1
+
+        is_recommended = match_score >= 3
+        if is_recommended:
+            recommended_count += 1
+
+        if not match_reasons:
+            match_reasons.append("Open to finance applicants")
+
+        job_cards.append({
+            'job': job,
+            'is_interested': is_interested,
+            'is_recommended': is_recommended,
+            'match_score': match_score,
+            'match_reason': match_reasons[0],
+            'match_detail': ", ".join(match_reasons),
+            'matched_skills': matched_skills[:3],
+        })
+
+    job_cards.sort(
+        key=lambda item: (
+            not item['is_interested'],
+            not item['is_recommended'],
+            -item['match_score'],
+            -item['job'].created_at.timestamp(),
+        )
+    )
+
+    next_steps = []
+    if not employee_skill_set:
+        next_steps.append({
+            'title': 'Add your core skills',
+            'detail': 'Include systems, certifications, and finance tools so matching is more precise.',
+            'action': 'Update skills below',
+        })
+    if not interested_job_ids:
+        next_steps.append({
+            'title': 'Save your first opportunity',
+            'detail': 'Mark roles as interested so the team can see where you want to be introduced.',
+            'action': 'Review today\'s openings',
+        })
+    if profile_completion < 100:
+        next_steps.append({
+            'title': 'Complete your profile',
+            'detail': f'Your profile is {profile_completion}% complete. A more complete profile is easier to shortlist.',
+            'action': 'Review profile signals',
+        })
+
+    if not next_steps:
+        next_steps.append({
+            'title': 'Keep momentum',
+            'detail': 'Your profile is in good shape. Stay active by reviewing new openings and updating skills as they grow.',
+            'action': 'Check new roles weekly',
+        })
+
     return render(request, 'base/employee_dashboard.html', {
         'employee': employee,
-        'job_openings': job_openings,
+        'job_cards': job_cards,
         'interested_job_ids': interested_job_ids,
+        'profile_completion': profile_completion,
+        'recommended_count': recommended_count,
+        'skills_count': len(employee_skills),
+        'next_steps': next_steps,
+        'suggested_skills': suggested_skills,
     })
 
 
@@ -574,20 +702,48 @@ def employee_dashboard(request):
 
 @rate_limit(max_requests=5, time_window=60, block_duration=300)
 def employer_register(request):
+    def render_employer_register(form_data=None, initial_section='company'):
+        context = {'initial_section': initial_section}
+        if form_data:
+            context['form_data'] = form_data
+        return render(request, 'base/employer_register.html', context)
+
+    def get_initial_section(error_message):
+        message = (error_message or '').lower()
+        if any(token in message for token in ['password', 'logo', 'security']):
+            return 'security'
+        if any(token in message for token in ['industry', 'description', 'hiring']):
+            return 'hiring'
+        return 'company'
+
     if request.user.is_authenticated:
         if request.user.role == 'employer':
             return redirect('employer_dashboard')
         elif request.user.role == 'employee':
             return redirect('employee_dashboard')
     if request.method == 'POST':
+        if request.POST.get('fax_number'):
+            logger.warning(f"Bot detected: Employer honeypot field filled. IP: {request.META.get('REMOTE_ADDR')}")
+            return HttpResponse("Bad Request", status=400)
+
         company_name = request.POST.get('company_name', '').strip()
         email = request.POST.get('email', '').strip()
         password = request.POST.get('password', '')
+        confirm_password = request.POST.get('confirm_password', '')
         phone = request.POST.get('phone', '').strip()
         company_description = request.POST.get('company_description', '').strip()
         location = request.POST.get('location', '').strip()
         industry = request.POST.get('industry', '').strip()
         logo = request.FILES.get('logo')
+
+        form_data = {
+            'company_name': company_name,
+            'email': email,
+            'phone': phone,
+            'company_description': company_description,
+            'location': location,
+            'industry': industry,
+        }
 
         try:
             # Validate all inputs
@@ -607,14 +763,22 @@ def employer_register(request):
             if len(password) > 128:
                 raise ValidationError("Password is too long (max 128 characters).")
 
+            if password != confirm_password:
+                raise ValidationError("Passwords do not match.")
+
+            if logo and logo.size > 5 * 1024 * 1024:
+                raise ValidationError("Logo file size must not exceed 5 MB.")
+
         except ValidationError as e:
-            messages.error(request, str(e))
-            return render(request, 'base/employer_register.html')
+            error_message = str(e)
+            messages.error(request, error_message)
+            return render_employer_register(form_data, get_initial_section(error_message))
 
         # Check if email already exists
         if Employer.objects.filter(email=email).exists():
-            messages.error(request, "An account with this email already exists.")
-            return render(request, 'base/employer_register.html')
+            error_message = "An account with this email already exists."
+            messages.error(request, error_message)
+            return render_employer_register(form_data, get_initial_section(error_message))
 
         # Create employer and user atomically
         with transaction.atomic():
@@ -640,7 +804,7 @@ def employer_register(request):
         messages.success(request, "Registration successful! Please login.")
         return redirect('employer_login')
 
-    return render(request, 'base/employer_register.html')
+    return render_employer_register()
 
 
 def employer_login(request):
@@ -706,9 +870,71 @@ def employer_dashboard(request):
         employer = Employer.objects.get(id=employer_id)
     except Employer.DoesNotExist:
         return redirect('employer_login')
-    
-    from django.db.models import Q
+
+    from django.db.models import Count, Q
     from django.core.paginator import Paginator
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+
+        if action in ['create_job', 'update_job']:
+            title = request.POST.get('title', '').strip()
+            description = request.POST.get('description', '').strip()
+            requirements = request.POST.get('requirements', '').strip()
+            salary_range = request.POST.get('salary_range', '').strip()
+            location = request.POST.get('location', '').strip()
+            job_type = request.POST.get('job_type', 'Full-time').strip() or 'Full-time'
+            is_active = request.POST.get('is_active') == 'on'
+
+            try:
+                validate_text_input(title, min_length=3, max_length=200)
+                validate_text_input(description, min_length=20, max_length=3000)
+                validate_text_input(requirements, min_length=10, max_length=3000)
+                validate_text_input(location, min_length=2, max_length=100)
+                if salary_range:
+                    validate_text_input(salary_range, min_length=2, max_length=50)
+                validate_text_input(job_type, min_length=2, max_length=50)
+
+                if action == 'create_job':
+                    JobOpening.objects.create(
+                        employer=employer,
+                        title=title,
+                        description=description,
+                        requirements=requirements,
+                        salary_range=salary_range,
+                        location=location,
+                        job_type=job_type,
+                        is_active=is_active,
+                    )
+                    messages.success(request, "Job opening created successfully.")
+                else:
+                    job_id = request.POST.get('job_id')
+                    job = JobOpening.objects.get(id=job_id, employer=employer)
+                    job.title = title
+                    job.description = description
+                    job.requirements = requirements
+                    job.salary_range = salary_range
+                    job.location = location
+                    job.job_type = job_type
+                    job.is_active = is_active
+                    job.save()
+                    messages.success(request, "Job opening updated successfully.")
+
+            except JobOpening.DoesNotExist:
+                messages.error(request, "The selected job could not be found.")
+            except ValidationError as e:
+                messages.error(request, str(e))
+
+            return redirect('employer_dashboard')
+
+        if action == 'delete_job':
+            job_id = request.POST.get('job_id')
+            deleted, _ = JobOpening.objects.filter(id=job_id, employer=employer).delete()
+            if deleted:
+                messages.success(request, "Job opening deleted successfully.")
+            else:
+                messages.error(request, "The selected job could not be found.")
+            return redirect('employer_dashboard')
 
     # Base queryset
     employees = Registration.objects.all().order_by('-created_at')
@@ -716,6 +942,10 @@ def employer_dashboard(request):
     # Get search parameters
     search_query = request.GET.get('q', '').strip()
     skill_query = request.GET.get('skill', '').strip()
+    availability_filter = request.GET.get('availability', 'available').strip()
+    experience_filter = request.GET.get('experience_band', '').strip()
+    interested_filter = request.GET.get('interest_scope', '').strip()
+    verified_filter = request.GET.get('verified', '1').strip()
 
     # Apply text filter
     if search_query:
@@ -737,24 +967,109 @@ def employer_dashboard(request):
         req_skills = [s.strip() for s in skill_query.split(',') if s.strip()]
         for skill in req_skills:
             employees = employees.filter(skills__name__icontains=skill)
-    
-    employees = employees.distinct()
 
-    # Paginate results (20 per page)
-    paginator = Paginator(employees, 20)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    if availability_filter == 'available':
+        employees = employees.filter(is_placed=False)
+    elif availability_filter == 'placed':
+        employees = employees.filter(is_placed=True)
 
-    interested_ids = set(
+    if experience_filter == 'junior':
+        employees = employees.filter(Q(experience='0-1') | Q(experience='1-3'))
+    elif experience_filter == 'mid':
+        employees = employees.filter(Q(experience='3-5') | Q(experience='5'))
+    elif experience_filter == 'senior':
+        employees = employees.filter(Q(experience='5-10') | Q(experience='10+') | Q(experience__iregex=r'^[6-9]$'))
+
+    employer_interest_ids = set(
         EmployerInterest.objects.filter(employer=employer).values_list('employee_id', flat=True)
     )
 
+    if interested_filter == 'saved':
+        employees = employees.filter(id__in=employer_interest_ids)
+
+    employees = employees.distinct()
+
+    candidate_cards = []
+    for emp in employees:
+        profile_checks = [
+            bool(emp.resume),
+            bool(emp.role),
+            bool(emp.qualification),
+            bool(emp.experience),
+            bool(emp.location),
+            bool(emp.skills.exists()),
+        ]
+        profile_score = int((sum(profile_checks) / len(profile_checks)) * 100)
+        is_verified_profile = profile_score >= 80 and not emp.is_placed
+
+        if verified_filter == '1' and not is_verified_profile:
+            continue
+
+        skill_names = list(emp.skills.values_list('name', flat=True))
+        match_notes = []
+        if employer.industry and employer.industry.lower() in (emp.role or '').lower():
+            match_notes.append('Industry aligned')
+        if skill_names:
+            match_notes.append(f"{len(skill_names)} skill{'s' if len(skill_names) != 1 else ''} listed")
+        if emp.location and employer.location and emp.location.lower() == employer.location.lower():
+            match_notes.append('Local profile')
+        if not match_notes:
+            match_notes.append('Finance candidate')
+
+        candidate_cards.append({
+            'employee': emp,
+            'profile_score': profile_score,
+            'is_verified_profile': is_verified_profile,
+            'match_note': match_notes[0],
+            'skill_names': skill_names[:4],
+            'is_saved': emp.id in employer_interest_ids,
+        })
+
+    candidate_cards.sort(
+        key=lambda item: (
+            not item['is_saved'],
+            not item['is_verified_profile'],
+            -item['profile_score'],
+            -item['employee'].created_at.timestamp(),
+        )
+    )
+
+    # Paginate results (20 per page)
+    paginator = Paginator(candidate_cards, 20)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    owned_jobs = list(
+        JobOpening.objects.filter(employer=employer)
+        .annotate(employee_interest_count=Count('employee_interests'))
+        .order_by('-created_at')
+    )
+
+    employee_interest_feed = list(
+        EmployeeInterest.objects.filter(job__employer=employer)
+        .select_related('employee', 'job')
+        .order_by('-created_at')[:8]
+    )
+
+    total_candidates = Registration.objects.count()
+    verified_candidates = sum(1 for card in candidate_cards if card['is_verified_profile'])
+    active_jobs_count = sum(1 for job in owned_jobs if job.is_active)
+
     return render(request, 'base/employer_dashboard.html', {
         'employer': employer,
-        'employees': page_obj,
-        'interested_ids': interested_ids,
+        'candidate_cards': page_obj,
+        'interested_ids': employer_interest_ids,
         'search_q': search_query,
         'search_skill': skill_query,
+        'availability_filter': availability_filter,
+        'experience_filter': experience_filter,
+        'interest_scope': interested_filter,
+        'verified_filter': verified_filter,
+        'owned_jobs': owned_jobs,
+        'employee_interest_feed': employee_interest_feed,
+        'total_candidates': total_candidates,
+        'verified_candidates': verified_candidates,
+        'active_jobs_count': active_jobs_count,
     })
 
 

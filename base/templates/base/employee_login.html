@@ -9,116 +9,6 @@
   {% load static %}
   <link rel="stylesheet" href="{% static 'base/css/ds.css' %}">
   <link rel="icon" href="{% static 'base/img/favicon.ico' %}" type="image/x-icon">
-  <style>
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: 'Inter', -apple-system, sans-serif;
-      min-height: 100vh;
-      display: flex;
-    }
-
-    /* ── Left Panel ── */
-    .panel-left {
-      width: 44%;
-      background: #0F172A;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      padding: 48px;
-      position: relative;
-      overflow: hidden;
-    }
-    .panel-left::before {
-      content: '';
-      position: absolute;
-      top: -120px; right: -120px;
-      width: 420px; height: 420px;
-      background: radial-gradient(circle, rgba(79,70,229,0.18) 0%, transparent 70%);
-      pointer-events: none;
-    }
-    .panel-left::after {
-      content: '';
-      position: absolute;
-      bottom: -80px; left: -80px;
-      width: 300px; height: 300px;
-      background: radial-gradient(circle, rgba(79,70,229,0.12) 0%, transparent 70%);
-      pointer-events: none;
-    }
-    .pl-top { position: relative; z-index: 1; }
-    .pl-logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      text-decoration: none;
-      margin-bottom: 56px;
-    }
-    .pl-logo-icon {
-      width: 36px; height: 36px;
-      background: #4F46E5;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #fff;
-      font-size: 16px;
-    }
-    .pl-logo-text { font-size: 18px; font-weight: 700; color: #fff; }
-    .pl-logo-text span { color: #818CF8; }
-    .pl-headline {
-      font-size: 32px;
-      font-weight: 800;
-      color: #fff;
-      line-height: 1.25;
-      margin-bottom: 16px;
-      letter-spacing: -0.5px;
-    }
-    .pl-sub {
-      font-size: 15px;
-      color: rgba(255,255,255,0.55);
-      line-height: 1.7;
-      max-width: 340px;
-    }
-    .pl-features {
-      list-style: none;
-      margin-top: 40px;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      position: relative;
-      z-index: 1;
-    }
-    .pl-features li {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      color: rgba(255,255,255,0.75);
-      font-size: 14px;
-      font-weight: 500;
-    }
-    .feat-icon {
-      width: 30px; height: 30px;
-      border-radius: 7px;
-      background: rgba(79,70,229,0.25);
-      border: 1px solid rgba(79,70,229,0.4);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #818CF8;
-      font-size: 13px;
-      flex-shrink: 0;
-    }
-    .pl-bottom {
-      position: relative;
-      z-index: 1;
-      font-size: 12px;
-      color: rgba(255,255,255,0.25);
-    }
-
-    @media (max-width: 480px) {
-      .panel-right { padding: 32px 20px; }
-      .form-heading { font-size: 22px; }
-    }
-  </style>
 </head>
 <body class="portal-body theme-employee">
 
@@ -159,7 +49,7 @@
 
   <!-- Right Form Panel -->
   <div class="portal-right">
-    <div class="portal-card">
+    <div class="login-form-inner">
       <span class="form-eyebrow"><i class="fas fa-user"></i> Employee Portal</span>
       <h1 class="form-heading">Welcome back</h1>
       <p class="form-sub">Sign in to your account to continue</p>
@@ -198,11 +88,9 @@
         </button>
       </form>
 
-      <div class="form-footer">
+      <div class="auth-footer">
         <a href="{% url 'employee_register' %}"><i class="fas fa-user-plus"></i> Create an Account</a>
-        <span class="sep">·</span>
         <a href="{% url 'employer_login' %}"><i class="fas fa-building"></i> Employer Login</a>
-        <span class="sep">·</span>
         <a href="/"><i class="fas fa-arrow-left"></i> Home</a>
       </div>
     </div>

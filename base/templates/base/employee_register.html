@@ -12,206 +12,279 @@
 </head>
 <body class="portal-body theme-employee">
 
-  <!-- Left Branding -->
   <div class="portal-left">
     <div class="portal-left-bg-glow"></div>
     <div class="portal-left-bg" style="background-image: url('https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&q=80');"></div>
     <div class="pl-top">
-      <a href="/" class="dash-logo" style="margin-bottom: var(--space-12);">
-        <div class="dash-logo-icon"><img src="{% static 'base/img/android-chrome-192x192.png' %}" alt="Logo" style="width:32px; height:32px;"></div>
-        <span class="dash-logo-text" style="color:#fff;">Acco<span style="color:#818CF8;">placers</span></span>
+      <a href="/" class="dash-logo portal-logo-space">
+        <div class="dash-logo-icon">
+          <img src="{% static 'base/img/android-chrome-192x192.png' %}" alt="Accoplacers logo" class="main-logo-img">
+        </div>
+        <span class="dash-logo-text portal-logo-text-light">Acco<span>placers</span></span>
       </a>
-      <h1 class="pl-title">Launch your accounting career</h1>
-      <p class="pl-subtitle">Join hundreds of finance professionals who found their next opportunity through Accoplacers in the GCC region.</p>
-      
+      <h1 class="pl-title">GCC finance roles, one verified profile</h1>
+      <p class="pl-subtitle">Complete three short steps to join our accounting, audit, and finance candidate pool for Dubai and the wider GCC.</p>
+
       <div class="pl-features-container">
         <div class="pl-feature-item">
-           <div class="pl-feature-icon"><i class="fas fa-briefcase"></i></div>
-           Exclusive job openings
+          <div class="pl-feature-icon"><i class="fas fa-shield-halved"></i></div>
+          Secure profile creation and resume handling
         </div>
         <div class="pl-feature-item">
-           <div class="pl-feature-icon"><i class="fas fa-file-alt"></i></div>
-           Professional CV guidance
+          <div class="pl-feature-icon"><i class="fas fa-briefcase"></i></div>
+          Roles matched for accounting, audit, and finance
         </div>
         <div class="pl-feature-item">
-           <div class="pl-feature-icon"><i class="fas fa-chalkboard-teacher"></i></div>
-           Interview prep support
+          <div class="pl-feature-icon"><i class="fas fa-circle-check"></i></div>
+          Verified review before employer introductions
         </div>
       </div>
     </div>
-    <div class="pl-footer">&copy; 2025 Accoplacers. GCC Managed Placements.</div>
+    <div class="pl-footer">&copy; 2025 Accoplacers. Dubai, UAE.</div>
   </div>
 
-  <!-- Right Form -->
   <div class="portal-right">
-    <div class="portal-card">
+    <div class="portal-card portal-card-register">
       <span class="portal-eyebrow"><i class="fas fa-user-tie"></i> Job Seeker Portal</span>
-      <h1 class="form-heading" style="font-size: 26px; font-weight: 800; color: var(--slate-900); margin-bottom: 8px;">Create Your Profile</h1>
-      <p class="form-sub" style="font-size: 14px; color: var(--slate-500); margin-bottom: 32px;">Register to access curated finance &amp; accounting opportunities</p>
-      <form method="POST" enctype="multipart/form-data">
-        {% csrf_token %}
-        <input type="hidden" name="plan" value="basic">
-        <!-- Honeypot Bot Trap -->
-        <input type="text" name="fax_number" style="display:none !important;" tabindex="-1" autocomplete="off">
 
-        <div class="section-divider-dash">Personal Information</div>
-        <div class="field-grid">
-          <div class="field">
-            <label class="field-label" for="name">Full Name *</label>
-            <div class="input-wrap">
-              <i class="fas fa-user input-icon-left"></i>
-              <input type="text" id="name" name="name" class="form-input" placeholder="Your full name" required value="{{ form_data.name|default:'' }}">
-            </div>
+      <div class="wizard-shell" data-initial-step="{{ initial_step|default:1 }}">
+        <div class="wizard-progress">
+          <div class="wizard-progress-copy">
+            <p class="wizard-step-count" id="wizardStepCount">Step 1 of 3</p>
+            <h1 class="form-heading wizard-heading" id="wizardHeading">Basic identity</h1>
+            <p class="form-sub wizard-sub" id="wizardSub">Set up your secure account to start matching with GCC accounting and finance roles.</p>
           </div>
-          <div class="field">
-            <label class="field-label" for="email">Email Address *</label>
-            <div class="input-wrap">
-              <i class="fas fa-envelope input-icon-left"></i>
-              <input type="email" id="email" name="email" class="form-input" placeholder="your@email.com" required value="{{ form_data.email|default:'' }}">
+          <div class="wizard-progress-meta">
+            <div class="wizard-dots" aria-hidden="true">
+              <span class="wizard-dot is-active" data-dot="1"></span>
+              <span class="wizard-dot" data-dot="2"></span>
+              <span class="wizard-dot" data-dot="3"></span>
             </div>
-          </div>
-          <div class="field">
-            <label class="field-label" for="phone">Phone Number *</label>
-            <div class="input-wrap">
-              <i class="fas fa-phone input-icon-left"></i>
-              <input type="tel" id="phone" name="phone" class="form-input" placeholder="+971 XX XXX XXXX" required value="{{ form_data.phone|default:'' }}">
-            </div>
-          </div>
-          <div class="field">
-            <label class="field-label" for="nationality">Nationality *</label>
-            <div class="input-wrap">
-              <i class="fas fa-globe input-icon-left"></i>
-              <input type="text" id="nationality" name="nationality" class="form-input" placeholder="Your nationality" required value="{{ form_data.nationality|default:'' }}">
+            <div class="wizard-progress-bar" aria-hidden="true">
+              <span class="wizard-progress-fill" id="wizardProgressFill"></span>
             </div>
           </div>
         </div>
 
-        <div class="section-divider-dash">Professional Details</div>
-        <div class="field-grid">
-          <div class="field">
-            <label class="field-label" for="location">Current Location *</label>
-            <div class="input-wrap">
-              <i class="fas fa-map-marker-alt input-icon-left"></i>
-              <input type="text" id="location" name="location" class="form-input" placeholder="City, Country" required value="{{ form_data.location|default:'' }}">
+        {% if messages %}
+          {% for message in messages %}
+          <div class="msg {{ message.tags }}">
+            <i class="fas {% if message.tags == 'error' %}fa-exclamation-circle{% else %}fa-check-circle{% endif %}"></i>
+            {{ message }}
+          </div>
+          {% endfor %}
+        {% endif %}
+
+        <form id="employeeRegisterForm" method="POST" enctype="multipart/form-data">
+          {% csrf_token %}
+          <input type="hidden" name="plan" value="basic">
+          <input type="text" name="fax_number" class="honeypot-field" tabindex="-1" autocomplete="off">
+
+          <section class="register-step" data-step="1" data-title="Basic identity" data-subtitle="Set up your secure account to start matching with GCC accounting and finance roles.">
+            <div class="step-panel-head">
+              <div class="trust-chip"><i class="fas fa-lock"></i> Secure sign-up</div>
             </div>
-          </div>
-          <div class="field">
-            <label class="field-label" for="qualification">Highest Qualification *</label>
-            <div class="input-wrap">
-              <i class="fas fa-graduation-cap input-icon-left"></i>
-              <input type="text" id="qualification" name="qualification" class="form-input" placeholder="e.g., MBA, CA, CPA" required value="{{ form_data.qualification|default:'' }}">
+
+            <div class="field-grid">
+              <div class="field field-full">
+                <label class="field-label" for="name">Full Name *</label>
+                <div class="input-wrap">
+                  <i class="fas fa-user input-icon-left"></i>
+                  <input type="text" id="name" name="name" class="form-input" placeholder="Your full name" required value="{{ form_data.name|default:'' }}" autocomplete="name">
+                </div>
+              </div>
+
+              <div class="field field-full">
+                <label class="field-label" for="email">Email Address *</label>
+                <div class="input-wrap">
+                  <i class="fas fa-envelope input-icon-left"></i>
+                  <input type="email" id="email" name="email" class="form-input" placeholder="you@example.com" required value="{{ form_data.email|default:'' }}" autocomplete="email">
+                </div>
+              </div>
+
+              <div class="field">
+                <label class="field-label" for="password">Password *</label>
+                <div class="input-wrap">
+                  <i class="fas fa-lock input-icon-left"></i>
+                  <input type="password" id="password" name="password" class="form-input" placeholder="Minimum 6 characters" required minlength="6" autocomplete="new-password">
+                  <button type="button" class="pwd-toggle" data-toggle-password="password" data-toggle-icon="pwdIcon1" aria-label="Show password">
+                    <i class="fas fa-eye" id="pwdIcon1"></i>
+                  </button>
+                </div>
+                <p class="field-hint">Use at least 6 characters.</p>
+              </div>
+
+              <div class="field">
+                <label class="field-label" for="confirm_password">Confirm Password *</label>
+                <div class="input-wrap">
+                  <i class="fas fa-lock input-icon-left"></i>
+                  <input type="password" id="confirm_password" name="confirm_password" class="form-input" placeholder="Re-enter password" required minlength="6" autocomplete="new-password">
+                  <button type="button" class="pwd-toggle" data-toggle-password="confirm_password" data-toggle-icon="pwdIcon2" aria-label="Show password confirmation">
+                    <i class="fas fa-eye" id="pwdIcon2"></i>
+                  </button>
+                </div>
+                <p class="field-feedback" id="passwordMatchFeedback" aria-live="polite"></p>
+              </div>
             </div>
-          </div>
-          <div class="field">
-            <label class="field-label" for="experience">Years of Experience *</label>
-            <div class="input-wrap select-wrap">
-              <i class="fas fa-briefcase input-icon-left"></i>
-              <select id="experience" name="experience" class="form-input" required>
-                <option value="">Select experience…</option>
-                <option value="0-1" {% if form_data.experience == '0-1' %}selected{% endif %}>0–1 years (Fresher)</option>
-                <option value="1-3" {% if form_data.experience == '1-3' %}selected{% endif %}>1–3 years</option>
-                <option value="3-5" {% if form_data.experience == '3-5' %}selected{% endif %}>3–5 years</option>
-                <option value="5-10" {% if form_data.experience == '5-10' %}selected{% endif %}>5–10 years</option>
-                <option value="10+" {% if form_data.experience == '10+' %}selected{% endif %}>10+ years</option>
-              </select>
-              <i class="fas fa-chevron-down select-caret" style="position: absolute; right: 13px; top: 50%; transform: translateY(-50%); color: var(--slate-400); font-size: 12px; pointer-events: none;"></i>
+
+            <div class="wizard-actions">
+              <button type="button" class="btn-portal-secondary is-hidden" tabindex="-1" aria-hidden="true">Back</button>
+              <button type="button" class="btn-premium btn-employee wizard-next" data-next-step="2">Continue</button>
             </div>
-          </div>
-          <div class="field">
-            <label class="field-label" for="role">Preferred Role / Industry *</label>
-            <div class="input-wrap">
-              <i class="fas fa-user-tie input-icon-left"></i>
-              <input type="text" id="role" name="role" class="form-input" placeholder="e.g., Senior Accountant" required value="{{ form_data.role|default:'' }}">
+          </section>
+
+          <section class="register-step" data-step="2" data-title="Professional profile" data-subtitle="Add the details we use to verify your profile and match you with the right opportunities.">
+            <div class="step-panel-head">
+              <div class="trust-chip trust-chip-muted"><i class="fas fa-circle-check"></i> Verified profile matching</div>
             </div>
-          </div>
-        </div>
 
-        <div class="section-divider-dash">Account Security</div>
-        <div class="field-grid">
-          <div class="field">
-            <label class="field-label" for="password">Password *</label>
-            <div class="input-wrap pwd-wrap">
-              <i class="fas fa-lock input-icon-left"></i>
-              <input type="password" id="password" name="password" class="form-input" placeholder="Min. 6 characters" required minlength="6">
-              <button type="button" class="pwd-toggle" onclick="togglePwd('password','pwdIcon1')" style="position: absolute; right: 13px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--slate-400); cursor: pointer;"><i class="fas fa-eye" id="pwdIcon1"></i></button>
+            <div class="field-grid">
+              <div class="field">
+                <label class="field-label" for="role">Preferred Role *</label>
+                <div class="input-wrap">
+                  <i class="fas fa-user-tie input-icon-left"></i>
+                  <input type="text" id="role" name="role" class="form-input" placeholder="e.g. Senior Accountant" required value="{{ form_data.role|default:'' }}">
+                </div>
+              </div>
+
+              <div class="field">
+                <label class="field-label" for="experience">Years of Experience *</label>
+                <div class="input-wrap">
+                  <i class="fas fa-briefcase input-icon-left"></i>
+                  <select id="experience" name="experience" class="form-input form-select" required>
+                    <option value="">Select experience</option>
+                    <option value="0-1" {% if form_data.experience == '0-1' %}selected{% endif %}>0-1 years</option>
+                    <option value="1-3" {% if form_data.experience == '1-3' %}selected{% endif %}>1-3 years</option>
+                    <option value="3-5" {% if form_data.experience == '3-5' %}selected{% endif %}>3-5 years</option>
+                    <option value="5-10" {% if form_data.experience == '5-10' %}selected{% endif %}>5-10 years</option>
+                    <option value="10+" {% if form_data.experience == '10+' %}selected{% endif %}>10+ years</option>
+                  </select>
+                  <i class="fas fa-chevron-down select-caret" aria-hidden="true"></i>
+                </div>
+              </div>
+
+              <div class="field">
+                <label class="field-label" for="qualification">Qualification / Certifications *</label>
+                <div class="input-wrap">
+                  <i class="fas fa-graduation-cap input-icon-left"></i>
+                  <input type="text" id="qualification" name="qualification" class="form-input" placeholder="e.g. CA, ACCA, CPA, MBA" required value="{{ form_data.qualification|default:'' }}">
+                </div>
+              </div>
+
+              <div class="field">
+                <label class="field-label" for="location">Current Location *</label>
+                <div class="input-wrap">
+                  <i class="fas fa-map-marker-alt input-icon-left"></i>
+                  <input type="text" id="location" name="location" class="form-input" placeholder="City, Country" required value="{{ form_data.location|default:'' }}">
+                </div>
+              </div>
+
+              <div class="field">
+                <label class="field-label" for="phone">Phone Number *</label>
+                <div class="input-wrap">
+                  <i class="fas fa-phone input-icon-left"></i>
+                  <input type="tel" id="phone" name="phone" class="form-input" placeholder="+971 XX XXX XXXX" required value="{{ form_data.phone|default:'' }}" autocomplete="tel">
+                </div>
+              </div>
+
+              <div class="field">
+                <label class="field-label" for="nationality">Nationality *</label>
+                <div class="input-wrap">
+                  <i class="fas fa-globe input-icon-left"></i>
+                  <input type="text" id="nationality" name="nationality" class="form-input" placeholder="Your nationality" required value="{{ form_data.nationality|default:'' }}">
+                </div>
+              </div>
             </div>
-          </div>
-          <div class="field">
-            <label class="field-label" for="confirm_password">Confirm Password *</label>
-            <div class="input-wrap pwd-wrap">
-              <i class="fas fa-lock input-icon-left"></i>
-              <input type="password" id="confirm_password" name="confirm_password" class="form-input" placeholder="Re-enter password" required minlength="6">
-              <button type="button" class="pwd-toggle" onclick="togglePwd('confirm_password','pwdIcon2')" style="position: absolute; right: 13px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--slate-400); cursor: pointer;"><i class="fas fa-eye" id="pwdIcon2"></i></button>
+
+            <div class="wizard-actions">
+              <button type="button" class="btn-portal-secondary wizard-back" data-prev-step="1">Back</button>
+              <button type="button" class="btn-premium btn-employee wizard-next" data-next-step="3">Continue</button>
             </div>
-          </div>
-        </div>
+          </section>
 
-        <div class="section-divider-dash">Documents</div>
-        <div class="field-grid">
-          <div class="field field-full">
-            <label class="field-label" for="resume"><i class="fas fa-lock" style="margin-right:5px; font-size: 11px; opacity: 0.6;"></i> Resume (PDF or DOC) *</label>
-            <div class="input-wrap">
-              <input type="file" id="resume" name="resume" class="form-input" style="padding-left:14px;" accept=".pdf,.doc,.docx" required>
+          <section class="register-step" data-step="3" data-title="Resume and activation" data-subtitle="Upload your resume, review the deposit policy, and confirm your profile activation.">
+            <div class="step-panel-head step-panel-head-split">
+              <div class="trust-chip"><i class="fas fa-shield-halved"></i> Secure upload</div>
+              <div class="trust-chip trust-chip-muted"><i class="fas fa-circle-check"></i> Verified activation</div>
             </div>
-            <p class="file-hint" style="font-size: 12px; color: var(--slate-400); margin-top: 5px;">PDF, DOC or DOCX · Max 5 MB</p>
-          </div>
-        </div>
 
-        <input type="checkbox" id="terms" name="terms" style="display:none">
+            <div class="field field-full">
+              <label class="field-label" for="resume">Resume *</label>
+              <div class="upload-zone" id="resumeDropzone" tabindex="0" role="button" aria-label="Upload your resume for candidate registration" aria-describedby="resumeUploadMeta resumeUploadStatus">
+                <input type="file" id="resume" name="resume" class="upload-input" accept=".pdf,.doc,.docx" required>
+                <div class="upload-zone-icon"><i class="fas fa-cloud-arrow-up"></i></div>
+                <div class="upload-zone-copy">
+                  <strong>Drag and drop your resume here</strong>
+                  <span>or click to choose a file</span>
+                </div>
+              </div>
+              <p class="upload-meta" id="resumeUploadMeta">Accepted: PDF, DOC, DOCX. Maximum size: 5 MB.</p>
+              <p class="field-feedback upload-status" id="resumeUploadStatus" aria-live="polite"></p>
+            </div>
 
-        <button type="button" class="btn-premium btn-employee" id="continueBtn" style="width:100%; margin-top: 32px;" onclick="openTermsModal()">
-          <i class="fas fa-id-card"></i> Accept Terms & Pay Deposit
-        </button>
-      </form>
+            <div class="deposit-note">
+              <div class="deposit-note-head">
+                <div class="deposit-note-icon"><i class="fas fa-lock"></i></div>
+                <div>
+                  <p class="deposit-note-label">Deposit and refund policy</p>
+                  <p class="deposit-note-copy">A refundable AED {{ EMPLOYEE_PROFILE_DEPOSIT_AED }} deposit is required to activate your profile. This is returned if you are not placed within {{ EMPLOYEE_PROFILE_REFUND_DAYS }} working days.</p>
+                </div>
+              </div>
+              <ul class="deposit-note-list">
+                <li>We use this to confirm genuine profile activation before employer review.</li>
+                <li>The same payment method is used for refunds wherever possible.</li>
+              </ul>
+            </div>
 
-      <!-- Terms & Conditions Modal -->
-      <div class="modal-tc-overlay" id="tcOverlay" role="dialog" aria-modal="true" aria-labelledby="tcTitle">
-        <div class="modal-tc-card">
-          <div class="tc-header" style="padding: 20px 24px; border-bottom: 1px solid var(--slate-200); display: flex; align-items: center; justify-content: space-between;">
-            <h2 id="tcTitle" style="font-size: 17px; font-weight: 700;"><i class="fas fa-file-contract" style="color: var(--clr-primary); margin-right: 8px;"></i> Terms &amp; Conditions</h2>
-            <button class="tc-close" onclick="closeTermsModal()" style="background:none; border:none; cursor:pointer; color: var(--slate-400); font-size: 20px;">&times;</button>
-          </div>
-          <div class="tc-scroll-hint" id="scrollHint">
-            <i class="fas fa-arrow-down"></i> Please scroll down to read and accept all terms
-          </div>
-          <div class="scroll-progress"><div class="scroll-progress-bar" id="progressBar"></div></div>
-          <div class="tc-body" id="tcBody">
-            <h3>1. Security Deposit Requirement</h3>
-            <p>All candidates are required to pay a refundable security deposit of <strong>AED 500</strong> prior to attending the scheduled interview arranged by Accoplacers.</p>
+            <label class="ack-card" for="terms">
+              <input type="checkbox" id="terms" name="terms">
+              <span>
+                <strong>I understand the deposit and refund policy.</strong>
+                <small>Secure and verified profile activation is only completed after this confirmation.</small>
+              </span>
+            </label>
+            <p class="field-feedback" id="termsFeedback" aria-live="polite"></p>
 
-            <h3>2. Purpose of the Security Deposit</h3>
-            <p>The security deposit confirms the candidate's genuine interest and commitment to the recruitment process and covers administrative and recruitment service costs.</p>
+            <div class="wizard-actions">
+              <button type="button" class="btn-portal-secondary wizard-back" data-prev-step="2">Back</button>
+              <button type="button" class="btn-premium btn-employee" id="openConfirmBtn">Review and confirm</button>
+            </div>
+          </section>
+        </form>
 
-            <h3>3. Adjustment of Deposit Upon Selection</h3>
-            <ul>
-              <li>If the candidate successfully qualifies and is selected for the position, the AED 500 security deposit will be retained and treated as the full service charge.</li>
-              <li>No additional service fee will be charged in such cases.</li>
-            </ul>
+        <div class="modal-tc-overlay" id="finalConfirmModal" role="dialog" aria-modal="true" aria-labelledby="confirmModalTitle">
+          <div class="modal-tc-card wizard-confirm-card">
+            <div class="wizard-modal-head">
+              <div>
+                <p class="wizard-modal-eyebrow">Secure confirmation</p>
+                <h2 id="confirmModalTitle">Confirm profile activation</h2>
+              </div>
+              <button type="button" class="wizard-modal-close" id="closeConfirmModal" aria-label="Close confirmation dialog">&times;</button>
+            </div>
 
-            <h3>4. Refund Policy</h3>
-            <ul>
-              <li>If the candidate is not selected, disqualified, or not offered the position, the full security deposit of AED 500 will be refunded.</li>
-              <li>The refund will be processed within <strong>1–2 working days</strong>.</li>
-              <li>The refund will be issued through the same payment method used by the candidate, unless otherwise agreed.</li>
-            </ul>
+            <div class="wizard-modal-body">
+              <div class="wizard-summary-card">
+                <div class="wizard-summary-row">
+                  <span>Profile</span>
+                  <strong>Job Seeker Registration</strong>
+                </div>
+                <div class="wizard-summary-row">
+                  <span>Deposit</span>
+                  <strong>AED {{ EMPLOYEE_PROFILE_DEPOSIT_AED }} refundable</strong>
+                </div>
+                <div class="wizard-summary-row">
+                  <span>Resume</span>
+                  <strong id="confirmResumeName">No file selected</strong>
+                </div>
+              </div>
 
-            <h3>5. Candidate Responsibility</h3>
-            <p>Candidates must attend the interview as scheduled and provide accurate and truthful information throughout the recruitment process.</p>
+              <p class="wizard-modal-copy">By confirming, you create your profile and acknowledge the secure activation review shown on this page.</p>
+            </div>
 
-            <h3>6. Acceptance of Terms</h3>
-            <p>By paying the security deposit and proceeding with the interview process, the candidate confirms their understanding and acceptance of these Terms &amp; Conditions.</p>
-
-            <p style="margin-top:24px; padding-top:16px; border-top:1px solid #E2E8F0; font-size:12px; color:#94A3B8; text-align:center;">
-              &copy; 2025 Accoplacers. All Rights Reserved.
-            </p>
-          </div>
-          <div class="tc-footer">
-            <span class="tc-footer-note" id="tcFooterNote">
-              <i class="fas fa-lock"></i> Scroll to the bottom to enable registration
-            </span>
-            <button class="tc-register-btn" id="tcRegisterBtn" disabled onclick="acceptAndRegister()">
-              <i class="fas fa-user-plus"></i> Register
-            </button>
+            <div class="wizard-modal-foot">
+              <button type="button" class="btn-portal-secondary" id="backToFormBtn">Back</button>
+              <button type="submit" form="employeeRegisterForm" class="btn-premium btn-employee">Confirm and create profile</button>
+            </div>
           </div>
         </div>
       </div>
@@ -225,113 +298,287 @@
   </div>
 
   <script>
-    /* ── Password toggle ── */
-    function togglePwd(inputId, iconId) {
-      const input = document.getElementById(inputId);
-      const icon = document.getElementById(iconId);
-      if (input.type === 'password') {
-        input.type = 'text';
-        icon.classList.replace('fa-eye', 'fa-eye-slash');
-      } else {
-        input.type = 'password';
-        icon.classList.replace('fa-eye-slash', 'fa-eye');
+    (function () {
+      const wizard = document.querySelector('.wizard-shell');
+      const form = document.getElementById('employeeRegisterForm');
+      const steps = Array.from(document.querySelectorAll('.register-step'));
+      const dots = Array.from(document.querySelectorAll('.wizard-dot'));
+      const stepCount = document.getElementById('wizardStepCount');
+      const heading = document.getElementById('wizardHeading');
+      const sub = document.getElementById('wizardSub');
+      const progressFill = document.getElementById('wizardProgressFill');
+      const password = document.getElementById('password');
+      const confirmPassword = document.getElementById('confirm_password');
+      const passwordMatchFeedback = document.getElementById('passwordMatchFeedback');
+      const termsCheckbox = document.getElementById('terms');
+      const termsFeedback = document.getElementById('termsFeedback');
+      const resumeInput = document.getElementById('resume');
+      const resumeDropzone = document.getElementById('resumeDropzone');
+      const resumeUploadStatus = document.getElementById('resumeUploadStatus');
+      const openConfirmBtn = document.getElementById('openConfirmBtn');
+      const finalConfirmModal = document.getElementById('finalConfirmModal');
+      const confirmResumeName = document.getElementById('confirmResumeName');
+      const closeConfirmModal = document.getElementById('closeConfirmModal');
+      const backToFormBtn = document.getElementById('backToFormBtn');
+
+      const initialStep = Number(wizard.dataset.initialStep || '1');
+      let currentStep = Math.min(Math.max(initialStep, 1), steps.length);
+
+      const stepTitles = {
+        1: {
+          title: 'Basic identity',
+          sub: 'Set up your secure account to start matching with GCC accounting and finance roles.'
+        },
+        2: {
+          title: 'Professional profile',
+          sub: 'Add the details we use to verify your profile and match you with the right opportunities.'
+        },
+        3: {
+          title: 'Resume and activation',
+          sub: 'Upload your resume, review the deposit policy, and confirm your profile activation.'
+        }
+      };
+
+      function updateWizard(stepNumber) {
+        currentStep = stepNumber;
+        steps.forEach((stepEl, index) => {
+          const stepIndex = index + 1;
+          const isActive = stepIndex === currentStep;
+          stepEl.hidden = !isActive;
+          stepEl.classList.toggle('is-active', isActive);
+        });
+
+        const meta = stepTitles[currentStep];
+        stepCount.textContent = `Step ${currentStep} of ${steps.length}`;
+        heading.textContent = meta.title;
+        sub.textContent = meta.sub;
+
+        dots.forEach((dot, index) => {
+          const stepIndex = index + 1;
+          dot.classList.toggle('is-active', stepIndex === currentStep);
+          dot.classList.toggle('is-complete', stepIndex < currentStep);
+        });
+
+        progressFill.style.width = `${(currentStep / steps.length) * 100}%`;
       }
-    }
 
-    /* ── Form validation before opening modal ── */
-    function openTermsModal() {
-      const form = document.querySelector('form');
-
-      // Trigger native HTML5 validation
-      if (!form.checkValidity()) {
-        form.reportValidity();
-        return;
+      function setInlineFeedback(element, message, type) {
+        element.textContent = message;
+        element.classList.remove('is-error', 'is-success');
+        if (message) {
+          element.classList.add(type === 'success' ? 'is-success' : 'is-error');
+        }
       }
 
-      // Password match check
-      const pwd = document.getElementById('password').value;
-      const confirm = document.getElementById('confirm_password').value;
-      if (pwd !== confirm) {
-        alert('Passwords do not match. Please check and try again.');
-        document.getElementById('confirm_password').focus();
-        return;
+      function validatePasswordMatch() {
+        if (!confirmPassword.value) {
+          confirmPassword.setCustomValidity('');
+          setInlineFeedback(passwordMatchFeedback, '', 'error');
+          return true;
+        }
+
+        if (password.value !== confirmPassword.value) {
+          confirmPassword.setCustomValidity('Passwords do not match.');
+          setInlineFeedback(passwordMatchFeedback, 'Passwords do not match yet.', 'error');
+          return false;
+        }
+
+        confirmPassword.setCustomValidity('');
+        setInlineFeedback(passwordMatchFeedback, 'Passwords match.', 'success');
+        return true;
       }
 
-      // File size checks
-      const resume = document.getElementById('resume').files[0];
-      if (resume && resume.size > 5 * 1024 * 1024) {
-        alert('Resume file is too large. Please upload a file under 5 MB.');
-        document.getElementById('resume').focus();
-        return;
+      function validateResumeFile(file) {
+        const validExtensions = ['pdf', 'doc', 'docx'];
+        if (!file) {
+          resumeDropzone.classList.remove('has-file', 'is-error');
+          setInlineFeedback(resumeUploadStatus, '', 'error');
+          return false;
+        }
+
+        const extension = file.name.split('.').pop().toLowerCase();
+        if (!validExtensions.includes(extension)) {
+          resumeInput.value = '';
+          resumeDropzone.classList.add('is-error');
+          resumeDropzone.classList.remove('has-file');
+          setInlineFeedback(resumeUploadStatus, 'Please upload a PDF, DOC, or DOCX file.', 'error');
+          return false;
+        }
+
+        if (file.size > 5 * 1024 * 1024) {
+          resumeInput.value = '';
+          resumeDropzone.classList.add('is-error');
+          resumeDropzone.classList.remove('has-file');
+          setInlineFeedback(resumeUploadStatus, 'Resume file must be 5 MB or smaller.', 'error');
+          return false;
+        }
+
+        resumeDropzone.classList.remove('is-error');
+        resumeDropzone.classList.add('has-file');
+        setInlineFeedback(resumeUploadStatus, `${file.name} is ready to upload.`, 'success');
+        return true;
       }
 
-      const photo = document.getElementById('photo').files[0];
-      if (photo && photo.size > 2 * 1024 * 1024) {
-        alert('Photo file is too large. Please upload an image under 2 MB.');
-        document.getElementById('photo').focus();
-        return;
+      function validateCurrentStep(stepNumber) {
+        const step = steps[stepNumber - 1];
+        const fields = Array.from(step.querySelectorAll('input, select, textarea')).filter((field) => field.type !== 'hidden');
+
+        if (stepNumber === 1) {
+          validatePasswordMatch();
+        }
+
+        if (stepNumber === 3) {
+          const hasValidResume = validateResumeFile(resumeInput.files[0]);
+          if (!termsCheckbox.checked) {
+            setInlineFeedback(termsFeedback, 'Please confirm the deposit and refund policy to continue.', 'error');
+          } else {
+            setInlineFeedback(termsFeedback, '', 'error');
+          }
+
+          const termsValid = termsCheckbox.checked;
+          const fieldValidity = fields.every((field) => field.checkValidity());
+
+          if (!fieldValidity) {
+            const invalidField = fields.find((field) => !field.checkValidity());
+            invalidField.reportValidity();
+          }
+
+          return hasValidResume && termsValid && fieldValidity;
+        }
+
+        const fieldValidity = fields.every((field) => field.checkValidity());
+        if (!fieldValidity) {
+          const invalidField = fields.find((field) => !field.checkValidity());
+          invalidField.reportValidity();
+          return false;
+        }
+        return true;
       }
 
-      // All good – open the modal
-      const overlay = document.getElementById('tcOverlay');
-      const body = document.getElementById('tcBody');
-      const btn = document.getElementById('tcRegisterBtn');
-      const hint = document.getElementById('scrollHint');
-      const note = document.getElementById('tcFooterNote');
-      const bar = document.getElementById('progressBar');
+      document.querySelectorAll('[data-toggle-password]').forEach((button) => {
+        button.addEventListener('click', function () {
+          const input = document.getElementById(this.dataset.togglePassword);
+          const icon = document.getElementById(this.dataset.toggleIcon);
+          const isPassword = input.type === 'password';
+          input.type = isPassword ? 'text' : 'password';
+          icon.classList.toggle('fa-eye', !isPassword);
+          icon.classList.toggle('fa-eye-slash', isPassword);
+        });
+      });
 
-      // Reset state
-      btn.disabled = true;
-      bar.style.width = '0%';
-      hint.style.display = 'flex';
-      note.innerHTML = '<i class="fas fa-lock"></i> Scroll to the bottom to enable registration';
-      body.scrollTop = 0;
+      password.addEventListener('input', validatePasswordMatch);
+      confirmPassword.addEventListener('input', validatePasswordMatch);
 
-      overlay.classList.add('open');
-      document.body.style.overflow = 'hidden';
-    }
+      document.querySelectorAll('.wizard-next').forEach((button) => {
+        button.addEventListener('click', function () {
+          if (!validateCurrentStep(currentStep)) {
+            return;
+          }
+          updateWizard(Number(this.dataset.nextStep));
+        });
+      });
 
-    function closeTermsModal() {
-      document.getElementById('tcOverlay').classList.remove('open');
-      document.body.style.overflow = '';
-    }
+      document.querySelectorAll('.wizard-back').forEach((button) => {
+        button.addEventListener('click', function () {
+          updateWizard(Number(this.dataset.prevStep));
+        });
+      });
 
-    /* ── Close on backdrop click ── */
-    document.getElementById('tcOverlay').addEventListener('click', function(e) {
-      if (e.target === this) closeTermsModal();
-    });
+      resumeDropzone.addEventListener('click', function () {
+        resumeInput.click();
+      });
 
-    /* ── Close on Escape key ── */
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape') closeTermsModal();
-    });
+      resumeDropzone.addEventListener('keydown', function (event) {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          resumeInput.click();
+        }
+      });
 
-    /* ── Scroll tracking ── */
-    document.getElementById('tcBody').addEventListener('scroll', function() {
-      const el = this;
-      const scrolled = el.scrollTop;
-      const total = el.scrollHeight - el.clientHeight;
-      const pct = total > 0 ? Math.min((scrolled / total) * 100, 100) : 100;
+      resumeDropzone.addEventListener('dragover', function (event) {
+        event.preventDefault();
+        resumeDropzone.classList.add('is-dragover');
+      });
 
-      document.getElementById('progressBar').style.width = pct + '%';
+      ['dragleave', 'dragend'].forEach((eventName) => {
+        resumeDropzone.addEventListener(eventName, function () {
+          resumeDropzone.classList.remove('is-dragover');
+        });
+      });
 
-      // Enable button when within 20px of the bottom
-      const btn = document.getElementById('tcRegisterBtn');
-      const hint = document.getElementById('scrollHint');
-      const note = document.getElementById('tcFooterNote');
-      if (el.scrollTop + el.clientHeight >= el.scrollHeight - 20) {
-        btn.disabled = false;
-        hint.style.display = 'none';
-        note.innerHTML = '<i class="fas fa-check-circle" style="color:#10B981"></i> You have read all the terms';
+      resumeDropzone.addEventListener('drop', function (event) {
+        event.preventDefault();
+        resumeDropzone.classList.remove('is-dragover');
+        if (!event.dataTransfer.files.length) {
+          return;
+        }
+        resumeInput.files = event.dataTransfer.files;
+        validateResumeFile(event.dataTransfer.files[0]);
+      });
+
+      resumeInput.addEventListener('change', function () {
+        validateResumeFile(this.files[0]);
+      });
+
+      termsCheckbox.addEventListener('change', function () {
+        if (this.checked) {
+          setInlineFeedback(termsFeedback, '', 'error');
+        }
+      });
+
+      function openConfirmationModal() {
+        if (!validateCurrentStep(3)) {
+          return;
+        }
+        confirmResumeName.textContent = resumeInput.files[0] ? resumeInput.files[0].name : 'No file selected';
+        finalConfirmModal.classList.add('open');
+        document.body.style.overflow = 'hidden';
       }
-    });
 
-    /* ── Accept and submit ── */
-    function acceptAndRegister() {
-      document.getElementById('terms').checked = true;
-      closeTermsModal();
-      document.querySelector('form').submit();
-    }
+      function closeConfirmationModal() {
+        finalConfirmModal.classList.remove('open');
+        document.body.style.overflow = '';
+      }
+
+      openConfirmBtn.addEventListener('click', openConfirmationModal);
+      closeConfirmModal.addEventListener('click', closeConfirmationModal);
+      backToFormBtn.addEventListener('click', closeConfirmationModal);
+
+      finalConfirmModal.addEventListener('click', function (event) {
+        if (event.target === finalConfirmModal) {
+          closeConfirmationModal();
+        }
+      });
+
+      document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape' && finalConfirmModal.classList.contains('open')) {
+          closeConfirmationModal();
+        }
+      });
+
+      form.addEventListener('keydown', function (event) {
+        if (event.key !== 'Enter') {
+          return;
+        }
+
+        const isTextarea = event.target.tagName === 'TEXTAREA';
+        const isSubmitAction = currentStep === 3 && event.target.type === 'checkbox';
+        if (isTextarea || isSubmitAction) {
+          return;
+        }
+
+        if (currentStep < 3) {
+          event.preventDefault();
+          const nextButton = form.querySelector(`.wizard-next[data-next-step="${currentStep + 1}"]`);
+          if (nextButton) {
+            nextButton.click();
+          }
+        }
+      });
+
+      updateWizard(currentStep);
+      validatePasswordMatch();
+    }());
   </script>
 </body>
 </html>

@@ -40,119 +40,307 @@
       {% endfor %}
     {% endif %}
 
-    <div class="welcome">
-      <h1><i class="fas fa-building" style="margin-right:8px;opacity:0.9;"></i>Welcome, {{ employer.company_name }}</h1>
-      <p>Explore our curated pool of verified accounting and finance professionals. Find your next team member today.</p>
-    </div>
-
-    <div class="stats">
-      <div class="stat-card">
-        <div class="stat-icon rose"><i class="fas fa-users"></i></div>
-        <div><div class="stat-label">Total Candidates</div><div class="stat-value">{{ employees.count }}</div></div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon green"><i class="fas fa-user-check"></i></div>
-        <div><div class="stat-label">Verified Profiles</div><div class="stat-value">{{ employees.count }}</div></div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon indigo"><i class="fas fa-industry"></i></div>
-        <div><div class="stat-label">Your Industry</div><div class="stat-value" style="font-size:16px;font-weight:700;">{{ employer.industry }}</div></div>
-      </div>
-    </div>
-
-    <div class="info-banner">
-      <i class="fas fa-heart"></i>
-      <p>Click <strong>"Mark as Interested"</strong> on any candidate profile to let us know you're interested. We'll review your request and connect you with the candidate.</p>
-    </div>
-
-    <div class="section-title">
-      <i class="fas fa-user-tie"></i> Available Candidates
-      <span class="results-count">{{ page_obj.paginator.count }} profile{{ page_obj.paginator.count|pluralize }}</span>
-    </div>
-
-    <form method="GET" action="{% url 'employer_dashboard' %}" class="search-row">
-      <div class="search-box">
-        <i class="fas fa-search"></i>
-        <input type="text" name="q" id="searchInput" placeholder="Search by name, role, location, ID…" value="{{ request.GET.q|default:'' }}">
-      </div>
-      <div class="search-box">
-        <i class="fas fa-tools"></i>
-        <input type="text" name="skill" id="skillsFilter" placeholder="Filter by skill (e.g. Excel, SAP)…" value="{{ request.GET.skill|default:'' }}">
-      </div>
-      <button type="submit" class="search-submit-btn"><i class="fas fa-search"></i> Search</button>
-    </form>
-
-    {% if employees %}
-    <div class="candidates-grid" id="candidatesGrid">
-      {% for emp in employees %}
-      <div class="candidate-card{% if emp.is_placed %} placed{% endif %}"
-        data-search="{{ emp.name|lower }} {{ emp.role|lower }} {{ emp.location|lower }} emp-{{ emp.id }}"
-        data-skills="{{ emp.skills_list|lower|default:'' }}"
-        data-id="{{ emp.id|stringformat:'04d' }}"
-        data-pk="{{ emp.id }}"
-        data-name="{{ emp.name|escapejs }}"
-        data-role="{{ emp.role|escapejs }}"
-        data-location="{{ emp.location|escapejs }}"
-        data-qualification="{{ emp.qualification|escapejs }}"
-        data-experience="{{ emp.experience }}"
-        data-skills-raw="{{ emp.skills_list|default:''|escapejs }}"
-        data-photo="{% if emp.photo %}{{ emp.photo.url }}{% endif %}"
-        data-initials="{{ emp.name|slice:':1'|upper }}"
-        data-placed="{{ emp.is_placed|yesno:'true,false' }}"
-        data-interested="{% if emp.id in interested_ids %}true{% else %}false{% endif %}"
-        onclick="openModal(this)" style="cursor:pointer;">
-
-        {% if emp.is_placed %}
-        <div class="sold-out-banner"><i class="fas fa-lock"></i> Sold Out</div>
-        {% endif %}
-
-        <div class="card-head">
-          <div class="emp-id-pill">EMP-{{ emp.id|stringformat:"04d" }}</div>
-          <div class="candidate-photo">
-            {% if emp.photo %}<img src="{{ emp.photo.url }}" alt="{{ emp.name }}">{% else %}{{ emp.name|slice:":1"|upper }}{% endif %}
-          </div>
-          <div class="candidate-name">{{ emp.name }}</div>
-          <div class="candidate-role"><i class="fas fa-briefcase"></i> {{ emp.role }}</div>
-        </div>
-
-        <div class="card-body">
-          <div class="info-row">
-            <div class="info-icon-wrap"><i class="fas fa-map-marker-alt"></i></div>
-            <div><div class="info-label">Location</div><div class="info-value">{{ emp.location }}</div></div>
-          </div>
-          <div class="info-row">
-            <div class="info-icon-wrap"><i class="fas fa-graduation-cap"></i></div>
-            <div><div class="info-label">Qualification</div><div class="info-value">{{ emp.qualification }}</div></div>
-          </div>
-          <div class="info-row">
-            <div class="info-icon-wrap"><i class="fas fa-clock"></i></div>
-            <div><div class="info-label">Experience</div><div class="info-value">{{ emp.experience }}</div></div>
-          </div>
-        </div>
-
-        <div class="card-foot">
-          <button class="view-profile-btn">
-            <i class="fas fa-id-card"></i> View Full Profile
-          </button>
+    <section class="employer-hero">
+      <div class="hero-panel">
+        <p class="hero-eyebrow">GCC Finance Talent</p>
+        <h1>Build your shortlist faster</h1>
+        <p>Review verified accounting, audit, and finance candidates, manage live openings, and track who is signaling interest in your roles.</p>
+        <div class="hero-trust-row">
+          <span class="hero-trust-pill"><i class="fas fa-shield-halved"></i> Verified profiles</span>
+          <span class="hero-trust-pill muted"><i class="fas fa-building-circle-check"></i> Employer workspace</span>
         </div>
       </div>
-      {% endfor %}
+
+      <aside class="hero-side-card">
+        <div class="hero-side-label">Current Hiring Snapshot</div>
+        <div class="hero-side-grid">
+          <div class="hero-side-stat">
+            <span>Verified candidates</span>
+            <strong>{{ verified_candidates }}</strong>
+          </div>
+          <div class="hero-side-stat">
+            <span>Saved profiles</span>
+            <strong>{{ interested_ids|length }}</strong>
+          </div>
+          <div class="hero-side-stat">
+            <span>Active openings</span>
+            <strong>{{ active_jobs_count }}</strong>
+          </div>
+          <div class="hero-side-stat">
+            <span>Industry</span>
+            <strong>{{ employer.industry }}</strong>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="employer-stats">
+      <div class="metric-card">
+        <div class="metric-icon rose"><i class="fas fa-user-check"></i></div>
+        <div>
+          <p class="metric-label">Verified Profiles</p>
+          <strong class="metric-value">{{ verified_candidates }}</strong>
+        </div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-icon accent"><i class="fas fa-heart"></i></div>
+        <div>
+          <p class="metric-label">Saved Candidates</p>
+          <strong class="metric-value">{{ interested_ids|length }}</strong>
+        </div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-icon dark"><i class="fas fa-briefcase"></i></div>
+        <div>
+          <p class="metric-label">Managed Jobs</p>
+          <strong class="metric-value">{{ owned_jobs|length }}</strong>
+        </div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-icon green"><i class="fas fa-bell"></i></div>
+        <div>
+          <p class="metric-label">Employee Signals</p>
+          <strong class="metric-value">{{ employee_interest_feed|length }}</strong>
+        </div>
+      </div>
+    </section>
+
+    <div class="dashboard-shell">
+      <section class="dashboard-main">
+        <div class="section-card section-card-dark">
+          <div class="section-card-head section-card-head-stack">
+            <div>
+              <h2><i class="fas fa-user-tie"></i> Candidate Search</h2>
+              <p>Browse finance profiles with stronger verification and profile readiness signals surfaced first.</p>
+            </div>
+            <div class="result-pill">{{ candidate_cards.paginator.count }} profile{{ candidate_cards.paginator.count|pluralize }}</div>
+          </div>
+
+          <form method="GET" action="{% url 'employer_dashboard' %}" class="filter-panel">
+            <div class="search-row">
+              <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" name="q" id="searchInput" placeholder="Search by name, role, location, or EMP ID" value="{{ search_q|default:'' }}">
+              </div>
+              <div class="search-box">
+                <i class="fas fa-tools"></i>
+                <input type="text" name="skill" id="skillsFilter" placeholder="Filter by skill, e.g. Excel, IFRS, SAP" value="{{ search_skill|default:'' }}">
+              </div>
+              <button type="submit" class="search-submit-btn"><i class="fas fa-search"></i> Apply</button>
+            </div>
+
+            <div class="filter-chip-row">
+              <label class="filter-chip">
+                <input type="radio" name="availability" value="available" {% if availability_filter == 'available' %}checked{% endif %}>
+                <span>Available only</span>
+              </label>
+              <label class="filter-chip">
+                <input type="radio" name="availability" value="all" {% if availability_filter == 'all' %}checked{% endif %}>
+                <span>All profiles</span>
+              </label>
+              <label class="filter-chip">
+                <input type="radio" name="interest_scope" value="saved" {% if interest_scope == 'saved' %}checked{% endif %}>
+                <span>Saved only</span>
+              </label>
+              <label class="filter-chip">
+                <input type="radio" name="interest_scope" value="" {% if not interest_scope %}checked{% endif %}>
+                <span>Any interest status</span>
+              </label>
+              <label class="filter-chip">
+                <input type="checkbox" name="verified" value="1" {% if verified_filter == '1' %}checked{% endif %}>
+                <span>Verified profiles</span>
+              </label>
+              <select name="experience_band" class="filter-select">
+                <option value="">Any experience</option>
+                <option value="junior" {% if experience_filter == 'junior' %}selected{% endif %}>Junior</option>
+                <option value="mid" {% if experience_filter == 'mid' %}selected{% endif %}>Mid</option>
+                <option value="senior" {% if experience_filter == 'senior' %}selected{% endif %}>Senior</option>
+              </select>
+            </div>
+          </form>
+
+          {% if candidate_cards %}
+          <div class="candidates-grid">
+            {% for card in candidate_cards %}
+            <div class="candidate-card{% if card.employee.is_placed %} placed{% endif %}{% if card.is_verified_profile %} verified{% endif %}"
+              data-id="{{ card.employee.id|stringformat:'04d' }}"
+              data-pk="{{ card.employee.id }}"
+              data-name="{{ card.employee.name|escapejs }}"
+              data-role="{{ card.employee.role|escapejs }}"
+              data-location="{{ card.employee.location|escapejs }}"
+              data-qualification="{{ card.employee.qualification|escapejs }}"
+              data-experience="{{ card.employee.experience }}"
+              data-skills-raw="{{ card.employee.skills_list|default:''|escapejs }}"
+              data-photo="{% if card.employee.photo %}{{ card.employee.photo.url }}{% endif %}"
+              data-initials="{{ card.employee.name|slice:':1'|upper }}"
+              data-placed="{{ card.employee.is_placed|yesno:'true,false' }}"
+              data-interested="{% if card.is_saved %}true{% else %}false{% endif %}"
+              onclick="openCandidateModal(this)">
+
+              {% if card.employee.is_placed %}
+              <div class="sold-out-banner"><i class="fas fa-lock"></i> Closed</div>
+              {% endif %}
+
+              <div class="card-head">
+                <div class="card-head-top">
+                  <div class="emp-id-pill">EMP-{{ card.employee.id|stringformat:"04d" }}</div>
+                  {% if card.is_verified_profile %}
+                  <div class="verified-pill"><i class="fas fa-badge-check"></i> Verified</div>
+                  {% endif %}
+                </div>
+                <div class="candidate-photo">
+                  {% if card.employee.photo %}<img src="{{ card.employee.photo.url }}" alt="{{ card.employee.name }}">{% else %}{{ card.employee.name|slice:":1"|upper }}{% endif %}
+                </div>
+                <div class="candidate-name">{{ card.employee.name }}</div>
+                <div class="candidate-role"><i class="fas fa-briefcase"></i> {{ card.employee.role }}</div>
+                <div class="candidate-match">{{ card.match_note }}</div>
+              </div>
+
+              <div class="card-body">
+                <div class="candidate-score-row">
+                  <div class="score-meter">
+                    <div class="score-meter-fill" style="width: {{ card.profile_score }}%;"></div>
+                  </div>
+                  <span>{{ card.profile_score }}% profile ready</span>
+                </div>
+
+                <div class="info-row">
+                  <div class="info-icon-wrap"><i class="fas fa-map-marker-alt"></i></div>
+                  <div><div class="info-label">Location</div><div class="info-value">{{ card.employee.location }}</div></div>
+                </div>
+                <div class="info-row">
+                  <div class="info-icon-wrap"><i class="fas fa-graduation-cap"></i></div>
+                  <div><div class="info-label">Qualification</div><div class="info-value">{{ card.employee.qualification }}</div></div>
+                </div>
+                <div class="info-row">
+                  <div class="info-icon-wrap"><i class="fas fa-clock"></i></div>
+                  <div><div class="info-label">Experience</div><div class="info-value">{{ card.employee.experience }}</div></div>
+                </div>
+
+                {% if card.skill_names %}
+                <div class="candidate-skill-wrap">
+                  {% for skill in card.skill_names %}
+                  <span class="candidate-skill-chip">{{ skill }}</span>
+                  {% endfor %}
+                </div>
+                {% endif %}
+              </div>
+
+              <div class="card-foot">
+                <button class="view-profile-btn">
+                  <i class="fas fa-id-card"></i> View Full Profile
+                </button>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <div class="no-candidates">
+            <i class="fas fa-user-slash"></i>
+            <h3>No candidates match your current filters</h3>
+            <p>Broaden the filters or remove the saved-only view to see more verified finance profiles.</p>
+          </div>
+          {% endif %}
+        </div>
+      </section>
+
+      <aside class="dashboard-side">
+        <div class="section-card section-card-glass">
+          <div class="section-card-head">
+            <div>
+              <h2><i class="fas fa-briefcase"></i> Job Management</h2>
+              <p>Create and maintain your live hiring briefs.</p>
+            </div>
+            <button type="button" class="section-action-btn" onclick="openJobModal()"><i class="fas fa-plus"></i> New Job</button>
+          </div>
+
+          {% if owned_jobs %}
+          <div class="job-list">
+            {% for job in owned_jobs %}
+            <div class="job-manage-card">
+              <div class="job-manage-top">
+                <div>
+                  <strong>{{ job.title }}</strong>
+                  <span>{{ job.location }} · {{ job.job_type }}</span>
+                </div>
+                <span class="job-status-pill {% if job.is_active %}active{% else %}inactive{% endif %}">
+                  {% if job.is_active %}Active{% else %}Paused{% endif %}
+                </span>
+              </div>
+              <div class="job-manage-meta">
+                <span><i class="fas fa-heart"></i> {{ job.employee_interest_count }} employee signal{{ job.employee_interest_count|pluralize }}</span>
+                {% if job.salary_range %}
+                <span><i class="fas fa-money-bill-wave"></i> {{ job.salary_range }}</span>
+                {% endif %}
+              </div>
+              <div class="job-manage-actions">
+                <button type="button" class="ghost-btn" onclick="openJobModal({
+                  id: '{{ job.id }}',
+                  title: '{{ job.title|escapejs }}',
+                  description: '{{ job.description|escapejs }}',
+                  requirements: '{{ job.requirements|escapejs }}',
+                  salary_range: '{{ job.salary_range|default:''|escapejs }}',
+                  location: '{{ job.location|escapejs }}',
+                  job_type: '{{ job.job_type|escapejs }}',
+                  is_active: {% if job.is_active %}true{% else %}false{% endif %}
+                })"><i class="fas fa-pen"></i> Edit</button>
+                <form method="POST" onsubmit="return confirm('Delete this job opening?');">
+                  {% csrf_token %}
+                  <input type="hidden" name="action" value="delete_job">
+                  <input type="hidden" name="job_id" value="{{ job.id }}">
+                  <button type="submit" class="ghost-btn danger"><i class="fas fa-trash"></i> Delete</button>
+                </form>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <div class="empty-side-card">
+            <i class="fas fa-briefcase"></i>
+            <h3>No job openings yet</h3>
+            <p>Create your first role to start tracking employee interest and candidate fit.</p>
+          </div>
+          {% endif %}
+        </div>
+
+        <div class="section-card section-card-glass">
+          <div class="section-card-head">
+            <div>
+              <h2><i class="fas fa-bell"></i> Interest Tracker</h2>
+              <p>Employees signaling interest in your live roles.</p>
+            </div>
+          </div>
+
+          {% if employee_interest_feed %}
+          <div class="interest-feed">
+            {% for signal in employee_interest_feed %}
+            <div class="interest-feed-item">
+              <div class="interest-feed-avatar">{{ signal.employee.name|slice:":1"|upper }}</div>
+              <div class="interest-feed-copy">
+                <strong>{{ signal.employee.name }}</strong>
+                <p>Interested in <span>{{ signal.job.title }}</span></p>
+                <small>{{ signal.created_at|timesince }} ago</small>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <div class="empty-side-card compact">
+            <i class="fas fa-heart"></i>
+            <h3>No employee signals yet</h3>
+            <p>Once employees express interest in your roles, they will appear here.</p>
+          </div>
+          {% endif %}
+        </div>
+      </aside>
     </div>
-    {% else %}
-    <div class="no-candidates">
-      <i class="fas fa-user-slash"></i>
-      <h3>No Candidates Available</h3>
-      <p>Check back soon — new candidates register regularly.</p>
-    </div>
-    {% endif %}
 
   </div>
 
-  <!-- Employee Detail Modal -->
-  <div class="modal-overlay" id="profileModal" onclick="closeModalOutside(event)">
-    <div class="modal-card" id="modalCard">
+  <div class="modal-overlay" id="candidateModal" onclick="closeCandidateModalOutside(event)">
+    <div class="modal-card" id="candidateModalCard">
       <div class="modal-head">
-        <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+        <button class="modal-close" onclick="closeCandidateModal()"><i class="fas fa-times"></i></button>
         <div class="modal-emp-id" id="mEmpId"></div>
         <div class="modal-photo" id="mPhoto"></div>
         <div class="modal-name" id="mName"></div>
@@ -189,11 +377,74 @@
     </div>
   </div>
 
+  <div class="modal-overlay" id="jobManageModal" onclick="closeJobManageModalOutside(event)">
+    <div class="job-modal-card">
+      <div class="job-modal-head">
+        <div>
+          <p class="job-modal-eyebrow">Job Management</p>
+          <h2 id="jobModalTitle">Create Job Opening</h2>
+        </div>
+        <button class="modal-close dark" type="button" onclick="closeJobManageModal()"><i class="fas fa-times"></i></button>
+      </div>
+      <form method="POST" class="job-manage-form">
+        {% csrf_token %}
+        <input type="hidden" name="action" id="jobFormAction" value="create_job">
+        <input type="hidden" name="job_id" id="jobIdField" value="">
+
+        <div class="job-form-grid">
+          <div class="field field-full">
+            <label class="field-label" for="jobTitleField">Role Title *</label>
+            <input type="text" id="jobTitleField" name="title" class="form-input" placeholder="e.g. Senior Accountant" required>
+          </div>
+
+          <div class="field">
+            <label class="field-label" for="jobLocationField">Location *</label>
+            <input type="text" id="jobLocationField" name="location" class="form-input" placeholder="Dubai, UAE" required>
+          </div>
+
+          <div class="field">
+            <label class="field-label" for="jobTypeField">Job Type *</label>
+            <select id="jobTypeField" name="job_type" class="form-input form-select" required>
+              <option value="Full-time">Full-time</option>
+              <option value="Part-time">Part-time</option>
+              <option value="Contract">Contract</option>
+            </select>
+          </div>
+
+          <div class="field field-full">
+            <label class="field-label" for="jobSalaryField">Salary Range</label>
+            <input type="text" id="jobSalaryField" name="salary_range" class="form-input" placeholder="e.g. AED 12,000 - 15,000">
+          </div>
+
+          <div class="field field-full">
+            <label class="field-label" for="jobDescriptionField">Description *</label>
+            <textarea id="jobDescriptionField" name="description" class="form-input job-textarea" placeholder="Describe the role, team, and scope." required></textarea>
+          </div>
+
+          <div class="field field-full">
+            <label class="field-label" for="jobRequirementsField">Requirements *</label>
+            <textarea id="jobRequirementsField" name="requirements" class="form-input job-textarea" placeholder="List the core accounting, audit, or finance requirements." required></textarea>
+          </div>
+        </div>
+
+        <label class="job-active-toggle">
+          <input type="checkbox" name="is_active" id="jobActiveField" checked>
+          <span>This opening is live and visible to employees</span>
+        </label>
+
+        <div class="job-modal-actions">
+          <button type="button" class="ghost-btn" onclick="closeJobManageModal()">Cancel</button>
+          <button type="submit" class="search-submit-btn" id="jobModalSubmitBtn"><i class="fas fa-check"></i> Save Job</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <script>
     const csrfToken = "{{ csrf_token }}";
     let currentCardEl = null;
 
-    function openModal(card) {
+    function openCandidateModal(card) {
       currentCardEl = card;
       const d = card.dataset;
       document.getElementById('mEmpId').textContent = 'EMP-' + d.id;
@@ -203,7 +454,6 @@
       document.getElementById('mQual').textContent = d.qualification;
       document.getElementById('mExp').textContent = d.experience;
 
-      // Photo
       const photoEl = document.getElementById('mPhoto');
       if (d.photo) {
         photoEl.innerHTML = '<img src="' + d.photo + '" alt="' + d.name + '">';
@@ -211,7 +461,6 @@
         photoEl.textContent = d.initials;
       }
 
-      // Skills
       const skillsRaw = d.skillsRaw || '';
       const skills = skillsRaw.split(',').map(s => s.trim()).filter(Boolean);
       const section = document.getElementById('mSkillsSection');
@@ -223,15 +472,14 @@
         section.style.display = 'none';
       }
 
-      // Footer: placed notice or interest button
-      const foot = document.querySelector('.modal-foot');
+      const foot = document.querySelector('#candidateModal .modal-foot');
       if (d.placed === 'true') {
-        foot.innerHTML = '<div class="modal-placed-notice"><i class="fas fa-user-check"></i> This candidate has already been placed and is no longer available.</div>';
+        foot.innerHTML = '<div class="modal-placed-notice"><i class="fas fa-user-check"></i> This candidate is no longer available.</div>';
       } else {
         const isInterested = d.interested === 'true';
         const empId = 'EMP-' + d.id;
         const waMsg = encodeURIComponent('Hi, I am interested in recruiting employee ' + empId + ' from Acco Placers.');
-        const waUrl = 'https://wa.me/971589288746?text=' + waMsg;
+        const waUrl = 'https://wa.me/{{ WHATSAPP_NUMBER }}?text=' + waMsg;
         foot.innerHTML =
           '<div class="modal-foot-btns">' +
           '<button id="mInterestBtn" class="interest-btn' + (isInterested ? ' interested' : '') + '" onclick="markInterest(event)">' +
@@ -243,7 +491,7 @@
           '</div>';
       }
 
-      document.getElementById('profileModal').classList.add('open');
+      document.getElementById('candidateModal').classList.add('open');
       document.body.style.overflow = 'hidden';
     }
 
@@ -281,17 +529,68 @@
       .catch(() => { btn.disabled = false; });
     }
 
-    function closeModal() {
-      document.getElementById('profileModal').classList.remove('open');
+    function closeCandidateModal() {
+      document.getElementById('candidateModal').classList.remove('open');
       document.body.style.overflow = '';
       currentCardEl = null;
     }
 
-    function closeModalOutside(e) {
-      if (e.target === document.getElementById('profileModal')) closeModal();
+    function closeCandidateModalOutside(e) {
+      if (e.target === document.getElementById('candidateModal')) closeCandidateModal();
     }
 
-    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+    function openJobModal(job = null) {
+      const modal = document.getElementById('jobManageModal');
+      const title = document.getElementById('jobModalTitle');
+      const actionField = document.getElementById('jobFormAction');
+      const idField = document.getElementById('jobIdField');
+      const submitBtn = document.getElementById('jobModalSubmitBtn');
+
+      if (job) {
+        title.textContent = 'Edit Job Opening';
+        actionField.value = 'update_job';
+        idField.value = job.id;
+        document.getElementById('jobTitleField').value = job.title;
+        document.getElementById('jobLocationField').value = job.location;
+        document.getElementById('jobTypeField').value = job.job_type;
+        document.getElementById('jobSalaryField').value = job.salary_range;
+        document.getElementById('jobDescriptionField').value = job.description;
+        document.getElementById('jobRequirementsField').value = job.requirements;
+        document.getElementById('jobActiveField').checked = !!job.is_active;
+        submitBtn.innerHTML = '<i class="fas fa-check"></i> Update Job';
+      } else {
+        title.textContent = 'Create Job Opening';
+        actionField.value = 'create_job';
+        idField.value = '';
+        document.getElementById('jobTitleField').value = '';
+        document.getElementById('jobLocationField').value = '';
+        document.getElementById('jobTypeField').value = 'Full-time';
+        document.getElementById('jobSalaryField').value = '';
+        document.getElementById('jobDescriptionField').value = '';
+        document.getElementById('jobRequirementsField').value = '';
+        document.getElementById('jobActiveField').checked = true;
+        submitBtn.innerHTML = '<i class="fas fa-check"></i> Save Job';
+      }
+
+      modal.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeJobManageModal() {
+      document.getElementById('jobManageModal').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    function closeJobManageModalOutside(e) {
+      if (e.target === document.getElementById('jobManageModal')) closeJobManageModal();
+    }
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        closeCandidateModal();
+        closeJobManageModal();
+      }
+    });
   </script>
 </body>
 </html>

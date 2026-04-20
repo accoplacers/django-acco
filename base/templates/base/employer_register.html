@@ -12,146 +12,363 @@
 </head>
 <body class="portal-body theme-employer">
 
-  <!-- Left Branding -->
   <div class="portal-left">
-    <div class="portal-left-bg-glow" style="background: radial-gradient(circle, rgba(225,29,72,0.15) 0%, transparent 70%);"></div>
+    <div class="portal-left-bg-glow employer-glow"></div>
     <div class="portal-left-bg" style="background-image: url('https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&q=80');"></div>
     <div class="pl-top">
-      <a href="/" class="dash-logo" style="margin-bottom: var(--space-12);">
-        <div class="dash-logo-icon" style="background: var(--clr-accent);"><img src="{% static 'base/img/android-chrome-192x192.png' %}" alt="Logo" style="width:32px; height:32px;"></div>
-        <span class="dash-logo-text" style="color:#fff;">Acco<span style="color:#FDA4AF;">placers</span></span>
+      <a href="/" class="dash-logo portal-logo-space">
+        <div class="dash-logo-icon employer-logo-chip">
+          <img src="{% static 'base/img/android-chrome-192x192.png' %}" alt="Accoplacers logo" class="main-logo-img">
+        </div>
+        <span class="dash-logo-text portal-logo-text-employer">Acco<span>placers</span></span>
       </a>
-      <h1 class="pl-title">Hire Verified Finance Talent</h1>
-      <p class="pl-subtitle">Join leading firms across the GCC who trust Accoplacers to bridge the gap between business needs and elite finance professionals.</p>
-      
+
+      <h1 class="pl-title">Hire GCC finance talent</h1>
+      <p class="pl-subtitle">Create your employer account to review verified accounting, audit, and finance candidates across Dubai and the wider GCC.</p>
+
       <div class="pl-features-container">
         <div class="pl-feature-item">
-           <div class="pl-feature-icon" style="background: rgba(225,29,72,0.2); color: #FDA4AF;"><i class="fas fa-user-check"></i></div>
-           Access pre-screened profiles
+          <div class="pl-feature-icon employer-feature-icon"><i class="fas fa-user-check"></i></div>
+          Pre-screened profiles for finance hiring teams
         </div>
         <div class="pl-feature-item">
-           <div class="pl-feature-icon" style="background: rgba(225,29,72,0.2); color: #FDA4AF;"><i class="fas fa-bolt"></i></div>
-           Quick-hire tactical system
+          <div class="pl-feature-icon employer-feature-icon"><i class="fas fa-briefcase"></i></div>
+          Built for accounting, audit, and finance recruitment
         </div>
         <div class="pl-feature-item">
-           <div class="pl-feature-icon" style="background: rgba(225,29,72,0.2); color: #FDA4AF;"><i class="fas fa-headset"></i></div>
-           Dedicated enterprise support
+          <div class="pl-feature-icon employer-feature-icon"><i class="fas fa-list-check"></i></div>
+          Shortlist support after account review
         </div>
       </div>
     </div>
-    <div class="pl-footer">&copy; 2025 Accoplacers. GCC Financial Logistics.</div>
+    <div class="pl-footer">&copy; 2025 Accoplacers. Dubai, UAE.</div>
   </div>
 
-  <!-- Right Form -->
   <div class="portal-right">
-    <div class="portal-card">
-      <span class="portal-eyebrow" style="background: var(--clr-accent-light); color: var(--clr-accent);"><i class="fas fa-building"></i> Employer Portal</span>
-      <h1 class="form-heading" style="font-size: 26px; font-weight: 800; color: var(--slate-900); margin-bottom: 8px;">Create Employer Account</h1>
-      <p class="form-sub" style="font-size: 14px; color: var(--slate-500); margin-bottom: 32px;">Register to access our curated talent pool</p>
+    <div class="portal-card portal-card-register employer-register-card">
+      <span class="portal-eyebrow employer-eyebrow"><i class="fas fa-building"></i> Employer Portal</span>
+      <h1 class="form-heading">Create your employer account</h1>
+      <p class="form-sub">Tell us who you hire for and we will open access to the relevant candidate pool.</p>
+
+      <div class="register-intro-card">
+        <div class="register-intro-head">
+          <div class="trust-chip"><i class="fas fa-shield-halved"></i> Secure employer sign-up</div>
+          <div class="trust-chip trust-chip-muted"><i class="fas fa-circle-check"></i> Verified candidate access</div>
+        </div>
+        <div class="register-intro-grid">
+          <div class="register-intro-item">
+            <strong>1. Create your account</strong>
+            <span>Share your company and hiring details in one short form.</span>
+          </div>
+          <div class="register-intro-item">
+            <strong>2. We review your profile</strong>
+            <span>We align your account with the right finance candidate segment.</span>
+          </div>
+          <div class="register-intro-item">
+            <strong>3. Start reviewing candidates</strong>
+            <span>Browse verified profiles and signal interest directly from your dashboard.</span>
+          </div>
+        </div>
+      </div>
 
       {% if messages %}
         {% for message in messages %}
-        <div class="msg {{ message.tags }}" style="padding: 12px 16px; border-radius: 8px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; font-size: 14px;">
+        <div class="msg {{ message.tags }}">
           <i class="fas {% if message.tags == 'error' %}fa-exclamation-circle{% else %}fa-check-circle{% endif %}"></i>
           {{ message }}
         </div>
         {% endfor %}
       {% endif %}
 
-      <form method="POST" enctype="multipart/form-data">
+      <form method="POST" enctype="multipart/form-data" id="employerRegisterForm" data-initial-section="{{ initial_section|default:'company' }}">
         {% csrf_token %}
+        <input type="text" name="fax_number" class="honeypot-field" tabindex="-1" autocomplete="off">
 
-        <div class="section-divider-dash">Company Information</div>
+        <section class="register-form-section" id="companySection" data-section="company">
+        <div class="section-divider-dash">Company Details</div>
         <div class="field-grid">
           <div class="field">
             <label class="field-label" for="company_name">Company Name *</label>
             <div class="input-wrap">
               <i class="fas fa-building input-icon-left"></i>
-              <input type="text" id="company_name" name="company_name" class="form-input" placeholder="Your company name" required>
+              <input type="text" id="company_name" name="company_name" class="form-input" placeholder="Your company name" required value="{{ form_data.company_name|default:'' }}" autocomplete="organization">
             </div>
           </div>
+
           <div class="field">
             <label class="field-label" for="email">Business Email *</label>
             <div class="input-wrap">
               <i class="fas fa-envelope input-icon-left"></i>
-              <input type="email" id="email" name="email" class="form-input" placeholder="company@email.com" required>
+              <input type="email" id="email" name="email" class="form-input" placeholder="team@company.com" required value="{{ form_data.email|default:'' }}" autocomplete="email">
             </div>
           </div>
-          <div class="field">
-            <label class="field-label" for="industry">Industry *</label>
-            <div class="input-wrap select-wrap">
-              <i class="fas fa-industry input-icon-left"></i>
-              <select id="industry" name="industry" class="form-input" required>
-                <option value="">Select industry…</option>
-                <option value="Accounting">Accounting</option>
-                <option value="Audit">Audit</option>
-                <option value="Banking">Banking &amp; Finance</option>
-                <option value="Consulting">Consulting</option>
-                <option value="Corporate">Corporate</option>
-                <option value="Real Estate">Real Estate</option>
-                <option value="Technology">Technology</option>
-                <option value="Healthcare">Healthcare</option>
-                <option value="Manufacturing">Manufacturing</option>
-                <option value="Retail">Retail</option>
-                <option value="Other">Other</option>
-              </select>
-              <i class="fas fa-chevron-down select-caret" style="position: absolute; right: 13px; top: 50%; transform: translateY(-50%); color: var(--slate-400); font-size: 12px; pointer-events: none;"></i>
-            </div>
-          </div>
-          <div class="field">
-            <label class="field-label" for="location">Location *</label>
-            <div class="input-wrap">
-              <i class="fas fa-map-marker-alt input-icon-left"></i>
-              <input type="text" id="location" name="location" class="form-input" placeholder="City, Country" required>
-            </div>
-          </div>
-          <div class="field field-full">
-            <label class="field-label" for="company_description">Company Description</label>
-            <div class="input-wrap textarea-wrap">
-              <i class="fas fa-align-left input-icon-left" style="top: 14px; transform: none;"></i>
-              <textarea id="company_description" name="company_description" class="form-input" style="padding-top:11px; min-height: 100px; resize: vertical;" placeholder="Tell us about your company, culture, and what makes it a great place to work…"></textarea>
-            </div>
-          </div>
-        </div>
 
-        <div class="section-divider-dash">Account Security</div>
-        <div class="field-grid">
           <div class="field">
             <label class="field-label" for="phone">Phone Number *</label>
             <div class="input-wrap">
               <i class="fas fa-phone input-icon-left"></i>
-              <input type="tel" id="phone" name="phone" class="form-input" placeholder="+971 XX XXX XXXX" required>
+              <input type="tel" id="phone" name="phone" class="form-input" placeholder="+971 XX XXX XXXX" required value="{{ form_data.phone|default:'' }}" autocomplete="tel">
             </div>
           </div>
+
+          <div class="field">
+            <label class="field-label" for="location">Location *</label>
+            <div class="input-wrap">
+              <i class="fas fa-map-marker-alt input-icon-left"></i>
+              <input type="text" id="location" name="location" class="form-input" placeholder="City, Country" required value="{{ form_data.location|default:'' }}">
+            </div>
+          </div>
+        </div>
+        </section>
+
+        <section class="register-form-section" id="hiringSection" data-section="hiring">
+        <div class="section-divider-dash">Hiring Profile</div>
+        <div class="field-grid">
+          <div class="field">
+            <label class="field-label" for="industry">Industry *</label>
+            <div class="input-wrap">
+              <i class="fas fa-industry input-icon-left"></i>
+              <select id="industry" name="industry" class="form-input form-select" required>
+                <option value="">Select industry</option>
+                <option value="Accounting" {% if form_data.industry == 'Accounting' %}selected{% endif %}>Accounting</option>
+                <option value="Audit" {% if form_data.industry == 'Audit' %}selected{% endif %}>Audit</option>
+                <option value="Banking" {% if form_data.industry == 'Banking' %}selected{% endif %}>Banking &amp; Finance</option>
+                <option value="Consulting" {% if form_data.industry == 'Consulting' %}selected{% endif %}>Consulting</option>
+                <option value="Corporate" {% if form_data.industry == 'Corporate' %}selected{% endif %}>Corporate</option>
+                <option value="Real Estate" {% if form_data.industry == 'Real Estate' %}selected{% endif %}>Real Estate</option>
+                <option value="Technology" {% if form_data.industry == 'Technology' %}selected{% endif %}>Technology</option>
+                <option value="Healthcare" {% if form_data.industry == 'Healthcare' %}selected{% endif %}>Healthcare</option>
+                <option value="Manufacturing" {% if form_data.industry == 'Manufacturing' %}selected{% endif %}>Manufacturing</option>
+                <option value="Retail" {% if form_data.industry == 'Retail' %}selected{% endif %}>Retail</option>
+                <option value="Other" {% if form_data.industry == 'Other' %}selected{% endif %}>Other</option>
+              </select>
+              <i class="fas fa-chevron-down select-caret" aria-hidden="true"></i>
+            </div>
+          </div>
+
+          <div class="field field-full">
+            <label class="field-label" for="company_description">What are you hiring for?</label>
+            <div class="input-wrap">
+              <i class="fas fa-align-left input-icon-left textarea-icon-top"></i>
+              <textarea id="company_description" name="company_description" class="form-input textarea-input" placeholder="Share your finance function, the types of roles you hire, or what makes your team a strong fit for candidates.">{{ form_data.company_description|default:'' }}</textarea>
+            </div>
+            <p class="field-hint">This helps us align your account with the most relevant candidate pool.</p>
+          </div>
+        </div>
+        </section>
+
+        <section class="register-form-section" id="securitySection" data-section="security">
+        <div class="section-divider-dash">Brand and Security</div>
+        <div class="field-grid">
+          <div class="field field-full">
+            <label class="field-label" for="logo">Company Logo <span class="field-label-optional">(optional)</span></label>
+            <div class="upload-zone upload-zone-compact" id="logoDropzone" tabindex="0" role="button" aria-label="Upload your company logo for employer registration" aria-describedby="logoUploadMeta logoUploadStatus">
+              <input type="file" id="logo" name="logo" class="upload-input" accept="image/*">
+              <div class="upload-zone-icon"><i class="fas fa-image"></i></div>
+              <div class="upload-zone-copy">
+                <strong>Upload your logo</strong>
+                <span>PNG or JPG, up to 5 MB</span>
+              </div>
+            </div>
+            <p class="upload-meta" id="logoUploadMeta">Recommended for a more polished employer profile. Accepted: PNG, JPG, JPEG, WEBP.</p>
+            <p class="field-feedback upload-status" id="logoUploadStatus" aria-live="polite"></p>
+          </div>
+
           <div class="field">
             <label class="field-label" for="password">Password *</label>
             <div class="input-wrap">
               <i class="fas fa-lock input-icon-left"></i>
-              <input type="password" id="password" name="password" class="form-input" placeholder="Min. 6 characters" required minlength="6">
+              <input type="password" id="password" name="password" class="form-input" placeholder="Minimum 6 characters" required minlength="6" autocomplete="new-password">
+              <button type="button" class="pwd-toggle" data-toggle-password="password" data-toggle-icon="employerPwdIcon" aria-label="Show password">
+                <i class="fas fa-eye" id="employerPwdIcon"></i>
+              </button>
+            </div>
+            <p class="field-hint">Secure access for your hiring team account.</p>
+          </div>
+
+          <div class="field">
+            <label class="field-label" for="confirm_password">Confirm Password *</label>
+            <div class="input-wrap">
+              <i class="fas fa-lock input-icon-left"></i>
+              <input type="password" id="confirm_password" name="confirm_password" class="form-input" placeholder="Re-enter password" required minlength="6" autocomplete="new-password">
+              <button type="button" class="pwd-toggle" data-toggle-password="confirm_password" data-toggle-icon="employerConfirmPwdIcon" aria-label="Show password confirmation">
+                <i class="fas fa-eye" id="employerConfirmPwdIcon"></i>
+              </button>
+            </div>
+            <p class="field-feedback" id="employerPasswordMatchFeedback" aria-live="polite"></p>
+          </div>
+
+          <div class="field">
+            <div class="register-aside-note">
+              <p class="register-aside-label">What happens next</p>
+              <ul class="register-aside-list">
+                <li>Your employer profile is created immediately.</li>
+                <li>You can sign in and start reviewing candidates.</li>
+                <li>Our team can support shortlisting if needed.</li>
+              </ul>
             </div>
           </div>
         </div>
+        </section>
 
-        <div class="section-divider-dash">Company Logo</div>
-        <div class="field">
-          <label class="field-label" for="logo">Upload Logo <span style="color:var(--slate-400);font-weight:400;">(optional)</span></label>
-          <div class="input-wrap">
-            <input type="file" id="logo" name="logo" class="form-input" style="padding-left:14px;" accept="image/*">
-          </div>
-          <p class="file-hint" style="font-size: 12px; color: var(--slate-400); margin-top: 5px;">Recommended: 200×200px PNG or JPG</p>
+        <div class="inline-actions">
+          <a href="/" class="btn-portal-secondary">Back to home</a>
+          <button type="submit" class="btn-premium btn-employer">Create employer account</button>
         </div>
-
-        <button type="submit" class="btn-premium btn-employer" style="width:100%; margin-top: 32px;">
-          <i class="fas fa-id-card"></i> Accept Terms & Pay Deposit
-        </button>
       </form>
 
-      <div class="form-footer" style="text-align: center; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--slate-200); display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap;">
-        <a href="{% url 'employer_login' %}" style="color: var(--clr-accent); font-size: 13.5px; font-weight: 600; text-decoration: none;"><i class="fas fa-sign-in-alt"></i> Already have an account? Sign In</a>
-        <span class="sep" style="color: var(--slate-300);">·</span>
-        <a href="/" style="color: var(--clr-accent); font-size: 13.5px; font-weight: 600; text-decoration: none;"><i class="fas fa-arrow-left"></i> Home</a>
+      <div class="form-footer">
+        <a href="{% url 'employer_login' %}"><i class="fas fa-sign-in-alt"></i> Already have an account? Sign In</a>
       </div>
     </div>
   </div>
+
+  <script>
+    (function () {
+      document.querySelectorAll('[data-toggle-password]').forEach((button) => {
+        button.addEventListener('click', function () {
+          const input = document.getElementById(this.dataset.togglePassword);
+          const icon = document.getElementById(this.dataset.toggleIcon);
+          const isPassword = input.type === 'password';
+          input.type = isPassword ? 'text' : 'password';
+          icon.classList.toggle('fa-eye', !isPassword);
+          icon.classList.toggle('fa-eye-slash', isPassword);
+        });
+      });
+
+      const logoInput = document.getElementById('logo');
+      const logoDropzone = document.getElementById('logoDropzone');
+      const logoUploadStatus = document.getElementById('logoUploadStatus');
+      const form = document.getElementById('employerRegisterForm');
+      const sections = Array.from(document.querySelectorAll('.register-form-section'));
+      const password = document.getElementById('password');
+      const confirmPassword = document.getElementById('confirm_password');
+      const passwordFeedback = document.getElementById('employerPasswordMatchFeedback');
+
+      function updateSectionAttention(sectionName) {
+        sections.forEach((section) => {
+          const isTarget = section.dataset.section === sectionName;
+          section.classList.toggle('is-attention', isTarget);
+        });
+      }
+
+      function focusInitialSection() {
+        const initialSection = form.dataset.initialSection || 'company';
+        if (initialSection === 'company') {
+          return;
+        }
+        updateSectionAttention(initialSection);
+        const target = sections.find((section) => section.dataset.section === initialSection);
+        if (target) {
+          requestAnimationFrame(() => {
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          });
+        }
+      }
+
+      function validatePasswordMatch() {
+        if (!confirmPassword.value) {
+          confirmPassword.setCustomValidity('');
+          passwordFeedback.textContent = '';
+          passwordFeedback.classList.remove('is-error', 'is-success');
+          return true;
+        }
+
+        if (password.value !== confirmPassword.value) {
+          confirmPassword.setCustomValidity('Passwords do not match.');
+          passwordFeedback.textContent = 'Passwords do not match yet.';
+          passwordFeedback.classList.add('is-error');
+          passwordFeedback.classList.remove('is-success');
+          return false;
+        }
+
+        confirmPassword.setCustomValidity('');
+        passwordFeedback.textContent = 'Passwords match.';
+        passwordFeedback.classList.add('is-success');
+        passwordFeedback.classList.remove('is-error');
+        return true;
+      }
+
+      function setLogoFeedback(message, type) {
+        logoUploadStatus.textContent = message;
+        logoUploadStatus.classList.remove('is-error', 'is-success');
+        if (message) {
+          logoUploadStatus.classList.add(type === 'success' ? 'is-success' : 'is-error');
+        }
+      }
+
+      function validateLogoFile(file) {
+        if (!file) {
+          logoDropzone.classList.remove('has-file', 'is-error');
+          setLogoFeedback('', 'error');
+          return true;
+        }
+
+        const validTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'];
+        if (!validTypes.includes(file.type)) {
+          logoInput.value = '';
+          logoDropzone.classList.remove('has-file');
+          logoDropzone.classList.add('is-error');
+          setLogoFeedback('Please upload a PNG, JPG, or WEBP logo.', 'error');
+          return false;
+        }
+
+        if (file.size > 5 * 1024 * 1024) {
+          logoInput.value = '';
+          logoDropzone.classList.remove('has-file');
+          logoDropzone.classList.add('is-error');
+          setLogoFeedback('Logo file must be 5 MB or smaller.', 'error');
+          return false;
+        }
+
+        logoDropzone.classList.remove('is-error');
+        logoDropzone.classList.add('has-file');
+        setLogoFeedback(file.name + ' is ready to upload.', 'success');
+        return true;
+      }
+
+      logoDropzone.addEventListener('click', function () {
+        logoInput.click();
+      });
+
+      logoDropzone.addEventListener('keydown', function (event) {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          logoInput.click();
+        }
+      });
+
+      logoDropzone.addEventListener('dragover', function (event) {
+        event.preventDefault();
+        logoDropzone.classList.add('is-dragover');
+      });
+
+      ['dragleave', 'dragend'].forEach((eventName) => {
+        logoDropzone.addEventListener(eventName, function () {
+          logoDropzone.classList.remove('is-dragover');
+        });
+      });
+
+      logoDropzone.addEventListener('drop', function (event) {
+        event.preventDefault();
+        logoDropzone.classList.remove('is-dragover');
+        if (!event.dataTransfer.files.length) {
+          return;
+        }
+        logoInput.files = event.dataTransfer.files;
+        validateLogoFile(event.dataTransfer.files[0]);
+      });
+
+      logoInput.addEventListener('change', function () {
+        validateLogoFile(this.files[0]);
+      });
+
+      password.addEventListener('input', validatePasswordMatch);
+      confirmPassword.addEventListener('input', validatePasswordMatch);
+
+      focusInitialSection();
+      validatePasswordMatch();
+    }());
+  </script>
 </body>
 </html>

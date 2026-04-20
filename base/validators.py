@@ -11,7 +11,7 @@ def validate_no_sql_injection(value):
 
     # Common SQL injection patterns
     sql_patterns = [
-        r'(SELECT|UNION|DROP|INSERT|UPDATE|DELETE|EXEC|EXECUTE|SCRIPT|JAVASCRIPT)',
+        r'\b(SELECT|UNION|DROP|INSERT|UPDATE|DELETE|EXEC|EXECUTE|SCRIPT|JAVASCRIPT)\b',
         r'(PG_SLEEP|WAITFOR\s+DELAY|BENCHMARK)',
         r'(--|;--|\'\s*OR|\"\s*OR)',
         r'(XOR|0x[0-9A-F]+)',
