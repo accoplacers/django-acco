@@ -5,13 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Terms & Conditions | Accoplacers</title>
     {% load static %}
+    <link rel="stylesheet" href="{% static 'base/css/ds.css' %}">
     <link rel="stylesheet" href="{% static 'base/css/style.css' %}">
     <link rel="icon" href="{% static 'base/img/favicon.ico' %}" type="image/x-icon">
     <style>
         body {
-            background-color: #f9fafb;
-            color: #333;
-            font-family: 'Poppins', sans-serif;
+            background-color: var(--slate-50);
+            color: var(--slate-700);
+            font-family: var(--font-main);
             line-height: 1.6;
         }
         .terms-container {
@@ -19,35 +20,35 @@
             margin: 80px auto;
             background: #fff;
             padding: 40px 50px;
-            border-radius: 16px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
         }
         .terms-container h1 {
             font-size: 2rem;
             text-align: center;
             margin-bottom: 30px;
-            color: #1d3557;
+            color: var(--slate-900);
         }
         .terms-container h2 {
             font-size: 1.25rem;
             margin-top: 25px;
-            color: #003366;
+            color: var(--clr-primary-dark);
         }
         .terms-container p {
             margin: 10px 0;
-            color: #444;
+            color: var(--slate-600);
         }
         .terms-container ul {
             margin-left: 20px;
         }
         .terms-container strong {
-            color: #1d3557;
+            color: var(--slate-900);
         }
         .terms-footer {
             text-align: center;
             margin-top: 40px;
             font-size: 0.9rem;
-            color: #777;
+            color: var(--slate-400);
         }
         @media (max-width: 768px) {
             .terms-container {

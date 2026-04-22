@@ -51,15 +51,17 @@ CSRF_TRUSTED_ORIGINS = [
 # Application definition
 
 INSTALLED_APPS = [
+    'base',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
-    'base',
+    'django.contrib.sitemaps',
+    'django.contrib.humanize',
 ]
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -96,17 +98,14 @@ WSGI_APPLICATION = 'acco.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-# Database
-# https://docs.djangoproject.com/en/5.0/ref/settings/#databases
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'emp',
         'HOST': 'localhost',
         'PORT': '3306',
-        'USER': 'accoplacers',
-        'PASSWORD': 'accoplacers'
+        'USER': os.environ.get('DB_USER', 'root'),
+        'PASSWORD': os.environ.get('DB_PASSWORD', '')
     }
 }
 
@@ -209,3 +208,19 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 # Phase 3: Auth System Hardening
 AUTH_USER_MODEL = 'base.UserAccount'
+
+# Phase 4: Admin Hardening
+ADMIN_URL = env("DJANGO_ADMIN_URL", default="admin/")
+LOGIN_URL = 'admin:login'
+
+# Production Security Hardening
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = 31536000  # 1 year
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SECURE_REFERRER_POLICY = "same-origin"
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True

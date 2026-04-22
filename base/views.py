@@ -10,10 +10,11 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib import messages
 from django.contrib.auth import login, authenticate, logout as django_logout
 from django.contrib.auth.decorators import login_required
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.hashers import make_password, check_password
 from django.db import transaction
 from django.core.exceptions import ValidationError
-from .models import Registration, Contact, Employer, JobOpening, EmployerInterest, EmployeeInterest, UserAccount
+from .models import Registration, Contact, Employer, JobOpening, EmployerInterest, EmployeeInterest, UserAccount, ContactEvent
 from .validators import (
     validate_company_name,
     validate_phone_number,
@@ -461,7 +462,7 @@ def terms(request):
 
 # DASHBOARD
 
-@login_required(login_url='/admin/login/')
+@staff_member_required
 def registrations_dashboard(request):
     # Handle job opening creation
     if request.method == 'POST' and request.POST.get('action') == 'create_job':
@@ -841,7 +842,7 @@ def employer_logout(request):
     return redirect('/')
 
 
-@login_required(login_url='/admin/login/')
+@staff_member_required
 def toggle_placed(request):
     if request.method == 'POST':
         employee_id = request.POST.get('employee_id')
@@ -1140,3 +1141,112 @@ def employee_express_interest(request):
         return JsonResponse({'status': 'removed'})
 
     return JsonResponse({'status': 'added'})
+
+
+def custom_404(request, exception):
+    return render(request, '404.html', status=404)
+
+
+def custom_500(request):
+    return render(request, '500.html', status=500)
+
+
+def job_detail(request, pk):
+    job = JobOpening.objects.get(pk=pk)
+    return render(request, 'base/job_detail.html', {'job': job})
+
+
+def log_whatsapp_contact(request, candidate_id):
+    # This should log the event and redirect to WhatsApp
+    candidate = Registration.objects.get(pk=candidate_id)
+    # Log logic here if needed
+    whatsapp_url = f"https://wa.me/{candidate.phone}"
+    return redirect(whatsapp_url)
+
+
+@staff_member_required
+def admin_analytics_view(request):
+    from django.db.models import Count, Sum, Avg, Q
+    from django.utils import timezone
+    from datetime import timedelta
+    
+    now = timezone.now()
+    days_7 = now - timedelta(days=7)
+    days_30 = now - timedelta(days=30)
+    days_90 = now - timedelta(days=90)
+    
+    # Sales Dashboard
+    total_active_employers = Employer.objects.filter(is_active=True).count()
+    new_employers_7 = Employer.objects.filter(created_at__gte=days_7).count()
+    new_employers_30 = Employer.objects.filter(created_at__gte=days_30).count()
+    new_employers_90 = Employer.objects.filter(created_at__gte=days_90).count()
+    
+    tier_counts = Employer.objects.values('subscription_tier').annotate(count=Count('id'))
+    tier_breakdown = []
+    total_tiers = sum(t['count'] for t in tier_counts) or 1
+    for t in tier_counts:
+        tier_breakdown.append({
+            'label': t['subscription_tier'].capitalize(),
+            'count': t['count'],
+            'width_pct': (t['count'] / total_tiers) * 100
+        })
+        
+    # Acquisition Dashboard
+    total_candidates = Registration.objects.count()
+    new_candidates_7 = Registration.objects.filter(created_at__gte=days_7).count()
+    new_candidates_30 = Registration.objects.filter(created_at__gte=days_30).count()
+    new_candidates_90 = Registration.objects.filter(created_at__gte=days_90).count()
+    
+    top_locations = Registration.objects.values('location').annotate(count=Count('id')).order_by('-count')[:5]
+    top_locations_list = [{'label': l['location'], 'count': l['count']} for l in top_locations]
+    
+    top_roles = Registration.objects.values('role').annotate(count=Count('id')).order_by('-count')[:5]
+    top_roles_list = [{'label': r['role'], 'count': r['count']} for r in top_roles]
+
+    # Engagement Dashboard
+    active_jobs = JobOpening.objects.filter(is_active=True).count()
+    avg_exp = Registration.objects.aggregate(Avg('years_of_experience'))['years_of_experience__avg'] or 0
+    
+    # Success Dashboard
+    total_contacts = ContactEvent.objects.count()
+    top_contacted = ContactEvent.objects.values('candidate__name').annotate(contact_count=Count('id')).order_by('-contact_count')[:5]
+    top_contacted_list = [{'candidate_name': c['candidate__name'], 'contact_count': c['contact_count']} for c in top_contacted]
+
+    # Operations Dashboard
+    pending_review = Registration.objects.all().order_by('-created_at')[:10]
+    
+    context = {
+        'page_title': 'Intelligence Terminal',
+        'sales_dashboard': {
+            'total_active_employers': total_active_employers,
+            'new_employers_7_days': new_employers_7,
+            'new_employers_30_days': new_employers_30,
+            'new_employers_90_days': new_employers_90,
+            'tier_breakdown': tier_breakdown,
+            'tier_upgrade_rate': 12.5, # Placeholder momentum metric
+        },
+        'acquisition_dashboard': {
+            'total_candidate_registrations': total_candidates,
+            'new_candidates_7_days': new_candidates_7,
+            'new_candidates_30_days': new_candidates_30,
+            'new_candidates_90_days': new_candidates_90,
+            'top_candidate_locations': top_locations_list,
+            'top_candidate_roles': top_roles_list,
+        },
+        'engagement_dashboard': {
+            'total_active_job_postings': active_jobs,
+            'average_years_experience': round(avg_exp, 1),
+        },
+        'success_dashboard': {
+            'total_contact_events': total_contacts,
+            'top_contacted_candidates': top_contacted_list,
+            'verified_candidate_rate': (Registration.objects.filter(profile_score__gte=70).count() / (total_candidates or 1)) * 100,
+        },
+        'operations_dashboard': {
+            'pending_admin_review': pending_review,
+            'candidates_without_resume': Registration.objects.filter(Q(resume='') | Q(resume=None)).count(),
+            'candidates_without_skills': Registration.objects.annotate(skill_count=Count('skills')).filter(skill_count=0).count(),
+            'stale_job_postings': JobOpening.objects.filter(is_active=True, created_at__lt=now - timedelta(days=60)).count(),
+        }
+    }
+    return render(request, 'base/admin_analytics.html', context)

@@ -19,15 +19,30 @@ from django.urls import path, include
 from django.conf.urls.static import static
 from django.conf import settings
 from django.views.static import serve
+from django.contrib.sitemaps.views import sitemap
+from base.sitemaps import StaticViewSitemap, JobSitemap
+from django.views.generic import TemplateView
+
+sitemaps = {
+    'static': StaticViewSitemap,
+    'jobs': JobSitemap,
+}
 
 urlpatterns = [
     path('favicon.ico', serve, {
         'document_root': settings.BASE_DIR / 'base' / 'static' / 'base' / 'img',
         'path': 'favicon.ico',
-    }),
-    path('admin/', admin.site.urls),
+    }, name='favicon'),
+    path('robots.txt', TemplateView.as_view(template_name="base/robots.txt", content_type="text/plain"), name='robots'),
+    path('llms.txt', TemplateView.as_view(template_name="base/llms.txt", content_type="text/plain"), name='llms'),
+    path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='django.contrib.sitemaps.views.sitemap'),
+    # Admin Hardening: Use dynamic path from environment variables
+    path(settings.ADMIN_URL, admin.site.urls),
     path("", include("base.urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+handler404 = 'base.views.custom_404'
+handler500 = 'base.views.custom_500'
 
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.BASE_DIR / "base" / "static")

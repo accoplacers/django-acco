@@ -1,13 +1,15 @@
 from django.contrib import admin
-from .models import Registration, Contact, Employer, JobOpening, EmployerInterest
+from .models import Registration, Contact, Employer, JobOpening, EmployerInterest, ContactEvent, ApplicationStatus, Skill, EmployeeInterest
 
 
 @admin.register(Registration)
 class RegistrationAdmin(admin.ModelAdmin):
-    list_display = ('employee_id', 'name', 'email', 'phone', 'role', 'location', 'experience', 'plan', 'is_placed', 'created_at')
-    search_fields = ('id', 'name', 'email', 'role', 'location', 'qualification')
-    list_filter = ('is_placed', 'experience', 'qualification', 'plan', 'created_at', 'location')
-    readonly_fields = ('employee_id', 'created_at')
+    list_display = ('employee_id', 'name', 'email', 'role', 'location', 'get_profile_score', 'is_featured', 'is_placed', 'created_at')
+    list_editable = ('is_featured', 'is_placed')
+    search_fields = ('name', 'email', 'role')
+    list_filter = ('location', 'is_featured', 'is_placed', 'experience', 'plan', 'created_at')
+    readonly_fields = ('employee_id', 'created_at', 'password')
+    filter_horizontal = ('skills',)
     ordering = ('-created_at',)
     actions = ['mark_as_placed', 'mark_as_available']
 
@@ -19,10 +21,10 @@ class RegistrationAdmin(admin.ModelAdmin):
             'fields': ('name', 'email', 'password', 'phone', 'nationality', 'location')
         }),
         ('Professional Details', {
-            'fields': ('qualification', 'experience', 'role', 'resume', 'photo')
+            'fields': ('qualification', 'experience', 'role', 'resume', 'photo', 'skills')
         }),
         ('Plan & Status', {
-            'fields': ('plan', 'is_placed', 'created_at')
+            'fields': ('plan', 'is_placed', 'is_featured', 'created_at')
         }),
     )
 
@@ -42,6 +44,25 @@ class RegistrationAdmin(admin.ModelAdmin):
     def mark_as_available(self, request, queryset):
         updated = queryset.update(is_placed=False)
         self.message_user(request, f"{updated} employee(s) marked as available.")
+
+    def get_profile_score(self, obj):
+        score = 0
+        if obj.name: score += 1
+        if obj.email: score += 1
+        if obj.role: score += 1
+        if obj.location: score += 1
+        if obj.skills.exists(): score += 1
+        if obj.resume: score += 1
+        return f"{int((score/6)*100)}%"
+    get_profile_score.short_description = 'Profile Score'
+
+
+@admin.register(ApplicationStatus)
+class ApplicationStatusAdmin(admin.ModelAdmin):
+    list_display = ('candidate', 'status', 'updated_at')
+    list_filter = ('status',)
+    list_editable = ('status',)
+    search_fields = ('candidate__name', 'candidate__email')
 
 
 @admin.register(Contact)
@@ -88,25 +109,28 @@ class JobOpeningAdmin(admin.ModelAdmin):
     ordering = ('-created_at',)
 
 
+@admin.register(ContactEvent)
+class ContactEventAdmin(admin.ModelAdmin):
+    list_display = ('employer', 'candidate', 'contact_type', 'contacted_at')
+    readonly_fields = ('contacted_at',)
+    
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
+@admin.register(Skill)
+class SkillAdmin(admin.ModelAdmin):
+    list_display = ('name', 'category', 'created_at')
+    search_fields = ('name', 'category')
+
+
 @admin.register(EmployerInterest)
 class EmployerInterestAdmin(admin.ModelAdmin):
-    list_display = ('employer', 'employee_id_display', 'employee_name', 'employee_role', 'created_at')
-    search_fields = ('employer__company_name', 'employee__name', 'employee__role')
-    list_filter = ('employer', 'created_at')
-    ordering = ('-created_at',)
-    readonly_fields = ('employer', 'employee', 'created_at')
+    list_display = ('employer', 'employee', 'created_at')
+    readonly_fields = ('created_at',)
 
-    def employee_id_display(self, obj):
-        return f"EMP-{obj.employee.id:04d}"
-    employee_id_display.short_description = 'Employee ID'
-    employee_id_display.admin_order_field = 'employee__id'
 
-    def employee_name(self, obj):
-        return obj.employee.name
-    employee_name.short_description = 'Candidate Name'
-    employee_name.admin_order_field = 'employee__name'
-
-    def employee_role(self, obj):
-        return obj.employee.role
-    employee_role.short_description = 'Role'
-    employee_role.admin_order_field = 'employee__role'
+@admin.register(EmployeeInterest)
+class EmployeeInterestAdmin(admin.ModelAdmin):
+    list_display = ('employee', 'job', 'created_at')
+    readonly_fields = ('created_at',)

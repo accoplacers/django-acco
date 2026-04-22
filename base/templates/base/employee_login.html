@@ -14,45 +14,42 @@
 
   <!-- Left Branding Panel -->
   <div class="portal-left">
-    <div class="portal-left-bg-glow" style="background: radial-gradient(circle, rgba(79,70,229,0.15) 0%, transparent 70%);"></div>
+    <div class="portal-left-bg-glow"></div>
     <div class="portal-left-bg"></div>
     <div class="pl-top">
-      <a href="/" class="nav-logo nav-logo-white" style="margin-bottom: var(--space-12);">
+      <a href="{% url 'registration_view' %}" class="nav-logo nav-logo-white portal-logo-space">
         <div class="nav-logo-icon">
-          <img src="{% static 'base/img/android-chrome-192x192.png' %}" alt="Accoplacers Logo" class="main-logo-img">
+          <img src="{% static 'base/img/android-chrome-192x192.png' %}" alt="Accoplacers logo" class="main-logo-img">
         </div>
         <span class="nav-logo-text">Acco<span>placers</span></span>
       </a>
-      <h1 class="pl-title">Your next career move starts here</h1>
-      <p class="pl-subtitle">Access exclusive finance and accounting opportunities across the GCC region. Log in to view your matched jobs.</p>
+      <h1 class="pl-title">Welcome Back</h1>
+      <p class="pl-subtitle">Your next GCC finance role is waiting.</p>
+
       <div class="pl-features-container">
         <div class="pl-feature-item">
           <div class="pl-feature-icon"><i class="fas fa-briefcase"></i></div>
           Browse active job openings
         </div>
         <div class="pl-feature-item">
-          <div class="pl-feature-icon"><i class="fas fa-tools"></i></div>
-          Manage your skills profile
+          <div class="pl-feature-icon"><i class="fas fa-user-tie"></i></div>
+          Manage your professional profile
         </div>
         <div class="pl-feature-item">
-          <div class="pl-feature-icon"><i class="fas fa-file-alt"></i></div>
-          Track your application status
-        </div>
-        <div class="pl-feature-item">
-          <div class="pl-feature-icon" style="background: rgba(79,70,229,0.2); color: #818CF8;"><i class="fas fa-shield-alt"></i></div>
-          Secure, private and confidential
+          <div class="pl-feature-icon"><i class="fas fa-shield-halved"></i></div>
+          Secure and confidential applications
         </div>
       </div>
     </div>
-    <div class="pl-footer">&copy; 2025 Accoplacers. All rights reserved.</div>
+    <div class="pl-footer">&copy; 2025 Accoplacers. Dubai, UAE.</div>
   </div>
 
   <!-- Right Form Panel -->
   <div class="portal-right">
     <div class="login-form-inner">
-      <span class="form-eyebrow"><i class="fas fa-user"></i> Employee Portal</span>
-      <h1 class="form-heading">Welcome back</h1>
-      <p class="form-sub">Sign in to your account to continue</p>
+      <span class="portal-eyebrow"><i class="fas fa-sign-in-alt"></i> SIGN IN</span>
+      <h1 class="form-heading">Sign In to Your Account</h1>
+      <p class="form-sub">Enter your credentials to access your job seeker dashboard.</p>
 
       {% if messages %}
         {% for message in messages %}
@@ -67,10 +64,10 @@
         {% csrf_token %}
 
         <div class="field">
-          <label for="email">Email address</label>
+          <label for="email">Email Address</label>
           <div class="input-wrap">
             <i class="fas fa-envelope input-icon"></i>
-            <input type="email" id="email" name="email" placeholder="you@email.com" required autofocus>
+            <input type="email" id="email" name="email" placeholder="you@example.com" required autofocus>
           </div>
         </div>
 
@@ -78,20 +75,20 @@
           <label for="password">Password</label>
           <div class="input-wrap">
             <i class="fas fa-lock input-icon"></i>
-            <input type="password" id="password" name="password" placeholder="Enter your password" required>
+            <input type="password" id="password" name="password" placeholder="••••••••" required>
             <button type="button" class="pwd-toggle" onclick="togglePwd()"><i class="fas fa-eye" id="pwdIcon"></i></button>
           </div>
         </div>
 
-        <button type="submit" class="submit-btn">
-          <i class="fas fa-sign-in-alt"></i> Sign In
+        <a href="#" class="forgot-link">Forgot Password?</a>
+
+        <button type="submit" class="submit-btn btn-indigo-gradient">
+          Sign In <i class="fas fa-arrow-right"></i>
         </button>
       </form>
 
       <div class="auth-footer">
-        <a href="{% url 'employee_register' %}"><i class="fas fa-user-plus"></i> Create an Account</a>
-        <a href="{% url 'employer_login' %}"><i class="fas fa-building"></i> Employer Login</a>
-        <a href="/"><i class="fas fa-arrow-left"></i> Home</a>
+        <a href="{% url 'employee_register' %}">Don't have an account? Register ←</a>
       </div>
     </div>
   </div>

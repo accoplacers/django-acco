@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ job.title }} | Accoplacers Finance Jobs</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'base/css/ds.css' %}">
+    <link rel="stylesheet" href="{% static 'base/css/style.css' %}">
+    
+    <!-- JobPosting Rich Results Schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org/",
+      "@type": "JobPosting",
+      "title": "{{ job.title|escapejs }}",
+      "description": "{{ job.description|linebreaksbr|escapejs }}",
+      "datePosted": "{{ job.created_at|date:'Y-m-d' }}",
+      "employmentType": "{{ job.job_type|escapejs }}",
+      "hiringOrganization": {
+        "@type": "Organization",
+        "name": "{{ job.employer.company_name|escapejs }}",
+        "sameAs": "https://accoplacers.com",
+        "logo": "https://accoplacers.com/static/base/img/android-chrome-192x192.png"
+      },
+      "jobLocation": {
+        "@type": "Place",
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "{{ job.location|escapejs }}",
+          "addressRegion": "Dubai",
+          "addressCountry": "AE"
+        }
+      }
+      {% if job.salary_range %},
+      "baseSalary": {
+        "@type": "MonetaryAmount",
+        "currency": "AED",
+        "value": {
+          "@type": "QuantitativeValue",
+          "value": "{{ job.salary_range|escapejs }}",
+          "unitText": "MONTH"
+        }
+      }
+      {% endif %}
+    }
+    </script>
+
+    <style>
+        .job-detail-container {
+            max-width: 800px;
+            margin: 120px auto 60px;
+            padding: 0 var(--space-4);
+        }
+        .job-header {
+            background: white;
+            padding: var(--space-8);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: var(--space-6);
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+        .job-title-large {
+            font-size: var(--text-4xl);
+            font-weight: 800;
+            color: var(--clr-slate-900);
+            margin-bottom: var(--space-2);
+            letter-spacing: -0.02em;
+        }
+        .job-company-name {
+            font-size: var(--text-lg);
+            color: var(--clr-primary);
+            font-weight: 600;
+            margin-bottom: var(--space-4);
+            display: block;
+        }
+        .job-meta-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-4);
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .job-meta-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            font-size: var(--text-sm);
+            color: var(--clr-slate-500);
+            background: var(--slate-50);
+            padding: var(--space-2) var(--space-3);
+            border-radius: var(--radius-md);
+        }
+        .job-body {
+            background: white;
+            padding: var(--space-8);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+        .job-section-title {
+            font-size: var(--text-xl);
+            font-weight: 700;
+            color: var(--clr-slate-800);
+            margin-bottom: var(--space-4);
+            padding-bottom: var(--space-2);
+            border-bottom: 1px solid var(--slate-100);
+        }
+        .job-content {
+            font-size: var(--text-md);
+            line-height: 1.7;
+            color: var(--clr-slate-600);
+            margin-bottom: var(--space-8);
+            white-space: pre-wrap;
+        }
+        .job-actions-fixed {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            padding: var(--space-4);
+            box-shadow: 0 -10px 30px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: center;
+            gap: var(--space-4);
+            z-index: 100;
+        }
+        .btn-apply {
+            background: var(--clr-primary);
+            color: white;
+            padding: var(--space-3) var(--space-8);
+            border-radius: var(--radius-md);
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+        .btn-apply:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+        }
+        .btn-wa {
+            background: #25D366;
+            color: white;
+            padding: var(--space-3) var(--space-8);
+            border-radius: var(--radius-md);
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+        @media (max-width: 640px) {
+            .job-title-large { font-size: var(--text-2xl); }
+            .job-header, .job-body { padding: var(--space-6); }
+            .job-actions-fixed { flex-direction: column; }
+            .btn-apply, .btn-wa { justify-content: center; }
+        }
+    </style>
+</head>
+<body class="bg-slate-50">
+
+    <header id="header" style="background: white; box-shadow: var(--shadow-sm);">
+        <div class="container header-container">
+            <a href="{% url 'registration_view' %}" class="nav-logo">
+                <div class="nav-logo-icon">
+                    <img src="{% static 'base/img/android-chrome-192x192.png' %}" alt="Accoplacers Logo" class="main-logo-img">
+                </div>
+                <span class="nav-logo-text" style="color: var(--clr-slate-900);">Acco<span style="color: var(--clr-primary);">placers</span></span>
+            </a>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="{% url 'registration_view' %}" style="color: var(--clr-slate-600);">Home</a></li>
+                    <li><a href="{% url 'employee_login' %}" style="color: var(--clr-slate-600);">Login</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="job-detail-container">
+        <div class="job-header">
+            <span class="badge-premium" style="margin-bottom: var(--space-3); display: inline-block;">Featured Role</span>
+            <h1 class="job-title-large">{{ job.title }}</h1>
+            <span class="job-company-name">{{ job.employer.company_name }}</span>
+            
+            <ul class="job-meta-list">
+                <li class="job-meta-item"><i class="fas fa-map-marker-alt"></i> {{ job.location }}</li>
+                <li class="job-meta-item"><i class="fas fa-briefcase"></i> {{ job.job_type }}</li>
+                {% if job.salary_range %}
+                <li class="job-meta-item"><i class="fas fa-money-bill-wave"></i> {{ job.salary_range }}</li>
+                {% endif %}
+                <li class="job-meta-item"><i class="fas fa-calendar-alt"></i> Posted {{ job.created_at|date:"M d, Y" }}</li>
+            </ul>
+        </div>
+
+        <div class="job-body">
+            <section>
+                <h2 class="job-section-title">Job Description</h2>
+                <div class="job-content">{{ job.description }}</div>
+            </section>
+
+            <section>
+                <h2 class="job-section-title">Requirements</h2>
+                <div class="job-content">{{ job.requirements }}</div>
+            </section>
+
+            <div style="background: var(--slate-50); padding: var(--space-6); border-radius: var(--radius-md); border: 1px dashed var(--slate-200);">
+                <h3 style="font-size: var(--text-lg); font-weight: 700; margin-bottom: var(--space-2);">About Accoplacers</h3>
+                <p style="font-size: var(--text-sm); color: var(--clr-slate-500); line-height: 1.6;">
+                    Accoplacers is a specialized recruitment firm for finance professionals in the GCC. We don't just post jobs; we manage the entire placement cycle to ensure perfect alignment between talent and top-tier regional firms.
+                </p>
+            </div>
+        </div>
+    </main>
+
+    <div class="job-actions-fixed">
+        <a href="{% url 'employee_register' %}?job={{ job.id }}" class="btn-apply">
+            <i class="fas fa-rocket"></i> Apply via Accoplacers
+        </a>
+        <a href="https://wa.me/{{ WHATSAPP_NUMBER }}?text=Hi%2C+I+am+interested+in+the+{{ job.title|urlencode }}+position+at+{{ job.employer.company_name|urlencode }}" class="btn-wa" target="_blank" rel="noopener noreferrer">
+            <i class="fab fa-whatsapp"></i> Express Interest on WhatsApp
+        </a>
+    </div>
+
+    <footer style="margin-top: 100px;">
+        <div class="container">
+            <div class="copyright">
+                <p style="color: rgba(255, 255, 255, 0.747);">&copy; 2025 Accoplacers. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

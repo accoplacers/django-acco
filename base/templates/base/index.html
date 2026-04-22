@@ -1,414 +1,423 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends 'base/base.html' %}
+{% load static %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Accoplacers - Career Support for Accounting & Finance Professionals</title>
-    <meta name="description"
-        content="Accoplacers - Dubai-based career support and placement firm for Accounting, Audit, and Finance professionals in the GCC region.">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
-        rel="stylesheet">
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'base/css/ds.css' %}">
-    <link rel="stylesheet" href="{% static 'base/css/style.css' %}">
-    <link rel="icon" type="image/x-icon" href="{% static 'base/img/favicon.ico' %}">
-    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'base/img/favicon-32x32.png' %}">
-    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'base/img/favicon-16x16.png' %}">
-    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'base/img/apple-touch-icon.png' %}">
-</head>
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'base/css/style.css' %}">
+{% endblock %}
 
-<body>
-    <!-- Django Messages -->
-    {% if messages %}
-    <div id="message-popup">
-        {% for message in messages %}
-        <div class="message-box {{ message.tags }}">
-            {{ message }}
-            <span class="close-btn" onclick="this.parentElement.remove();">&times;</span>
-        </div>
-        {% endfor %}
-    </div>
-    {% endif %}
+{% block title %}Accoplacers - Career Support for Accounting & Finance Professionals{% endblock %}
 
-    <!-- Header -->
-    <header id="header">
-        <div class="container header-container">
+{% block header %}
+<header id="header">
+    <div class="container header-container">
+        <!-- Logo -->
+        <a href="{% url 'registration_view' %}" class="nav-logo">
+            <div class="nav-logo-icon">
+                <img src="{% static 'base/img/android-chrome-192x192.png' %}" alt="Accoplacers Logo" class="main-logo-img">
+            </div>
+            <span class="nav-logo-text">Acco<span>placers</span></span>
+        </a>
 
-            <!-- Logo -->
-            <a href="/" class="nav-logo">
-                <div class="nav-logo-icon">
-                    <img src="{% static 'base/img/android-chrome-192x192.png' %}" alt="Accoplacers Logo" class="main-logo-img">
-                </div>
-                <span class="nav-logo-text">Acco<span>placers</span></span>
-            </a>
+        <!-- Desktop + Mobile Nav Panel -->
+        <nav id="navMenu">
+            <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#services">Services</a></li>
+                <li><a href="#register">Register</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
 
-            <!-- Desktop + Mobile Nav Panel -->
-            <nav id="navMenu">
-                <ul class="nav-links">
-                    <li><a href="#home">Home</a></li>
-                    <li><a href="#about">About</a></li>
-                    <li><a href="#services">Services</a></li>
-                    <li><a href="#register">Register</a></li>
-                    <li><a href="#contact">Contact</a></li>
-                </ul>
-
-                <!-- Mobile-only auth section (inside the slide-down panel) -->
-                <div class="nav-mobile-auth">
-                    {% if session_user_type == 'employee' %}
-                    <div class="mob-user-info">
-                        <span class="uavatar">{{ session_user_name|slice:":1"|upper }}</span>
-                        <div>
-                            <div class="mob-uname">{{ session_user_name }}</div>
-                            <div class="mob-urole">Job Seeker</div>
-                        </div>
-                    </div>
-                    <a href="{% url 'employee_dashboard' %}" class="mob-nav-item"><i class="fas fa-th-large"></i> My Dashboard</a>
-                    <a href="{% url 'employee_logout' %}" class="mob-nav-item danger"><i class="fas fa-sign-out-alt"></i> Sign Out</a>
-                    {% elif session_user_type == 'employer' %}
-                    <div class="mob-user-info">
-                        <span class="uavatar employer">{{ session_user_name|slice:":1"|upper }}</span>
-                        <div>
-                            <div class="mob-uname">{{ session_user_name }}</div>
-                            <div class="mob-urole">Employer</div>
-                        </div>
-                    </div>
-                    <a href="{% url 'employer_dashboard' %}" class="mob-nav-item"><i class="fas fa-th-large"></i> Dashboard</a>
-                    <a href="{% url 'employer_logout' %}" class="mob-nav-item danger"><i class="fas fa-sign-out-alt"></i> Sign Out</a>
-                    {% else %}
-                    <div class="mob-auth-grid">
-                        <a href="{% url 'employee_login' %}" class="mob-auth-btn outline">Employee Login</a>
-                        <a href="{% url 'employer_login' %}" class="mob-auth-btn solid">Employer Login</a>
-                    </div>
-                    <a href="{% url 'employee_register' %}" class="mob-auth-cta">Get Started <i class="fas fa-arrow-right"></i></a>
-                    {% endif %}
-                </div>
-            </nav>
-
-            <!-- Desktop-only auth section -->
-            <div class="nav-actions">
+            <!-- Mobile-only auth section (inside the slide-down panel) -->
+            <div class="nav-mobile-auth">
                 {% if session_user_type == 'employee' %}
-                <div class="user-menu">
-                    <button class="user-trigger login-trigger" type="button">
-                        <span class="uavatar">{{ session_user_name|slice:":1"|upper }}</span>
-                        <span class="uname">{{ session_user_name }}</span>
-                        <i class="fas fa-chevron-down uchevron"></i>
-                    </button>
-                    <div class="user-dropdown">
-                        <div class="udrop-header">
-                            <span class="uavatar lg">{{ session_user_name|slice:":1"|upper }}</span>
-                            <div>
-                                <div class="udrop-name">{{ session_user_name }}</div>
-                                <div class="udrop-role">Job Seeker</div>
-                            </div>
-                        </div>
-                        <div class="udrop-divider"></div>
-                        <a href="{% url 'employee_dashboard' %}" class="udrop-item"><i class="fas fa-th-large"></i> My Dashboard</a>
-                        <div class="udrop-divider"></div>
-                        <a href="{% url 'employee_logout' %}" class="udrop-item danger"><i class="fas fa-sign-out-alt"></i> Sign Out</a>
+                <div class="mob-user-info">
+                    <span class="uavatar">{{ session_user_name|slice:":1"|upper }}</span>
+                    <div>
+                        <div class="mob-uname">{{ session_user_name }}</div>
+                        <div class="mob-urole">Job Seeker</div>
                     </div>
                 </div>
+                <a href="{% url 'employee_dashboard' %}" class="mob-nav-item"><i class="fas fa-th-large"></i> My Dashboard</a>
+                <a href="{% url 'employee_logout' %}" class="mob-nav-item danger"><i class="fas fa-sign-out-alt"></i> Sign Out</a>
                 {% elif session_user_type == 'employer' %}
-                <div class="user-menu">
-                    <button class="user-trigger login-trigger" type="button">
-                        <span class="uavatar employer">{{ session_user_name|slice:":1"|upper }}</span>
-                        <span class="uname">{{ session_user_name }}</span>
-                        <i class="fas fa-chevron-down uchevron"></i>
-                    </button>
-                    <div class="user-dropdown">
-                        <div class="udrop-header">
-                            <span class="uavatar lg employer">{{ session_user_name|slice:":1"|upper }}</span>
-                            <div>
-                                <div class="udrop-name">{{ session_user_name }}</div>
-                                <div class="udrop-role">Employer</div>
-                            </div>
-                        </div>
-                        <div class="udrop-divider"></div>
-                        <a href="{% url 'employer_dashboard' %}" class="udrop-item"><i class="fas fa-th-large"></i> Dashboard</a>
-                        <div class="udrop-divider"></div>
-                        <a href="{% url 'employer_logout' %}" class="udrop-item danger"><i class="fas fa-sign-out-alt"></i> Sign Out</a>
+                <div class="mob-user-info">
+                    <span class="uavatar employer">{{ session_user_name|slice:":1"|upper }}</span>
+                    <div>
+                        <div class="mob-uname">{{ session_user_name }}</div>
+                        <div class="mob-urole">Employer</div>
                     </div>
                 </div>
+                <a href="{% url 'employer_dashboard' %}" class="mob-nav-item"><i class="fas fa-th-large"></i> Dashboard</a>
+                <a href="{% url 'employer_logout' %}" class="mob-nav-item danger"><i class="fas fa-sign-out-alt"></i> Sign Out</a>
                 {% else %}
-                <div class="nav-auth">
-                    <a href="{% url 'employee_login' %}" class="auth-link">Employee Login</a>
-                    <span class="auth-sep"></span>
-                    <a href="{% url 'employer_login' %}" class="auth-link">Employer Login</a>
+                <div class="mob-auth-grid">
+                    <a href="{% url 'employee_login' %}" class="mob-auth-btn outline">Employee Login</a>
+                    <a href="{% url 'employer_login' %}" class="mob-auth-btn solid">Employer Login</a>
                 </div>
+                <a href="{% url 'employee_register' %}" class="mob-auth-cta">Get Started <i class="fas fa-arrow-right"></i></a>
                 {% endif %}
             </div>
+        </nav>
 
-            <!-- Hamburger -->
-            <button class="mobile-toggle" id="mobileMenu" type="button" aria-label="Toggle menu">
-                <span></span><span></span><span></span>
-            </button>
-
-        </div>
-    </header>
-
-    <!-- Hero Section -->
-    <section class="hero hero-premium" id="home">
-        <div class="container hero-container-premium">
-            <div class="hero-content text-premium">
-                <h1 class="hero-title">Accelerate Your Finance <span class="gradient-text">Hiring</span></h1>
-                <p class="hero-subtitle">Bypass the noise. Access the GCC's pre-verified, elite accounting & finance network with Zero Time-to-Hire friction.</p>
-                <div class="hero-btns-premium">
-                    <a href="{% url 'employee_login' %}" class="btn-premium btn-employee">Apply for Placement</a>
-                    <a href="{% url 'employer_login' %}" class="btn-premium btn-employer-outline">Hire Verified Talent</a>
-                </div>
-                <div class="hero-stats-bar">
-                    <div class="h-stat"><strong>15+</strong> <span>Years Exp.</span></div>
-                    <div class="h-stat"><strong>500+</strong> <span>Verified Profiles</span></div>
-                    <div class="h-stat"><strong>72h</strong> <span>Avg. Hiring Cycle</span></div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- About Section -->
-    <section class="section-premium section-white" id="about">
-        <div class="container">
-            <div class="section-header">
-                <h2>The Institutional Standard</h2>
-                <p>We do not just forward resumes. We act as your fractional hiring partner.</p>
-            </div>
-            <div class="about-grid">
-                <div class="about-text">
-                    <p style="margin-bottom: var(--space-4);">We are a specialized Dubai-based career stewardship firm. We exclusively serve the Accounting, Audit, and Finance sectors across the GCC.</p>
-                    <ul style="list-style: none; display: flex; flex-direction: column; gap: var(--space-3); margin-bottom: var(--space-6);">
-                        <li style="display: flex; gap: var(--space-2); align-items: flex-start;">
-                            <i class="fas fa-check-circle" style="color: var(--clr-primary); margin-top: 5px;"></i>
-                            <span><strong>15+ Years Domain Expertise:</strong> Built by industry veterans who understand technical finance roles.</span>
-                        </li>
-                        <li style="display: flex; gap: var(--space-2); align-items: flex-start;">
-                            <i class="fas fa-check-circle" style="color: var(--clr-primary); margin-top: 5px;"></i>
-                            <span><strong>Zero-Noise Candidates:</strong> Every profile is heavily vetted before reaching your desk.</span>
-                        </li>
-                        <li style="display: flex; gap: var(--space-2); align-items: flex-start;">
-                            <i class="fas fa-check-circle" style="color: var(--clr-primary); margin-top: 5px;"></i>
-                            <span><strong>Full-Cycle Enablers:</strong> We provide strategic CV repositioning, mentorship, and final placement.</span>
-                        </li>
-                    </ul>
-                </div>
-                <div class="about-img">
-                    <img src="https://images.unsplash.com/photo-1521791136064-7986c2920216?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
-                        alt="Accoplacers professional team collaborating in Dubai office" loading="lazy" width="1350" height="900" style="width: 100%; height: auto; display: block;">
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Services Section -->
-    <section class="section-premium section-white" id="services">
-        <div class="container">
-            <div class="section-header">
-                <h2>Our Managed Placement Services</h2>
-                <p>We provide end-to-end support for the finance sector, ensuring perfect alignment between talent and opportunity.</p>
-            </div>
-            <div class="service-premium-grid">
-                <div class="service-premium-card">
-                    <i class="fas fa-file-invoice-dollar" aria-hidden="true"></i>
-                    <h4>Financial Placement</h4>
-                    <p>Strategic matching for Accounting, Audit, and Finance roles across the GCC with high-growth firms.</p>
-                </div>
-                <div class="service-premium-card">
-                    <i class="fas fa-user-shield"></i>
-                    <h4>Career Stewardship</h4>
-                    <p>Expert coaching and interview survival training to help you navigate competitive UAE job markets.</p>
-                </div>
-                <div class="service-premium-card">
-                    <i class="fas fa-users-gear"></i>
-                    <h4>Elite Staffing</h4>
-                    <p>Managed technical screening and onboarding for employers seeking verified top-tier finance talent.</p>
-                </div>
-                <div class="service-premium-card">
-                    <i class="fas fa-graduation-cap"></i>
-                    <h4>Future Leaders</h4>
-                    <p>Curated internship paths for fresh finance graduates to kickstart their regional professional journey.</p>
-                </div>
-                <div class="service-premium-card">
-                    <i class="fas fa-magic"></i>
-                    <h4>Resume Enhancement</h4>
-                    <p>Expert repositioning and rewriting of your resume to highlight technical strengths and GCC market compatibility.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Why Choose Us Section -->
-    <section class="section-premium section-slate" style="background: var(--slate-50);" id="advantage">
-        <div class="container">
-            <div class="section-header">
-                <h2>The Accoplacers Advantage</h2>
-                <p>The asymmetric edge for serious employers and high-impact candidates.</p>
-            </div>
-            <div class="service-premium-grid" style="margin-top: var(--space-8);">
-                <div class="service-premium-card" style="background: white; border: 1px solid rgba(0,0,0,0.05);">
-                    <i class="fas fa-filter" aria-hidden="true" style="color: var(--clr-primary);"></i>
-                    <h4>Signal Over Noise</h4>
-                    <p>We reject generic algorithms. We manually audit and technically verify every profile against rigorous financial benchmarks.</p>
-                </div>
-                <div class="service-premium-card" style="background: white; border: 1px solid rgba(0,0,0,0.05);">
-                    <i class="fas fa-stopwatch"></i>
-                    <h4>Speed-To-Hire</h4>
-                    <p>Access our curated pipeline instantly. We reduce average hiring cycles from 6 weeks down to 72 hours.</p>
-                </div>
-                <div class="service-premium-card" style="background: white; border: 1px solid rgba(0,0,0,0.05);">
-                    <i class="fas fa-lock"></i>
-                    <h4>Absolute Confidentiality</h4>
-                    <p>Your search is siloed and secure. We protect candidate privacy and execute discreet hiring mandates for elite firms.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-    
-    <!-- Resume Upsell Section -->
-    <section class="section-premium" style="background: linear-gradient(135deg, var(--clr-primary-light) 0%, white 100%);">
-        <div class="container">
-            <div class="upsell-landing-card">
-                <div class="upsell-landing-content">
-                    <div class="upsell-landing-text">
-                        <span class="badge-premium">Premium Service</span>
-                        <h2>Boost Your Hiring Chances by <span class="gradient-text">3x</span></h2>
-                        <p>Our experts will reposition and rewrite your resume to highlight your technical strengths and GCC market compatibility. Stand out to top recruiters instantly.</p>
+        <!-- Desktop-only auth section -->
+        <div class="nav-actions">
+            {% if session_user_type == 'employee' %}
+            <div class="user-menu">
+                <button class="user-trigger login-trigger" type="button">
+                    <span class="uavatar">{{ session_user_name|slice:":1"|upper }}</span>
+                    <span class="uname">{{ session_user_name }}</span>
+                    <i class="fas fa-chevron-down uchevron"></i>
+                </button>
+                <div class="user-dropdown">
+                    <div class="udrop-header">
+                        <span class="uavatar lg">{{ session_user_name|slice:":1"|upper }}</span>
+                        <div>
+                            <div class="udrop-name">{{ session_user_name }}</div>
+                            <div class="udrop-role">Job Seeker</div>
+                        </div>
                     </div>
-                    <div class="upsell-landing-cta">
-                        <a href="https://wa.me/{{ WHATSAPP_NUMBER }}?text=Please%20rewrite%20my%20resume" class="btn-premium btn-employee" target="_blank" rel="noopener noreferrer">
-                            <i class="fab fa-whatsapp"></i> Get Expert Help
-                        </a>
-                    </div>
+                    <div class="udrop-divider"></div>
+                    <a href="{% url 'employee_dashboard' %}" class="udrop-item"><i class="fas fa-th-large"></i> My Dashboard</a>
+                    <div class="udrop-divider"></div>
+                    <a href="{% url 'employee_logout' %}" class="udrop-item danger"><i class="fas fa-sign-out-alt"></i> Sign Out</a>
                 </div>
             </div>
-        </div>
-    </section>
-    
-    <!-- Join Accoplacers Section - REFINED -->
-    <section class="section-premium section-slate" id="register">
-        <div class="container">
-            <div class="section-header">
-                <h2>Secure Your Competitive Edge</h2>
-                <p>Select your track to join the most exclusive finance career network in the GCC.</p>
+            {% elif session_user_type == 'employer' %}
+            <div class="user-menu">
+                <button class="user-trigger login-trigger" type="button">
+                    <span class="uavatar employer">{{ session_user_name|slice:":1"|upper }}</span>
+                    <span class="uname">{{ session_user_name }}</span>
+                    <i class="fas fa-chevron-down uchevron"></i>
+                </button>
+                <div class="user-dropdown">
+                    <div class="udrop-header">
+                        <span class="uavatar lg employer">{{ session_user_name|slice:":1"|upper }}</span>
+                        <div>
+                            <div class="udrop-name">{{ session_user_name }}</div>
+                            <div class="udrop-role">Employer</div>
+                        </div>
+                    </div>
+                    <div class="udrop-divider"></div>
+                    <a href="{% url 'employer_dashboard' %}" class="udrop-item"><i class="fas fa-th-large"></i> Dashboard</a>
+                    <div class="udrop-divider"></div>
+                    <a href="{% url 'employer_logout' %}" class="udrop-item danger"><i class="fas fa-sign-out-alt"></i> Sign Out</a>
+                </div>
             </div>
+            {% else %}
+            <div class="nav-auth">
+                <a href="{% url 'employee_login' %}" class="auth-link">Employee Login</a>
+                <span class="auth-sep"></span>
+                <a href="{% url 'employer_login' %}" class="auth-link">Employer Login</a>
+            </div>
+            {% endif %}
+        </div>
 
-            <div class="join-tracks">
-                <!-- Employee Track -->
-                <div class="track-card employee-track">
-                    <div class="track-icon"><i class="fas fa-user-tie"></i></div>
-                    <h3>Finance Professionals</h3>
-                    <p>Secure premium internal placements with the GCC's top investment firms, banks, and conglomerates.</p>
-                    <ul class="track-list">
-                        <li><i class="fas fa-check-circle"></i> Exclusive Access to Managed Openings</li>
-                        <li><i class="fas fa-check-circle"></i> Strategic CV Repositioning</li>
-                        <li><i class="fas fa-check-circle"></i> High-Intent Regional Mentorship</li>
-                        <li><i class="fas fa-check-circle"></i> Direct Exposure to C-Suite Hiring</li>
-                    </ul>
-                    <a href="{% url 'employee_register' %}" class="btn-premium btn-employee track-cta">
-                        <i class="fas fa-rocket"></i> Launch Career Track
+        <!-- Hamburger -->
+        <button class="mobile-toggle" id="mobileMenu" type="button" aria-label="Toggle menu">
+            <span></span><span></span><span></span>
+        </button>
+    </div>
+</header>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero hero-premium" id="home">
+    <div class="container hero-container-premium">
+        <div class="hero-content text-premium">
+            <h1 class="hero-title">Accelerate Your Finance <span class="gradient-text">Hiring</span></h1>
+            <p class="hero-subtitle">Bypass the noise. Access the GCC's pre-verified, elite accounting & finance network with Zero Time-to-Hire friction.</p>
+            <div class="hero-btns-premium">
+                <a href="{% url 'employer_login' %}" class="btn-premium btn-primary">Hire Verified Talent</a>
+                <a href="{% url 'employee_register' %}" class="btn-premium btn-outline btn-outline-light">Apply for Placement</a>
+            </div>
+            <div class="hero-stats-bar">
+                <div class="h-stat"><strong>15+</strong> <span>Years Exp.</span></div>
+                <div class="h-stat"><strong>500+</strong> <span>Verified Profiles</span></div>
+                <div class="h-stat"><strong>72h</strong> <span>Avg. Hiring Cycle</span></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- About Section -->
+<section class="section-premium section-white" id="about">
+    <div class="container">
+        <div class="section-header">
+            <h2>The Institutional Standard</h2>
+            <p>We do not just forward resumes. We act as your fractional hiring partner.</p>
+        </div>
+        <div class="about-grid">
+            <div class="about-text">
+                <p class="about-intro-p">We are a specialized Dubai-based career stewardship firm. We exclusively serve the Accounting, Audit, and Finance sectors across the GCC.</p>
+                <ul class="about-checklist">
+                    <li>
+                        <i class="fas fa-check-circle" aria-hidden="true"></i>
+                        <span><strong>15+ Years Domain Expertise:</strong> Built by industry veterans who understand technical finance roles.</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-check-circle" aria-hidden="true"></i>
+                        <span><strong>Zero-Noise Candidates:</strong> Every profile is heavily vetted before reaching your desk.</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-check-circle" aria-hidden="true"></i>
+                        <span><strong>Full-Cycle Enablers:</strong> We provide strategic CV repositioning, mentorship, and final placement.</span>
+                    </li>
+                </ul>
+            </div>
+            <div class="about-img">
+                <img src="https://images.unsplash.com/photo-1521791136064-7986c2920216?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
+                    alt="Accoplacers professional team collaborating in Dubai office" loading="lazy" width="1350" height="900">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Services Section -->
+<section class="section-premium section-white" id="services">
+    <div class="container">
+        <div class="section-header">
+            <h2>Our Managed Placement Services</h2>
+            <p>We provide end-to-end support for the finance sector, ensuring perfect alignment between talent and opportunity.</p>
+        </div>
+        <div class="service-premium-grid">
+            <div class="service-premium-card">
+                <i class="fas fa-file-invoice-dollar" aria-hidden="true"></i>
+                <h4>Financial Placement</h4>
+                <p>Strategic matching for Accounting, Audit, and Finance roles across the GCC with high-growth firms.</p>
+            </div>
+            <div class="service-premium-card">
+                <i class="fas fa-user-shield"></i>
+                <h4>Career Stewardship</h4>
+                <p>Expert coaching and interview survival training to help you navigate competitive UAE job markets.</p>
+            </div>
+            <div class="service-premium-card">
+                <i class="fas fa-users-gear"></i>
+                <h4>Elite Staffing</h4>
+                <p>Managed technical screening and onboarding for employers seeking verified top-tier finance talent.</p>
+            </div>
+            <div class="service-premium-card">
+                <i class="fas fa-graduation-cap"></i>
+                <h4>Future Leaders</h4>
+                <p>Curated internship paths for fresh finance graduates to kickstart their regional professional journey.</p>
+            </div>
+            <div class="service-premium-card">
+                <i class="fas fa-magic"></i>
+                <h4>Resume Enhancement</h4>
+                <p>Expert repositioning and rewriting of your resume to highlight technical strengths and GCC market compatibility.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Why Choose Us Section -->
+<section class="section-premium section-slate" id="advantage">
+    <div class="container">
+        <div class="section-header">
+            <h2>The Accoplacers Advantage</h2>
+            <p>The asymmetric edge for serious employers and high-impact candidates.</p>
+        </div>
+        <div class="service-premium-grid" style="margin-top: var(--space-8);">
+            <div class="service-premium-card advantage-card">
+                <i class="fas fa-filter" aria-hidden="true"></i>
+                <h4>Signal Over Noise</h4>
+                <p>We reject generic algorithms. We manually audit and technically verify every profile against rigorous financial benchmarks.</p>
+            </div>
+            <div class="service-premium-card advantage-card">
+                <i class="fas fa-stopwatch"></i>
+                <h4>Speed-To-Hire</h4>
+                <p>Access our curated pipeline instantly. We reduce average hiring cycles from 6 weeks down to 72 hours.</p>
+            </div>
+            <div class="service-premium-card advantage-card">
+                <i class="fas fa-lock"></i>
+                <h4>Absolute Confidentiality</h4>
+                <p>Your search is siloed and secure. We protect candidate privacy and execute discreet hiring mandates for elite firms.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Resume Upsell Section -->
+<section class="section-premium section-upsell-bg">
+    <div class="container">
+        <div class="upsell-landing-card">
+            <div class="upsell-landing-content">
+                <div class="upsell-landing-text">
+                    <span class="badge-premium">Premium Service</span>
+                    <h2>Boost Your Hiring Chances by <span class="gradient-text">3x</span></h2>
+                    <p>Our experts will reposition and rewrite your resume to highlight your technical strengths and GCC market compatibility. Stand out to top recruiters instantly.</p>
+                </div>
+                <div class="upsell-landing-cta">
+                    <a href="https://wa.me/{{ WHATSAPP_NUMBER }}?text=Please%20rewrite%20my%20resume" class="btn-premium btn-employee" target="_blank" rel="noopener noreferrer">
+                        <i class="fab fa-whatsapp"></i> Get Expert Help
                     </a>
                 </div>
+            </div>
+        </div>
+    </div>
+</section>
 
-                <!-- Employer Track -->
-                <div class="track-card employer-track">
-                    <div class="track-icon"><i class="fas fa-building"></i></div>
-                    <h3>Strategic Employers</h3>
-                    <p>Eliminate hiring friction. Access a pre-verified pool of accounting and finance elite.</p>
-                    <ul class="track-list">
-                        <li><i class="fas fa-check-circle"></i> Instant Access to Vetted Talent</li>
-                        <li><i class="fas fa-check-circle"></i> Pre-Screened Technical Audits</li>
-                        <li><i class="fas fa-check-circle"></i> Reduced Time-to-Hire (TTH)</li>
-                        <li><i class="fas fa-check-circle"></i> Dedicated Placement Stewardship</li>
-                    </ul>
-                    <a href="{% url 'employer_register' %}" class="btn-premium btn-employer track-cta">
-                        <i class="fas fa-bolt"></i> Access Premium Talent
-                    </a>
+<!-- Join Accoplacers Section -->
+<section class="section-premium section-slate" id="register">
+    <div class="container">
+        <div class="section-header">
+            <h2>Secure Your Competitive Edge</h2>
+            <p>Select your track to join the most exclusive finance career network in the GCC.</p>
+        </div>
+
+        <div class="join-tracks">
+            <!-- Employee Track -->
+            <div class="track-card employee-track">
+                <div class="track-icon"><i class="fas fa-user-tie"></i></div>
+                <h3>Finance Professionals</h3>
+                <p>Secure premium internal placements with the GCC's top investment firms, banks, and conglomerates.</p>
+                <ul class="track-list">
+                    <li><i class="fas fa-check-circle"></i> Exclusive Access to Managed Openings</li>
+                    <li><i class="fas fa-check-circle"></i> Strategic CV Repositioning</li>
+                    <li><i class="fas fa-check-circle"></i> High-Intent Regional Mentorship</li>
+                    <li><i class="fas fa-check-circle"></i> Direct Exposure to C-Suite Hiring</li>
+                </ul>
+                <a href="{% url 'employee_register' %}" class="btn-premium btn-primary track-cta">
+                    <i class="fas fa-rocket"></i> Launch Career Track
+                </a>
+            </div>
+
+            <!-- Employer Track -->
+            <div class="track-card employer-track">
+                <div class="track-icon"><i class="fas fa-building"></i></div>
+                <h3>Strategic Employers</h3>
+                <p>Eliminate hiring friction. Access a pre-verified pool of accounting and finance elite.</p>
+                <ul class="track-list">
+                    <li><i class="fas fa-check-circle"></i> Instant Access to Vetted Talent</li>
+                    <li><i class="fas fa-check-circle"></i> Pre-Screened Technical Audits</li>
+                    <li><i class="fas fa-check-circle"></i> Reduced Time-to-Hire (TTH)</li>
+                    <li><i class="fas fa-check-circle"></i> Dedicated Placement Stewardship</li>
+                </ul>
+                <a href="{% url 'employer_register' %}" class="btn-premium btn-outline track-cta">
+                    <i class="fas fa-bolt"></i> Access Premium Talent
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials Section -->
+<section class="section-premium section-white" id="testimonials">
+    <div class="container">
+        <div class="section-header">
+            <h2>What Our Clients Say</h2>
+            <p>Real stories from professionals and firms who found their edge with Accoplacers.</p>
+        </div>
+        <div class="testimonials-grid">
+            <div class="testimonial-card">
+                <div class="quote-icon"><i class="fas fa-quote-left" aria-hidden="true"></i></div>
+                <p class="testimonial-text">"The technical verification at Accoplacers is unparalleled. I was placed in a Senior Auditor role within 5 days of my resume being approved."</p>
+                <div class="testimonial-author">
+                    <div class="author-avatar primary">AK</div>
+                    <div>
+                        <div class="author-name">Ahmed K.</div>
+                        <div class="author-title">Senior Auditor</div>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial-card">
+                <div class="quote-icon"><i class="fas fa-quote-left" aria-hidden="true"></i></div>
+                <p class="testimonial-text">"Finding qualified finance talent in Dubai is usually a months-long process. Accoplacers delivered 3 pre-vetted candidates in 48 hours."</p>
+                <div class="testimonial-author">
+                    <div class="author-avatar accent">FR</div>
+                    <div>
+                        <div class="author-name">Fatima R.</div>
+                        <div class="author-title">Finance Director</div>
+                    </div>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
+</section>
 
-    <!-- Contact Section -->
-    <section class="contact" id="contact">
-        <div class="container">
-            <h2>Contact Us</h2>
-                <div class="contact-form">
-                    <form id="contactForm" action="/contact/" method="POST">
-                        {% csrf_token %}
-                        <div class="form-group">
-                            <label for="contact-name">Name</label>
-                            <input type="text" id="contact-name" name="contact-name" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="contact-email">Email</label>
-                            <input type="email" id="contact-email" name="contact-email" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="contact-phone">Phone</label>
-                            <input type="tel" id="contact-phone" name="contact-phone" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="contact-message">Message</label>
-                            <textarea id="contact-message" name="contact-message" required></textarea>
-                        </div>
-                        <div class="form-group text-center">
-                            <button type="submit" class="btn">Send Message</button>
-                        </div>
-                        <div id="contactStatus" class="form-status"></div>
-                    </form>
-                </div>
-            </div>
-    </section>
-
-    <!-- Footer -->
-    <footer>
-        <div class="container">
-            <div class="footer-container">
-                <div class="footer-col">
-                    <h3>Accoplacers</h3>
-                    <p>Career support and placement services for accounting, audit & finance professionals in the GCC
-                        region.</p>
-                </div>
-                <div class="footer-col">
-                    <h3>Quick Links</h3>
-                    <ul>
-                        <li><a href="#home"><i class="fas fa-chevron-right"></i> Home</a></li>
-                        <li><a href="#about"><i class="fas fa-chevron-right"></i> About Us</a></li>
-                        <li><a href="#services"><i class="fas fa-chevron-right"></i> Services</a></li>
-                        <li><a href="#register"><i class="fas fa-chevron-right"></i> Register</a></li>
-                        <li><a href="#contact"><i class="fas fa-chevron-right"></i> Contact</a></li>
-                    </ul>
-                </div>
-                <div class="footer-col">
-                    <h3>Services</h3>
-                    <ul>
-                        <li><a href="#services"><i class="fas fa-chevron-right"></i> Resume Screening</a></li>
-                        <li><a href="#services"><i class="fas fa-chevron-right"></i> Career Guidance</a></li>
-                        <li><a href="#services"><i class="fas fa-chevron-right"></i> Employer Assistance</a></li>
-                        <li><a href="#services"><i class="fas fa-chevron-right"></i> Internship Opportunities</a></li>
-                    </ul>
-                </div>
-                <div class="footer-col">
-                    <h3>Contact</h3>
-                    <ul>
-                        <li><i class="fas fa-map-marker-alt"></i> Abu Hail, Dubai, UAE</li>
-                        <li><i class="fas fa-phone-alt"></i> +971 589288746</li>
-                        <li><i class="fas fa-envelope"></i> accoplacers@gmail.com</li>
-                        <li><a href="https://www.instagram.com/accoplacers?igsh=OGs5eW1uYzU0Mnlv" target="_blank"><i class="fab fa-instagram"></i> Instagram</a></li>
-                    </ul>
-                </div>
-            </div>
-            <div class="copyright">
-                <p style="color: rgba(255, 255, 255, 0.747);">&copy; 2025 Accoplacers. All Rights Reserved.</p>
+<!-- Contact Section -->
+<section class="contact" id="contact">
+    <div class="container">
+        <h2>Contact Us</h2>
+            <div class="contact-form">
+                <form id="contactForm" action="{% url 'contact_user' %}" method="POST">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="contact-name">Name</label>
+                        <input type="text" id="contact-name" name="contact-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="contact-email">Email</label>
+                        <input type="email" id="contact-email" name="contact-email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="contact-phone">Phone</label>
+                        <input type="tel" id="contact-phone" name="contact-phone" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="contact-message">Message</label>
+                        <textarea id="contact-message" name="contact-message" required></textarea>
+                    </div>
+                    <div class="form-group text-center">
+                        <button type="submit" class="btn">Send Message</button>
+                    </div>
+                    <div id="contactStatus" class="form-status"></div>
+                </form>
             </div>
         </div>
-    </footer>
+</section>
 
-    <a href="https://wa.me/+971589288746" class="float-whatsapp" target="_blank">
-        <i class="fab fa-whatsapp"></i>
-    </a>
+<a href="https://wa.me/+971589288746" class="float-whatsapp" target="_blank">
+    <i class="fab fa-whatsapp"></i>
+</a>
+{% endblock %}
 
-    <script src="{% static 'base/js/script.js' %}"></script>
-</body>
+{% block footer %}
+<footer>
+    <div class="container">
+        <div class="footer-container">
+            <div class="footer-col">
+                <h3>Accoplacers</h3>
+                <p>Career support and placement services for accounting, audit & finance professionals in the GCC
+                    region.</p>
+            </div>
+            <div class="footer-col">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="#home"><i class="fas fa-chevron-right"></i> Home</a></li>
+                    <li><a href="#about"><i class="fas fa-chevron-right"></i> About Us</a></li>
+                    <li><a href="#services"><i class="fas fa-chevron-right"></i> Services</a></li>
+                    <li><a href="#register"><i class="fas fa-chevron-right"></i> Register</a></li>
+                    <li><a href="#contact"><i class="fas fa-chevron-right"></i> Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h3>Services</h3>
+                <ul>
+                    <li><a href="#services"><i class="fas fa-chevron-right"></i> Resume Screening</a></li>
+                    <li><a href="#services"><i class="fas fa-chevron-right"></i> Career Guidance</a></li>
+                    <li><a href="#services"><i class="fas fa-chevron-right"></i> Employer Assistance</a></li>
+                    <li><a href="#services"><i class="fas fa-chevron-right"></i> Internship Opportunities</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h3>Contact</h3>
+                <ul>
+                    <li><i class="fas fa-map-marker-alt"></i> Abu Hail, Dubai, UAE</li>
+                    <li><i class="fas fa-phone-alt"></i> +971 589288746</li>
+                    <li><i class="fas fa-envelope"></i> <a href="mailto:accoplacers@gmail.com" class="footer-email-link">accoplacers@gmail.com</a></li>
+                    <li><a href="https://www.instagram.com/accoplacers?igsh=OGs5eW1uYzU0Mnlv" target="_blank"><i class="fab fa-instagram"></i> Instagram</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="copyright">
+            <p class="footer-copyright-text">&copy; {% now "Y" %} Accoplacers. All Rights Reserved.</p>
+        </div>
+    </div>
+</footer>
+{% endblock %}
 
-</html>
+{% block extra_js %}
+<script src="{% static 'base/js/script.js' %}"></script>
+{% endblock %}

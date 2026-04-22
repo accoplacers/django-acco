@@ -1,0 +1,27 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Page Not Found · Accoplacers{% endblock %}
+
+{% block content %}
+<div class="dash-container">
+    <div class="empty-state" style="padding: 8rem 2rem;">
+        <div class="empty-state__illustration">
+            <svg width="160" height="160" viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="80" cy="80" r="70" stroke="#EEF2FF" stroke-width="4"/>
+                <circle cx="80" cy="80" r="50" stroke="#C7D2FE" stroke-width="4" stroke-dasharray="8 8"/>
+                <path d="M60 70C60 64.4772 64.4772 60 70 60C75.5228 60 80 64.4772 80 70" stroke="#4F46E5" stroke-width="4" stroke-linecap="round"/>
+                <path d="M100 70C100 64.4772 104.477 60 110 60C115.523 60 120 64.4772 120 70" stroke="#4F46E5" stroke-width="4" stroke-linecap="round"/>
+                <path d="M70 100C70 100 75 95 85 95C95 95 100 100 100 100" stroke="#4F46E5" stroke-width="4" stroke-linecap="round"/>
+            </svg>
+        </div>
+        <h1 class="empty-state__title" style="font-size: 3rem; margin-bottom: 1rem;">404</h1>
+        <h3 class="empty-state__title">Lost in Transition</h3>
+        <p class="empty-state__text" style="max-width: 400px; margin: 0 auto 2rem;">The page you're looking for has moved or no longer exists in our current mandate.</p>
+        <div style="display: flex; gap: 1rem; justify-content: center;">
+            <a href="{% url 'registration_view' %}" class="btn btn--primary">Return Home</a>
+            <a href="https://wa.me/{{ WHATSAPP_NUMBER }}" class="btn btn--secondary">Contact Support</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

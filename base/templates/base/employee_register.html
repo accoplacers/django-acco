@@ -16,7 +16,7 @@
     <div class="portal-left-bg-glow"></div>
     <div class="portal-left-bg" style="background-image: url('https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&q=80');"></div>
     <div class="pl-top">
-      <a href="/" class="dash-logo portal-logo-space">
+      <a href="{% url 'registration_view' %}" class="dash-logo portal-logo-space">
         <div class="dash-logo-icon">
           <img src="{% static 'base/img/android-chrome-192x192.png' %}" alt="Accoplacers logo" class="main-logo-img">
         </div>
@@ -194,6 +194,17 @@
                   <input type="text" id="nationality" name="nationality" class="form-input" placeholder="Your nationality" required value="{{ form_data.nationality|default:'' }}">
                 </div>
               </div>
+
+              <div class="field field-full">
+                <label class="field-label" for="skill-input">Skills / Expertise *</label>
+                <div class="input-wrap">
+                  <i class="fas fa-tags input-icon-left"></i>
+                  <input type="text" id="skill-input" class="form-input" placeholder="Type a skill and press Enter (e.g. Auditing, SAP, Excel)">
+                </div>
+                <div class="skills-chips-container" id="skillsChips"></div>
+                <input type="hidden" name="skills" id="skillsHidden" value="{{ form_data.skills|default:'' }}">
+                <p class="field-hint">Add at least 2 skills. Press Enter or comma to add.</p>
+              </div>
             </div>
 
             <div class="wizard-actions">
@@ -292,7 +303,7 @@
       <div class="form-footer">
         <a href="{% url 'employee_login' %}"><i class="fas fa-sign-in-alt"></i> Already registered? Sign In</a>
         <span class="sep">·</span>
-        <a href="/"><i class="fas fa-arrow-left"></i> Home</a>
+        <a href="{% url 'registration_view' %}"><i class="fas fa-arrow-left"></i> Home</a>
       </div>
     </div>
   </div>
@@ -360,6 +371,19 @@
         });
 
         progressFill.style.width = `${(currentStep / steps.length) * 100}%`;
+
+        // Validation Fix: Disable fields in hidden steps so they don't block submission
+        steps.forEach((stepEl, index) => {
+          const stepIndex = index + 1;
+          const fields = stepEl.querySelectorAll('input, select, textarea');
+          fields.forEach(field => {
+            if (stepIndex === currentStep) {
+              field.removeAttribute('disabled');
+            } else {
+              field.setAttribute('disabled', 'disabled');
+            }
+          });
+        });
       }
 
       function setInlineFeedback(element, message, type) {
@@ -418,6 +442,54 @@
         setInlineFeedback(resumeUploadStatus, `${file.name} is ready to upload.`, 'success');
         return true;
       }
+
+      // Skills Logic
+      const skillInput = document.getElementById('skill-input');
+      const skillsChips = document.getElementById('skillsChips');
+      const skillsHidden = document.getElementById('skillsHidden');
+      let skillsArray = skillsHidden.value ? skillsHidden.value.split(',').filter(s => s) : [];
+
+      function updateSkillsUI() {
+        skillsChips.innerHTML = '';
+        skillsArray.forEach((skill, index) => {
+          const chip = document.createElement('div');
+          chip.className = 'skill-chip';
+          chip.innerHTML = `<span>${skill}</span><button type="button" class="remove-skill" data-index="${index}">&times;</button>`;
+          skillsChips.appendChild(chip);
+        });
+        skillsHidden.value = skillsArray.join(',');
+        
+        // Dynamic validation: need at least 2 skills
+        if (skillsArray.length >= 2) {
+            skillInput.setCustomValidity('');
+        } else if (skillsArray.length > 0) {
+            skillInput.setCustomValidity('Please add at least 2 skills.');
+        } else {
+            skillInput.setCustomValidity('Please add your skills.');
+        }
+      }
+
+      skillInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ',') {
+          e.preventDefault();
+          const value = this.value.trim().replace(',', '');
+          if (value && !skillsArray.includes(value)) {
+            skillsArray.push(value);
+            this.value = '';
+            updateSkillsUI();
+          }
+        }
+      });
+
+      skillsChips.addEventListener('click', function(e) {
+        if (e.target.classList.contains('remove-skill')) {
+          const index = parseInt(e.target.dataset.index);
+          skillsArray.splice(index, 1);
+          updateSkillsUI();
+        }
+      });
+
+      updateSkillsUI();
 
       function validateCurrentStep(stepNumber) {
         const step = steps[stepNumber - 1];
@@ -575,6 +647,10 @@
           }
         }
       });
+
+      if (document.querySelector('.msg.error')) {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
 
       updateWizard(currentStep);
       validatePasswordMatch();

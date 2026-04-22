@@ -1,0 +1,620 @@
+{% load static humanize %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page_title }} | AccoPlacers Admin Analytics</title>
+    <link rel="stylesheet" href="{% static 'base/css/ds.css' %}">
+    <link rel="stylesheet" href="{% static 'base/css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'base/css/admin_premium.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --aa-sidebar-width: 260px;
+            --aa-accent: var(--clr-primary);
+            --aa-bg: var(--slate-100);
+            --aa-card-bg: #ffffff;
+            --aa-border: var(--slate-200);
+            --aa-text: var(--slate-900);
+            --aa-text-muted: var(--slate-500);
+            --aa-radius: 12px;
+            --aa-transition: all 0.2s ease;
+            
+            /* Terminal Density Spacing */
+            --aa-p-main: 1.5rem;
+            --aa-p-card: 1rem;
+            --aa-gap: 1rem;
+        }
+
+        body {
+            background: var(--aa-bg);
+            font-family: var(--font-main);
+            color: var(--aa-text);
+            margin: 0;
+            font-size: 14px;
+        }
+
+        .mono { font-family: 'JetBrains Mono', monospace; }
+
+        /* Pure CSS Navigation */
+        .aa-trigger { position: absolute; opacity: 0; pointer-events: none; }
+        .aa-shell { display: flex; min-height: 100vh; }
+
+        /* Compact Sidebar */
+        .aa-sidebar {
+            width: var(--aa-sidebar-width);
+            background: var(--slate-900);
+            color: var(--slate-400);
+            position: fixed;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 1.5rem 1rem;
+            z-index: 1000;
+        }
+
+        .aa-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 2.5rem;
+            text-decoration: none;
+            padding: 0 0.5rem;
+        }
+        .aa-brand-box { width: 32px; height: 32px; background: white; border-radius: 6px; display: flex; align-items: center; justify-content: center; }
+        .aa-brand-box img { width: 22px; height: 22px; }
+        .aa-brand-text { font-size: 1.25rem; font-weight: 800; color: white; letter-spacing: -0.03em; }
+        .aa-brand-text span { color: var(--aa-accent); }
+
+        .aa-nav-label { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem; padding-left: 0.5rem; color: var(--slate-600); }
+
+        .aa-nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.6rem 0.75rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--aa-transition);
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            font-size: 13px;
+        }
+        .aa-nav-item:hover { background: rgba(255, 255, 255, 0.05); color: white; }
+        .aa-nav-text { display: inline; }
+
+        #tab-sales:checked ~ .aa-sidebar label[for="tab-sales"],
+        #tab-acquisition:checked ~ .aa-sidebar label[for="tab-acquisition"],
+        #tab-engagement:checked ~ .aa-sidebar label[for="tab-engagement"],
+        #tab-success:checked ~ .aa-sidebar label[for="tab-success"],
+        #tab-operations:checked ~ .aa-sidebar label[for="tab-operations"] {
+            background: var(--aa-accent);
+            color: white;
+        }
+
+        /* Compact Main Content */
+        .aa-main {
+            flex: 1;
+            margin-left: var(--aa-sidebar-width);
+            padding: var(--aa-p-main);
+        }
+
+        .aa-topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--aa-border);
+        }
+        .aa-topbar h1 { font-size: 1.5rem; font-weight: 800; margin: 0; letter-spacing: -0.03em; }
+
+        .aa-actions { display: flex; gap: 0.5rem; }
+        .aa-btn-sm {
+            padding: 0.4rem 0.75rem;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            text-decoration: none;
+            border: 1px solid var(--aa-border);
+            background: white;
+            color: var(--aa-text-muted);
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .aa-btn-sm:hover { background: var(--slate-50); border-color: var(--slate-300); color: var(--aa-text); }
+
+        .aa-btn-premium {
+            border-color: rgba(15, 23, 42, 0.18);
+            background: rgba(255, 255, 255, 0.82);
+            color: var(--aa-text);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            backdrop-filter: blur(10px);
+        }
+
+        /* Bloomberg Style Compact Grid */
+        .aa-grid-dense {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: var(--aa-gap);
+            margin-bottom: 1.5rem;
+        }
+
+        .aa-card-compact {
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            background: transparent;
+            border: none;
+            border-radius: 0;
+            box-shadow: none;
+        }
+
+        .aa-card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.75rem; }
+        .aa-card-label { color: var(--aa-text-muted); }
+        .aa-card-icon { font-size: 14px; color: var(--aa-accent); }
+        .aa-card-value { color: var(--aa-text); }
+        .aa-card-footer { font-size: 11px; font-weight: 700; color: var(--clr-success); }
+
+        /* Viz Layout */
+        .aa-viz-layout {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: var(--aa-gap);
+        }
+
+        .aa-panel-compact {
+            padding: 1.25rem;
+            background: transparent;
+            border: none;
+            border-radius: 0;
+            box-shadow: none;
+        }
+
+        .aa-panel-title { margin: 0 0 1.25rem 0; color: var(--aa-text); border-bottom: 1px solid var(--slate-100); padding-bottom: 0.75rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+        .aa-panel-title .aa-panel-title-meta { display: inline-flex; gap: 0.5rem; align-items: center; }
+
+        /* Terminal Style Tables */
+        .aa-term-table { width: 100%; font-size: 13px; }
+        .aa-term-table tr:hover td { background: rgba(248, 250, 252, 0.9); }
+
+        /* Progress Bars */
+        .aa-bar-compact { margin-bottom: 1rem; }
+        .aa-bar-meta { display: flex; justify-content: space-between; font-size: 12px; font-weight: 800; margin-bottom: 0.4rem; }
+        .aa-bar-rail { height: 8px; background: var(--slate-100); border-radius: 999px; overflow: hidden; border: 1px solid rgba(226, 232, 240, 0.9); }
+        .aa-bar-fill { height: 100%; background: var(--aa-accent); border-radius: 4px; transition: width 1s ease; }
+
+        /* Ranked Rows */
+        .aa-rank-row {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.6rem 0;
+            border-bottom: 1px solid rgba(226, 232, 240, 0.55);
+        }
+        .aa-rank-row:last-child { border-bottom: none; }
+        .aa-rank-badge {
+            width: 26px;
+            height: 26px;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 900;
+            color: var(--slate-800);
+            background: rgba(241, 245, 249, 0.9);
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            flex: 0 0 auto;
+        }
+        .aa-rank-label { font-weight: 800; color: var(--slate-900); }
+        .aa-rank-count { margin-left: auto; }
+
+        .aa-split {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        /* Alerts */
+        .aa-alert-compact {
+            padding: 0.75rem 1.25rem;
+            background: rgba(238, 242, 255, 0.9);
+            border: 1px solid rgba(199, 210, 254, 0.8);
+            border-radius: 10px;
+            color: var(--slate-800);
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Show/Hide Panels */
+        .aa-panel-view { display: none; }
+        #tab-sales:checked ~ .aa-main .panel-sales,
+        #tab-acquisition:checked ~ .aa-main .panel-acquisition,
+        #tab-engagement:checked ~ .aa-main .panel-engagement,
+        #tab-success:checked ~ .aa-main .panel-success,
+        #tab-operations:checked ~ .aa-main .panel-operations {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .aa-shell { display: block; }
+            .aa-sidebar {
+                position: sticky;
+                top: 0;
+                width: 100%;
+                height: auto;
+                padding: 0.75rem;
+                flex-direction: row;
+                align-items: center;
+                gap: 0.5rem;
+                overflow-x: auto;
+            }
+            .aa-brand { margin-bottom: 0; padding: 0; }
+            .aa-nav-label { display: none; }
+            .aa-sidebar > div[style*=\"STATUS\"] { display: none !important; }
+            .aa-nav-item { margin: 0; white-space: nowrap; }
+            .aa-nav-text { display: none; }
+
+            .aa-main { margin-left: 0; padding: 1rem; }
+            .aa-topbar { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
+            .aa-actions { width: 100%; flex-wrap: wrap; }
+
+            .aa-grid-dense { grid-template-columns: 1fr; }
+            .aa-viz-layout { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 1280px) { .aa-grid-dense { grid-template-columns: repeat(2, 1fr); } .aa-viz-layout { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+    <div class="aa-shell">
+        <!-- Controllers -->
+        <input class="aa-trigger" type="radio" name="term" id="tab-sales" checked>
+        <input class="aa-trigger" type="radio" name="term" id="tab-acquisition">
+        <input class="aa-trigger" type="radio" name="term" id="tab-engagement">
+        <input class="aa-trigger" type="radio" name="term" id="tab-success">
+        <input class="aa-trigger" type="radio" name="term" id="tab-operations">
+
+        <!-- Sidebar -->
+        <aside class="aa-sidebar">
+            <a href="{% url 'registrations_dashboard' %}" class="aa-brand">
+                <div class="aa-brand-box"><img src="{% static 'base/img/android-chrome-192x192.png' %}" alt="Logo"></div>
+                <div class="aa-brand-text">Acco<span>placers</span></div>
+            </a>
+
+            <div class="aa-nav-label">Portals</div>
+            <label class="aa-nav-item" for="tab-sales"><i class="fas fa-terminal"></i> <span class="aa-nav-text">Sales & Revenue</span></label>
+            <label class="aa-nav-item" for="tab-acquisition"><i class="fas fa-network-wired"></i> <span class="aa-nav-text">Acquisition</span></label>
+            <label class="aa-nav-item" for="tab-engagement"><i class="fas fa-microchip"></i> <span class="aa-nav-text">Engagement</span></label>
+            <label class="aa-nav-item" for="tab-success"><i class="fas fa-shield-halved"></i> <span class="aa-nav-text">Success</span></label>
+            <label class="aa-nav-item" for="tab-operations"><i class="fas fa-sliders"></i> <span class="aa-nav-text">Operations</span></label>
+
+            <div style="margin-top: auto; padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 10px;">
+                <div class="text-label-caps" style="margin-bottom: 0.5rem; color: var(--slate-600);">Status</div>
+                <div style="font-size: 11px; font-weight: 800; color: var(--clr-success);"><i class="fas fa-circle" style="font-size: 7px; vertical-align: middle;"></i> SYNC ACTIVE</div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="aa-main">
+            <header class="aa-topbar">
+                <h1>{{ page_title }}</h1>
+                <div class="aa-actions">
+                    <a href="{% url 'admin:index' %}" class="aa-btn-sm aa-btn-premium"><i class="fas fa-gear"></i> Django Admin</a>
+                    <a href="{% url 'registration_view' %}" class="aa-btn-sm" style="background: var(--slate-900); color: white; border: none;"><i class="fas fa-link"></i> Site</a>
+                </div>
+            </header>
+
+            {% if analytics_schema %}
+                {% if not analytics_schema.profile_score_supported or not analytics_schema.employer_tier_supported %}
+                <div class="aa-alert-compact premium-card">
+                    <i class="fas fa-info-circle"></i>
+                    <span>Schema resilience active: some analytics fields are missing; safe fallbacks are in use.</span>
+                </div>
+                {% endif %}
+            {% endif %}
+
+            <!-- PANEL: SALES -->
+            <section class="aa-panel-view panel-sales">
+                <div class="aa-grid-dense">
+                    <div class="aa-card-compact premium-card">
+                        <div class="aa-card-top"><span class="aa-card-label text-label-caps">Active Employers</span><i class="fas fa-building aa-card-icon"></i></div>
+                        <div class="aa-card-value text-kpi">{{ sales_dashboard.total_active_employers|intcomma }}</div>
+                        <div class="aa-card-footer">Delta +2.4%</div>
+                    </div>
+                    <div class="aa-card-compact premium-card">
+                        <div class="aa-card-top"><span class="aa-card-label text-label-caps">7D New Signups</span><i class="fas fa-user-plus aa-card-icon"></i></div>
+                        <div class="aa-card-value text-kpi">{{ sales_dashboard.new_employers_7_days|intcomma }}</div>
+                        <div class="aa-card-footer">+12% vs LW</div>
+                    </div>
+                    <div class="aa-card-compact premium-card">
+                        <div class="aa-card-top"><span class="aa-card-label text-label-caps">30D New Signups</span><i class="fas fa-calendar-days aa-card-icon"></i></div>
+                        <div class="aa-card-value text-kpi">{{ sales_dashboard.new_employers_30_days|default:0|intcomma }}</div>
+                        <div class="aa-card-footer">Momentum</div>
+                    </div>
+                    <div class="aa-card-compact premium-card">
+                        <div class="aa-card-top"><span class="aa-card-label text-label-caps">90D New Signups</span><i class="fas fa-chart-line aa-card-icon"></i></div>
+                        <div class="aa-card-value text-kpi">{{ sales_dashboard.new_employers_90_days|default:0|intcomma }}</div>
+                        <div class="aa-card-footer">Run-rate</div>
+                    </div>
+                </div>
+
+                <div class="aa-viz-layout">
+                    <div class="aa-panel-compact premium-card">
+                        <h3 class="aa-panel-title section-title">
+                            <span>Tier Distribution</span>
+                            <span class="aa-panel-title-meta">
+                                <span class="premium-pill">Upgrade {{ sales_dashboard.tier_upgrade_rate|floatformat:1 }}%</span>
+                            </span>
+                        </h3>
+                        {% for tier in sales_dashboard.tier_breakdown %}
+                        <div class="aa-bar-compact">
+                            <div class="aa-bar-meta">
+                                <span class="text-label-caps">{{ tier.label }}</span>
+                                <span style="display:flex; gap:0.5rem;">
+                                    <span class="premium-pill mono">{{ tier.count|intcomma }}</span>
+                                    <span class="premium-pill">{{ tier.width_pct|floatformat:0 }}%</span>
+                                </span>
+                            </div>
+                             <div class="aa-bar-rail"><div class="aa-bar-fill" style="--p: {{ tier.width_pct }}%; width: var(--p);"></div></div>
+                        </div>
+                        {% empty %}
+                        <div style="color: var(--slate-500); font-weight: 700; padding: 0.25rem 0;">No tier data available.</div>
+                        {% endfor %}
+                    </div>
+                    <div class="aa-panel-compact premium-card">
+                        <h3 class="aa-panel-title section-title">Growth Logs</h3>
+                        <table class="aa-term-table premium-table">
+                            <thead><tr><th class="text-label-caps">Period</th><th class="text-label-caps">Qty</th></tr></thead>
+                            <tbody>
+                                {% for item in sales_dashboard.monthly_employer_registration_trend %}
+                                <tr><td>{{ item.month }}</td><td class="mono">{{ item.count|intcomma }}</td></tr>
+                                {% empty %}
+                                <tr><td colspan="2" style="text-align: center; color: var(--slate-500); padding: 1.25rem;">No trend data yet.</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PANEL: ACQUISITION -->
+            <section class="aa-panel-view panel-acquisition">
+                <div class="aa-grid-dense">
+                    <div class="aa-card-compact premium-card">
+                        <div class="aa-card-top"><span class="aa-card-label text-label-caps">Total Candidates</span><i class="fas fa-users aa-card-icon"></i></div>
+                        <div class="aa-card-value text-kpi">{{ acquisition_dashboard.total_candidate_registrations|intcomma }}</div>
+                    </div>
+                    <div class="aa-card-compact premium-card">
+                        <div class="aa-card-top"><span class="aa-card-label text-label-caps">New (7D)</span><i class="fas fa-user-plus aa-card-icon"></i></div>
+                        <div class="aa-card-value text-kpi">{{ acquisition_dashboard.new_candidates_7_days|default:0|intcomma }}</div>
+                    </div>
+                    <div class="aa-card-compact premium-card">
+                        <div class="aa-card-top"><span class="aa-card-label text-label-caps">New (30D)</span><i class="fas fa-calendar-days aa-card-icon"></i></div>
+                        <div class="aa-card-value text-kpi">{{ acquisition_dashboard.new_candidates_30_days|default:0|intcomma }}</div>
+                    </div>
+                    <div class="aa-card-compact premium-card">
+                        <div class="aa-card-top"><span class="aa-card-label text-label-caps">New (90D)</span><i class="fas fa-chart-line aa-card-icon"></i></div>
+                        <div class="aa-card-value text-kpi">{{ acquisition_dashboard.new_candidates_90_days|default:0|intcomma }}</div>
+                    </div>
+                </div>
+
+                <div class="aa-viz-layout">
+                    <div class="aa-panel-compact premium-card">
+                        <h3 class="aa-panel-title section-title">
+                            <span>Completion Funnel</span>
+                            <span class="aa-panel-title-meta">
+                                <span class="premium-pill">Step 1 vs 3</span>
+                            </span>
+                        </h3>
+                        {% if acquisition_dashboard.registration_funnel %}
+                            {% for item in acquisition_dashboard.registration_funnel %}
+                            <div class="aa-bar-compact">
+                                <div class="aa-bar-meta">
+                                    <span class="text-label-caps">{{ item.label }}</span>
+                                    <span style="display:flex; gap:0.5rem;">
+                                        <span class="premium-pill mono">{{ item.count|intcomma }}</span>
+                                        <span class="premium-pill">{{ item.width_pct|floatformat:0 }}%</span>
+                                    </span>
+                                </div>
+                                <div class="aa-bar-rail" style="height: 12px;">
+                                    <div class="aa-bar-fill" style="--p: {{ item.width_pct }}%; width: var(--p); background: var(--clr-success);"></div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div style="color: var(--slate-500); font-weight: 700; padding: 0.5rem 0;">No funnel events available yet.</div>
+                        {% endif %}
+                    </div>
+                    <div class="aa-panel-compact premium-card">
+                        <h3 class="aa-panel-title section-title">Top Markets</h3>
+
+                        <div style="margin-bottom: 1rem;">
+                            <div class="text-label-caps" style="margin-bottom: 0.5rem;">Locations</div>
+                            {% for item in acquisition_dashboard.top_candidate_locations|slice:":5" %}
+                            <div class="aa-rank-row">
+                                <span class="aa-rank-badge">{{ forloop.counter }}</span>
+                                <span class="aa-rank-label">{{ item.label|default:"Unknown" }}</span>
+                                <span class="aa-rank-count premium-pill mono">{{ item.count|intcomma }}</span>
+                            </div>
+                            {% empty %}
+                            <div style="color: var(--slate-500); font-weight: 700; padding: 0.25rem 0;">No location data yet.</div>
+                            {% endfor %}
+                        </div>
+
+                        <div>
+                            <div class="text-label-caps" style="margin-bottom: 0.5rem;">Roles</div>
+                            {% for item in acquisition_dashboard.top_candidate_roles|slice:":5" %}
+                            <div class="aa-rank-row">
+                                <span class="aa-rank-badge">{{ forloop.counter }}</span>
+                                <span class="aa-rank-label">{{ item.label|default:"Unknown" }}</span>
+                                <span class="aa-rank-count premium-pill mono">{{ item.count|intcomma }}</span>
+                            </div>
+                            {% empty %}
+                            <div style="color: var(--slate-500); font-weight: 700; padding: 0.25rem 0;">No role data yet.</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PANEL: ENGAGEMENT -->
+            <section class="aa-panel-view panel-engagement">
+                <div class="aa-grid-dense">
+                    <div class="aa-card-compact">
+                        <div class="aa-card-top"><span class="aa-card-label">Active Orders</span><i class="fas fa-file-contract aa-card-icon"></i></div>
+                        <div class="aa-card-value mono">{{ engagement_dashboard.total_active_job_postings }}</div>
+                    </div>
+                    <div class="aa-card-compact">
+                        <div class="aa-card-top"><span class="aa-card-label">Avg Seniority</span><i class="fas fa-user-clock aa-card-icon"></i></div>
+                        <div class="aa-card-value mono">{{ engagement_dashboard.average_years_experience }}y</div>
+                    </div>
+                    <div class="aa-card-compact">
+                        <div class="aa-card-top"><span class="aa-card-label">Heat Index</span><i class="fas fa-fire aa-card-icon"></i></div>
+                        <div class="aa-card-value mono">{{ engagement_dashboard.jobs_posted_30_days }}</div>
+                    </div>
+                    <div class="aa-card-compact">
+                        <div class="aa-card-top"><span class="aa-card-label">Total Skills</span><i class="fas fa-code-branch aa-card-icon"></i></div>
+                        <div class="aa-card-value mono">{{ engagement_dashboard.top_candidate_skills|length }}</div>
+                    </div>
+                </div>
+
+                <div class="aa-viz-layout">
+                    <div class="aa-panel-compact">
+                        <h3 class="aa-panel-title">Supply vs Demand Delta</h3>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                            <div>
+                                <div style="font-size: 10px; font-weight: 800; color: #94A3B8; margin-bottom: 1rem;">CANDIDATE POOL</div>
+                                {% for item in engagement_dashboard.top_candidate_skills|slice:":5" %}
+                                <div class="aa-bar-compact">
+                                    <div class="aa-bar-meta" style="font-size: 11px;"><span>{{ item.name }}</span></div>
+                                     <div class="aa-bar-rail" style="height: 4px;"><div class="aa-bar-fill" style="--p: {{ item.candidate_count }}%; width: var(--p);"></div></div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <div>
+                                <div style="font-size: 10px; font-weight: 800; color: #94A3B8; margin-bottom: 1rem;">EMPLOYER DEMAND</div>
+                                {% for item in engagement_dashboard.top_job_skills|slice:":5" %}
+                                <div class="aa-bar-compact">
+                                    <div class="aa-bar-meta" style="font-size: 11px;"><span>{{ item.skill }}</span></div>
+                                     <div class="aa-bar-rail" style="height: 4px;"><div class="aa-bar-fill" style="--p: {{ item.count }}%; width: var(--p); background: #F59E0B;"></div></div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="aa-panel-compact">
+                        <h3 class="aa-panel-title">Integrity Scan</h3>
+                        {% for item in engagement_dashboard.profile_distribution %}
+                        <div class="aa-bar-compact">
+                            <div class="aa-bar-meta"><span>Band {{ item.band }}</span><span class="mono">{{ item.count }}</span></div>
+                             <div class="aa-bar-rail" style="height: 6px;"><div class="aa-bar-fill" style="--p: {{ item.width_pct }}%; width: var(--p);"></div></div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </section>
+
+            <!-- PANEL: SUCCESS -->
+            <section class="aa-panel-view panel-success">
+                <div class="aa-grid-dense">
+                    <div class="aa-card-compact">
+                        <div class="aa-card-top"><span class="aa-card-label">Outreach Total</span><i class="fab fa-whatsapp aa-card-icon"></i></div>
+                        <div class="aa-card-value mono">{{ success_dashboard.total_contact_events }}</div>
+                    </div>
+                    <div class="aa-card-compact">
+                        <div class="aa-card-top"><span class="aa-card-label">Conversion Rate</span><i class="fas fa-handshake aa-card-icon"></i></div>
+                        <div class="aa-card-value mono">{{ success_dashboard.employer_conversion_rate|floatformat:1 }}%</div>
+                    </div>
+                    <div class="aa-card-compact">
+                        <div class="aa-card-top"><span class="aa-card-label">Vetted Rate</span><i class="fas fa-user-check aa-card-icon"></i></div>
+                        <div class="aa-card-value mono">{{ success_dashboard.verified_candidate_rate|floatformat:1 }}%</div>
+                    </div>
+                    <div class="aa-card-compact">
+                        <div class="aa-card-top"><span class="aa-card-label">High Intent</span><i class="fas fa-fire-alt aa-card-icon"></i></div>
+                        <div class="aa-card-value mono">{{ success_dashboard.top_contacted_candidates|length }}</div>
+                    </div>
+                </div>
+
+                <div class="aa-viz-layout">
+                    <div class="aa-panel-compact">
+                        <h3 class="aa-panel-title">Top Talent Activity</h3>
+                        <table class="aa-term-table">
+                            <thead><tr><th>Target</th><th>Hits</th></tr></thead>
+                            <tbody>
+                                {% for item in success_dashboard.top_contacted_candidates|slice:":5" %}
+                                <tr><td>{{ item.candidate_name }}</td><td class="mono">{{ item.contact_count }}</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="aa-panel-compact">
+                        <h3 class="aa-panel-title">Active Employers</h3>
+                        <table class="aa-term-table">
+                            <thead><tr><th>Entity</th><th>Contacts</th></tr></thead>
+                            <tbody>
+                                {% for item in success_dashboard.top_active_employers|slice:":5" %}
+                                <tr><td>{{ item.company_name }}</td><td class="mono">{{ item.contact_count }}</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PANEL: OPERATIONS -->
+            <section class="aa-panel-view panel-operations">
+                <div class="aa-grid-dense">
+                    <div class="aa-card-compact">
+                        <div class="aa-card-top"><span class="aa-card-label">Zero Resume</span><i class="fas fa-file-circle-xmark aa-card-icon" style="color: #EF4444;"></i></div>
+                        <div class="aa-card-value mono">{{ operations_dashboard.candidates_without_resume }}</div>
+                    </div>
+                    <div class="aa-card-compact">
+                        <div class="aa-card-top"><span class="aa-card-label">Skill Gaps</span><i class="fas fa-triangle-exclamation aa-card-icon" style="color: #F59E0B;"></i></div>
+                        <div class="aa-card-value mono">{{ operations_dashboard.candidates_without_skills }}</div>
+                    </div>
+                    <div class="aa-card-compact">
+                        <div class="aa-card-top"><span class="aa-card-label">Stale Demand</span><i class="fas fa-hourglass-end aa-card-icon"></i></div>
+                        <div class="aa-card-value mono">{{ operations_dashboard.stale_job_postings }}</div>
+                    </div>
+                    <div class="aa-card-compact">
+                        <div class="aa-card-top"><span class="aa-card-label">Audit Queue</span><i class="fas fa-list-ol aa-card-icon"></i></div>
+                        <div class="aa-card-value mono">{{ operations_dashboard.pending_admin_review|length }}</div>
+                    </div>
+                </div>
+
+                <div class="aa-panel-compact">
+                    <h3 class="aa-panel-title">System Audit Log</h3>
+                    <table class="aa-term-table">
+                        <thead><tr><th>Entity</th><th>Role</th><th>Region</th><th>Risk</th><th>Cmd</th></tr></thead>
+                        <tbody>
+                            {% for item in operations_dashboard.pending_admin_review %}
+                            <tr>
+                                <td>{{ item.name }}</td>
+                                <td>{{ item.role }}</td>
+                                <td>{{ item.location }}</td>
+                                <td class="mono" style="color: #EF4444;">{{ item.score }}%</td>
+                                <td><a href="{{ item.admin_url }}" target="_blank" style="color: var(--aa-accent); font-weight: 800; text-decoration: none;">EXEC_AUDIT</a></td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="5" style="text-align: center; color: #94A3B8; padding: 2rem;">CLEARED: No high-risk entities detected.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+</body>
+</html>

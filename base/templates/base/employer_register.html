@@ -16,7 +16,7 @@
     <div class="portal-left-bg-glow employer-glow"></div>
     <div class="portal-left-bg" style="background-image: url('https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&q=80');"></div>
     <div class="pl-top">
-      <a href="/" class="dash-logo portal-logo-space">
+      <a href="{% url 'registration_view' %}" class="dash-logo portal-logo-space">
         <div class="dash-logo-icon employer-logo-chip">
           <img src="{% static 'base/img/android-chrome-192x192.png' %}" alt="Accoplacers logo" class="main-logo-img">
         </div>
@@ -212,7 +212,7 @@
         </section>
 
         <div class="inline-actions">
-          <a href="/" class="btn-portal-secondary">Back to home</a>
+          <a href="{% url 'registration_view' %}" class="btn-portal-secondary">Back to home</a>
           <button type="submit" class="btn-premium btn-employer">Create employer account</button>
         </div>
       </form>

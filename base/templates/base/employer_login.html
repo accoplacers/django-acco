@@ -14,45 +14,42 @@
 
   <!-- Left Branding Panel -->
   <div class="portal-left">
-    <div class="portal-left-bg-glow" style="background: radial-gradient(circle, rgba(225,29,72,0.15) 0%, transparent 70%);"></div>
+    <div class="portal-left-bg-glow"></div>
     <div class="portal-left-bg"></div>
     <div class="pl-top">
-      <a href="/" class="nav-logo nav-logo-white" style="margin-bottom: var(--space-12);">
+      <a href="{% url 'registration_view' %}" class="nav-logo nav-logo-white portal-logo-space">
         <div class="nav-logo-icon">
-          <img src="{% static 'base/img/android-chrome-192x192.png' %}" alt="Accoplacers Logo" class="main-logo-img">
+          <img src="{% static 'base/img/android-chrome-192x192.png' %}" alt="Accoplacers logo" class="main-logo-img">
         </div>
         <span class="nav-logo-text">Acco<span>placers</span></span>
       </a>
-      <h1 class="pl-title">Find your next finance professional</h1>
-      <p class="pl-subtitle">Access our curated pool of verified accounting and finance talent in the GCC region. Sign in to browse candidates.</p>
+      <h1 class="pl-title">Welcome Back</h1>
+      <p class="pl-subtitle">Your verified talent pipeline is ready.</p>
+
       <div class="pl-features-container">
         <div class="pl-feature-item">
-          <div class="pl-feature-icon" style="background: rgba(225,29,72,0.2); color: #FDA4AF;"><i class="fas fa-users"></i></div>
-          Browse verified candidate profiles
+          <div class="pl-feature-icon"><i class="fas fa-users"></i></div>
+          Access curated finance professionals
         </div>
         <div class="pl-feature-item">
-          <div class="pl-feature-icon" style="background: rgba(225,29,72,0.2); color: #FDA4AF;"><i class="fas fa-filter"></i></div>
-          Filter by skills and experience
+          <div class="pl-feature-icon"><i class="fas fa-circle-check"></i></div>
+          Verified and pre-screened profiles
         </div>
         <div class="pl-feature-item">
-          <div class="pl-feature-icon" style="background: rgba(225,29,72,0.2); color: #FDA4AF;"><i class="fab fa-whatsapp"></i></div>
-          Connect via WhatsApp instantly
-        </div>
-        <div class="pl-feature-item">
-          <div class="pl-feature-icon" style="background: rgba(225,29,72,0.2); color: #FDA4AF;"><i class="fas fa-shield-alt"></i></div>
-          Pre-screened, trusted talent
+          <div class="pl-feature-icon"><i class="fas fa-bolt"></i></div>
+          Direct hiring and fast introductions
         </div>
       </div>
     </div>
-    <div class="pl-footer">&copy; 2025 Accoplacers. All rights reserved.</div>
+    <div class="pl-footer">&copy; 2025 Accoplacers. Dubai, UAE.</div>
   </div>
 
   <!-- Right Form Panel -->
   <div class="portal-right">
     <div class="login-form-inner">
-      <span class="form-eyebrow"><i class="fas fa-building"></i> Employer Portal</span>
-      <h1 class="form-heading">Employer Login</h1>
-      <p class="form-sub">Access your talent dashboard</p>
+      <span class="portal-eyebrow"><i class="fas fa-building"></i> SIGN IN</span>
+      <h1 class="form-heading">Sign In to Your Account</h1>
+      <p class="form-sub">Enter your credentials to access your employer dashboard.</p>
 
       {% if messages %}
         {% for message in messages %}
@@ -65,28 +62,33 @@
 
       <form method="POST">
         {% csrf_token %}
+
         <div class="field">
-          <label for="email">Company email</label>
+          <label for="email">Company Email</label>
           <div class="input-wrap">
             <i class="fas fa-envelope input-icon"></i>
-            <input type="email" id="email" name="email" placeholder="company@email.com" required autofocus>
+            <input type="email" id="email" name="email" placeholder="company@example.com" required autofocus>
           </div>
         </div>
+
         <div class="field">
           <label for="password">Password</label>
           <div class="input-wrap">
             <i class="fas fa-lock input-icon"></i>
-            <input type="password" id="password" name="password" placeholder="Enter your password" required>
+            <input type="password" id="password" name="password" placeholder="••••••••" required>
             <button type="button" class="pwd-toggle" onclick="togglePwd()"><i class="fas fa-eye" id="pwdIcon"></i></button>
           </div>
         </div>
-        <button type="submit" class="submit-btn"><i class="fas fa-sign-in-alt"></i> Sign In</button>
+
+        <a href="#" class="forgot-link">Forgot Password?</a>
+
+        <button type="submit" class="submit-btn btn-indigo-gradient">
+          Sign In <i class="fas fa-arrow-right"></i>
+        </button>
       </form>
 
       <div class="auth-footer">
-        <a href="{% url 'employer_register' %}"><i class="fas fa-user-plus"></i> Register as Employer</a>
-        <a href="{% url 'employee_login' %}"><i class="fas fa-user"></i> Employee Login</a>
-        <a href="/"><i class="fas fa-arrow-left"></i> Home</a>
+        <a href="{% url 'employer_register' %}">Don't have an account? Register ←</a>
       </div>
     </div>
   </div>
@@ -95,8 +97,13 @@
     function togglePwd() {
       const input = document.getElementById('password');
       const icon = document.getElementById('pwdIcon');
-      if (input.type === 'password') { input.type = 'text'; icon.classList.replace('fa-eye','fa-eye-slash'); }
-      else { input.type = 'password'; icon.classList.replace('fa-eye-slash','fa-eye'); }
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.replace('fa-eye', 'fa-eye-slash');
+      } else {
+        input.type = 'password';
+        icon.classList.replace('fa-eye-slash', 'fa-eye');
+      }
     }
   </script>
 </body>

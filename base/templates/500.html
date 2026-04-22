@@ -1,0 +1,25 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}System Error · Accoplacers{% endblock %}
+
+{% block content %}
+<div class="dash-container">
+    <div class="empty-state" style="padding: 8rem 2rem;">
+        <div class="empty-state__illustration">
+            <svg width="160" height="160" viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="80" cy="80" r="70" stroke="#FEE2E2" stroke-width="4"/>
+                <path d="M80 40V100" stroke="#EF4444" stroke-width="6" stroke-linecap="round"/>
+                <circle cx="80" cy="120" r="4" fill="#EF4444"/>
+            </svg>
+        </div>
+        <h1 class="empty-state__title" style="font-size: 3rem; margin-bottom: 1rem;">500</h1>
+        <h3 class="empty-state__title">Unexpected Breakdown</h3>
+        <p class="empty-state__text" style="max-width: 400px; margin: 0 auto 2rem;">Our system encountered a technical mandate it couldn't resolve. Our team has been notified.</p>
+        <div style="display: flex; gap: 1rem; justify-content: center;">
+            <a href="{% url 'registration_view' %}" class="btn btn--primary">Try Again</a>
+            <a href="https://wa.me/{{ WHATSAPP_NUMBER }}" class="btn btn--secondary">Report via WhatsApp</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

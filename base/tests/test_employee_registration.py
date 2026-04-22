@@ -113,14 +113,16 @@ class EmployeeRegistrationTest(TestCase):
         self.assertEqual(reg.name, 'Real User')
         
         # Verify AI Enrichment
-        # Parsed years_of_experience is 5, should override manual entry
-        self.assertEqual(reg.experience, "5")
+        # Parsed years_of_experience is 5, notice_period is Immediate
+        self.assertEqual(reg.years_of_experience, 5)
+        self.assertEqual(reg.notice_period, 'Immediate')
         
-        # Verify Skills M2M
-        skills = list(reg.skills.values_list('name', flat=True))
-        self.assertIn('ACCA', skills)
-        self.assertIn('SAP', skills)
-        self.assertIn('Internal Audit', skills)
+        # Verify Skills M2M and Category
+        skills_with_cats = {s.name: s.category for s in reg.skills.all()}
+        self.assertEqual(skills_with_cats.get('ACCA'), 'Certification')
+        self.assertEqual(skills_with_cats.get('SAP'), 'ERP Software')
+        self.assertEqual(skills_with_cats.get('Internal Audit'), 'Competency')
+        self.assertEqual(skills_with_cats.get('IFRS'), 'Regulatory')
         
         
         # Verify Auth User creation

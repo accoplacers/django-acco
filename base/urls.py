@@ -26,4 +26,7 @@ urlpatterns = [
     path('employer/dashboard/', views.employer_dashboard, name='employer_dashboard'),
     path('employer/interest/', views.express_interest, name='express_interest'),
     path('employee/interest/', views.employee_express_interest, name='employee_express_interest'),
+    path('job/<int:pk>/', views.job_detail, name='job_detail'),
+    path('contact/<int:candidate_id>/', views.log_whatsapp_contact, name='log_whatsapp_contact'),
+    path('admin-analytics/', views.admin_analytics_view, name='admin_analytics'),
 ]

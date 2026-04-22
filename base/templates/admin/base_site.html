@@ -1,0 +1,59 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block branding %}
+<div style="display: flex; align-items: center; gap: 2rem;">
+    <div style="display: flex; align-items: center; gap: 0.75rem;">
+        <div style="width: 32px; height: 32px; background: white; border-radius: 6px; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+            <img src="{% static 'base/img/android-chrome-192x192.png' %}" alt="Logo" style="width: 22px; height: 22px;">
+        </div>
+        <h1 id="site-name" style="margin: 0; font-family: 'Outfit', sans-serif;"><a href="{% url 'admin:index' %}">Acco<span>Placers</span> Admin</a></h1>
+    </div>
+    
+    <div style="height: 24px; width: 1px; background: rgba(255,255,255,0.2);"></div>
+    
+    <a href="{% url 'admin_analytics' %}" class="premium-nav-link">
+        <i class="fas fa-chart-line"></i>
+        Intelligence Terminal
+    </a>
+</div>
+{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'base/css/admin_premium.css' %}">
+<style>
+    .premium-nav-link {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.8) !important;
+        color: #ffffff !important;
+        padding: 8px 18px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-size: 11px;
+        font-weight: 800;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+    }
+    .premium-nav-link:hover {
+        background: rgba(255, 255, 255, 1);
+        color: #0f172a !important;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+    #site-name span { color: #ffffff; opacity: 0.8; }
+    #site-name a {
+        font-family: 'Outfit', sans-serif;
+        font-weight: 900;
+        letter-spacing: -0.04em;
+        color: #ffffff !important;
+    }
+</style>
+{% endblock %}
+

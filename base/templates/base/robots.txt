@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /employer/
+Disallow: /employee/
+
+Sitemap: https://accoplacers.com/sitemap.xml

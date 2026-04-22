@@ -241,6 +241,7 @@
     }
     .stat-icon.indigo { background: var(--primary-light); color: var(--primary); }
     .stat-icon.green { background: #ECFDF5; color: #059669; }
+    .stat-icon.leaf  { background: #F0FDF4; color: #16A34A; }
     .stat-icon.amber { background: #FFFBEB; color: var(--amber); }
     .stat-icon.rose { background: var(--rose-light); color: var(--rose); }
     .stat-label { font-size: 11.5px; font-weight: 600; color: var(--ink-4); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px; }
@@ -716,6 +717,27 @@
       transition: background 0.15s;
     }
     .search-toggle:hover { background: var(--border); }
+
+    /* ── Utility / cleanup ── */
+    .topbar-left { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
+    .sb-logo-img { width: 100%; height: 100%; object-fit: cover; }
+    .sb-logout-form { margin: 0; }
+    .sb-logout-btn { background: none; border: none; cursor: pointer; width: 100%; text-align: left; }
+    .pc-name-block { min-width: 0; flex: 1; }
+    .pc-footer-date { margin-left: auto; font-size: 12px; color: var(--ink-4); }
+    .form-inline { display: inline; }
+    .cell-email { font-size: 13px; }
+    .cell-role-main { font-weight: 600; font-size: 13px; }
+    .cell-date { color: var(--ink-4); }
+    .cell-desc { font-size: 12px; color: var(--ink-3); }
+    .cell-dash { color: var(--ink-4); }
+    .skills-raw { display: none; }
+    .badge-icon-sm { font-size: 7px; }
+    .badge-icon-xs { font-size: 10px; }
+    .clickable-row { cursor: pointer; }
+    .form-grid-mb { margin-bottom: 16px; }
+    .cell-muted { color: var(--ink-4); font-size: 13px; }
+    .cell-muted-sm { color: var(--ink-4); font-size: 12px; }
   </style>
 </head>
 <body>
@@ -725,9 +747,9 @@
   <!-- Sidebar -->
   <aside class="sidebar" id="sidebar">
     <div class="sb-brand">
-      <a href="/">
+      <a href="{% url 'registration_view' %}">
         <div class="sb-logo-icon">
-          <img src="{% static 'base/img/android-chrome-192x192.png' %}" alt="Accoplacers Logo" style="width:100%; height:100%; object-fit:cover;">
+          <img src="{% static 'base/img/android-chrome-192x192.png' %}" alt="Accoplacers Logo" class="sb-logo-img">
         </div>
         <span class="sb-logo-text">Acco<span>placers</span></span>
         <span class="sb-badge">Admin</span>
@@ -768,11 +790,11 @@
     </nav>
 
     <div class="sb-footer">
-      <a href="/" class="sb-footer-item"><i class="fas fa-home"></i> Home</a>
+      <a href="{% url 'registration_view' %}" class="sb-footer-item"><i class="fas fa-home"></i> Home</a>
       <a href="/admin/" class="sb-footer-item"><i class="fas fa-cog"></i> Django Admin</a>
-      <form method="post" action="/admin/logout/" style="margin:0">
+      <form method="post" action="/admin/logout/" class="sb-logout-form">
         {% csrf_token %}
-        <button type="submit" class="sb-footer-item danger" style="background:none;border:none;cursor:pointer;width:100%;text-align:left"><i class="fas fa-sign-out-alt"></i> Logout</button>
+        <button type="submit" class="sb-footer-item danger sb-logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
       </form>
     </div>
   </aside>
@@ -782,7 +804,7 @@
 
     <!-- Top Bar -->
     <header class="topbar">
-      <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;">
+      <div class="topbar-left">
         <button class="hamburger" onclick="toggleSidebar()" aria-label="Menu">
           <i class="fas fa-bars"></i>
         </button>
@@ -844,7 +866,7 @@
           </div>
         </div>
         <div class="stat-card">
-          <div class="stat-icon" style="background:#F0FDF4;color:#16A34A;"><i class="fas fa-hand-holding-heart"></i></div>
+          <div class="stat-icon leaf"><i class="fas fa-hand-holding-heart"></i></div>
           <div>
             <div class="stat-label">Empl Interests</div>
             <div class="stat-value">{{ employee_interests.count }}</div>
@@ -879,7 +901,7 @@
               </thead>
               <tbody>
                 {% for reg in registrations %}
-                <tr onclick="openProfile(this)" style="cursor:pointer;"
+                <tr onclick="openProfile(this)" class="clickable-row"
                   data-name="{{ reg.name }}"
                   data-id="{{ reg.id }}"
                   data-email="{{ reg.email }}"
@@ -907,17 +929,17 @@
                     </div>
                   </td>
                   <td data-label="Contact">
-                    <div style="font-size:13px;">{{ reg.email }}</div>
+                    <div class="cell-email">{{ reg.email }}</div>
                     <div class="cell-sub">{{ reg.phone }}</div>
                   </td>
                   <td data-label="Location">{{ reg.location }}</td>
                   <td data-label="Role">
-                    <div style="font-weight:600;font-size:13px;">{{ reg.role }}</div>
+                    <div class="cell-role-main">{{ reg.role }}</div>
                     <div class="cell-sub">{{ reg.experience }}</div>
                   </td>
                   <td data-label="Qualification">{{ reg.qualification }}</td>
                   <td data-label="Skills" class="skills-cell">
-                    <span class="skills-raw" style="display:none">{{ reg.skills|default:"" }}</span>
+                    <span class="skills-raw">{{ reg.skills|default:"" }}</span>
                   </td>
                   <td data-label="Plan">
                     {% if reg.plan == 'premium' %}<span class="badge badge-rose">{{ reg.plan }}</span>
@@ -926,7 +948,7 @@
                   </td>
                   <td data-label="Status">
                     {% if reg.is_placed %}
-                    <span class="badge badge-placed"><i class="fas fa-check-circle" style="font-size:10px;"></i> Placed</span>
+                    <span class="badge badge-placed"><i class="fas fa-check-circle badge-icon-xs"></i> Placed</span>
                     {% else %}
                     <span class="badge badge-available">Available</span>
                     {% endif %}
@@ -934,7 +956,7 @@
                   <td data-label="Resume" onclick="event.stopPropagation()">
                     {% if reg.resume %}
                     <a href="{{ reg.resume.url }}" target="_blank" class="btn btn-ghost btn-sm"><i class="fas fa-file-alt"></i> View</a>
-                    {% else %}<span style="color:var(--ink-4);">—</span>{% endif %}
+                    {% else %}<span class="cell-dash">—</span>{% endif %}
                   </td>
                 </tr>
                 {% empty %}
@@ -983,15 +1005,15 @@
                     </div>
                   </td>
                   <td data-label="Contact">
-                    <div style="font-size:13px;">{{ emp.email }}</div>
+                    <div class="cell-email">{{ emp.email }}</div>
                     <div class="cell-sub">{{ emp.phone }}</div>
                   </td>
                   <td data-label="Industry"><span class="badge badge-slate">{{ emp.industry }}</span></td>
                   <td data-label="Location">{{ emp.location }}</td>
                   <td data-label="About">
-                    <span style="font-size:12px;color:var(--ink-3);">{{ emp.company_description|default:"—"|truncatewords:10 }}</span>
+                    <span class="cell-desc">{{ emp.company_description|default:"—"|truncatewords:10 }}</span>
                   </td>
-                  <td data-label="Joined" style="color:var(--ink-4);">{{ emp.created_at|date:"M d, Y" }}</td>
+                  <td data-label="Joined" class="cell-date">{{ emp.created_at|date:"M d, Y" }}</td>
                 </tr>
                 {% empty %}
                 <tr><td colspan="6"><div class="empty"><i class="fas fa-building"></i><p>No employers registered yet.</p></div></td></tr>
@@ -1052,7 +1074,7 @@
                   <label for="chk_active">Active — visible to candidates</label>
                 </div>
               </div>
-              <div class="form-grid" style="margin-bottom:16px;">
+              <div class="form-grid form-grid-mb">
                 <div class="form-group">
                   <label>Description *</label>
                   <textarea name="description" required placeholder="Describe the role and responsibilities…"></textarea>
@@ -1096,14 +1118,14 @@
                   <td data-label="Salary">{{ job.salary_range|default:"—" }}</td>
                   <td data-label="Status">
                     {% if job.is_active %}
-                    <span class="badge badge-green"><i class="fas fa-circle" style="font-size:7px;"></i> Active</span>
+                    <span class="badge badge-green"><i class="fas fa-circle badge-icon-sm"></i> Active</span>
                     {% else %}
-                    <span class="badge badge-red"><i class="fas fa-circle" style="font-size:7px;"></i> Inactive</span>
+                    <span class="badge badge-red"><i class="fas fa-circle badge-icon-sm"></i> Inactive</span>
                     {% endif %}
                   </td>
-                  <td data-label="Posted" style="color:var(--ink-4);">{{ job.created_at|date:"M d, Y" }}</td>
+                  <td data-label="Posted" class="cell-date">{{ job.created_at|date:"M d, Y" }}</td>
                   <td data-label="Actions">
-                    <form method="POST" style="display:inline;" onsubmit="return confirm('Delete this job opening?');">
+                    <form method="POST" class="form-inline" onsubmit="return confirm('Delete this job opening?');">
                       {% csrf_token %}
                       <input type="hidden" name="action" value="delete_job">
                       <input type="hidden" name="job_id" value="{{ job.id }}">
@@ -1175,12 +1197,12 @@
                   </td>
                   <td data-label="Status">
                     {% if interest.employee.is_placed %}
-                    <span class="badge badge-placed"><i class="fas fa-check-circle" style="font-size:10px;"></i> Placed</span>
+                    <span class="badge badge-placed"><i class="fas fa-check-circle badge-icon-xs"></i> Placed</span>
                     {% else %}
                     <span class="badge badge-available">Available</span>
                     {% endif %}
                   </td>
-                  <td data-label="Expressed On" style="color:var(--ink-4);">{{ interest.created_at|date:"M d, Y" }}</td>
+                  <td data-label="Expressed On" class="cell-date">{{ interest.created_at|date:"M d, Y" }}</td>
                 </tr>
                 {% empty %}
                 <tr><td colspan="6"><div class="empty"><i class="fas fa-heart"></i><p>No interests expressed yet.</p></div></td></tr>
@@ -1248,7 +1270,7 @@
                     {% elif ei.employee.plan == 'intermediate' %}<span class="badge badge-amber">{{ ei.employee.plan }}</span>
                     {% else %}<span class="badge badge-indigo">{{ ei.employee.plan }}</span>{% endif %}
                   </td>
-                  <td data-label="Expressed On" style="color:var(--ink-4);">{{ ei.created_at|date:"M d, Y" }}</td>
+                  <td data-label="Expressed On" class="cell-date">{{ ei.created_at|date:"M d, Y" }}</td>
                 </tr>
                 {% empty %}
                 <tr><td colspan="6"><div class="empty"><i class="fas fa-hand-holding-heart"></i><p>No employee interests expressed yet.</p></div></td></tr>
@@ -1268,7 +1290,7 @@
   <div class="profile-card">
     <div class="pc-header">
       <div class="pc-avatar" id="pcAvatar"><span id="pcInitial"></span></div>
-      <div style="min-width:0;flex:1;">
+      <div class="pc-name-block">
         <div class="pc-name" id="pcName"></div>
         <div class="pc-role-sub" id="pcRoleSub"></div>
       </div>
@@ -1294,13 +1316,13 @@
     </div>
     <div class="pc-footer">
       <span id="pcResumeLink"></span>
-      <form method="POST" action="{% url 'toggle_placed' %}" id="placedForm" style="display:inline;" onclick="event.stopPropagation()">
+      <form method="POST" action="{% url 'toggle_placed' %}" id="placedForm" class="form-inline" onclick="event.stopPropagation()">
         {% csrf_token %}
         <input type="hidden" name="employee_id" id="pcEmployeeId">
         <input type="hidden" name="action" id="pcPlacedAction">
         <button type="submit" class="btn btn-sm" id="pcPlacedBtn"></button>
       </form>
-      <span style="margin-left:auto;font-size:12px;color:var(--ink-4);" id="pcJoined"></span>
+      <span class="pc-footer-date" id="pcJoined"></span>
     </div>
   </div>
 </div>
@@ -1420,7 +1442,7 @@
         }
       });
     } else {
-      skillsEl.innerHTML = '<span style="color:var(--ink-4);font-size:13px;">No skills listed</span>';
+      skillsEl.innerHTML = '<span class="cell-muted">No skills listed</span>';
     }
 
     // Resume
@@ -1428,7 +1450,7 @@
     if (d.resume) {
       resumeEl.innerHTML = '<a href="' + d.resume + '" target="_blank" class="btn btn-ghost btn-sm"><i class="fas fa-file-alt"></i> View Resume</a>';
     } else {
-      resumeEl.innerHTML = '<span style="color:var(--ink-4);font-size:13px;">No resume uploaded</span>';
+      resumeEl.innerHTML = '<span class="cell-muted">No resume uploaded</span>';
     }
 
     // Placed toggle
@@ -1465,12 +1487,12 @@
       const rawEl = cell.querySelector('.skills-raw');
       const rawText = rawEl ? rawEl.textContent.trim() : '';
       if (!rawText) {
-        cell.innerHTML = '<span style="color:var(--ink-4);font-size:12px;">—</span>';
+        cell.innerHTML = '<span class="cell-muted-sm">—</span>';
         return;
       }
       const skills = rawText.split(',').map(s => s.trim()).filter(Boolean);
       if (!skills.length) {
-        cell.innerHTML = '<span style="color:var(--ink-4);font-size:12px;">—</span>';
+        cell.innerHTML = '<span class="cell-muted-sm">—</span>';
         return;
       }
       const PREVIEW = 2;
