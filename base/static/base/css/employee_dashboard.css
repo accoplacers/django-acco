@@ -75,15 +75,15 @@ body {
 }
 
 .logout-link:hover {
-  background: #E11D48;
+  background: var(--clr-accent);
   color: #fff;
-  border-color: #E11D48;
+  border-color: var(--clr-accent);
 }
 
 .dash-container {
-  max-width: 1180px;
+  max-width: var(--container-max);
   margin: 0 auto;
-  padding: 40px 32px 60px;
+  padding: 40px var(--container-pad) 60px;
 }
 
 .msg {

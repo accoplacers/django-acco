@@ -210,7 +210,7 @@ DEFAULT_ROUTING_CONFIG = [
 def parse_resume_with_llm(
     text: str,
     routing_config: list[dict] = None,
-    timeout: int = 30,
+    timeout: int = 15,
 ) -> ParsedResume:
     """
     Send extracted resume text to an LLM and parse the response into
@@ -232,20 +232,27 @@ def parse_resume_with_llm(
         return ParsedResume()
 
     config = routing_config or DEFAULT_ROUTING_CONFIG
-    
+
     raw_json = None
     errors = []
+    timed_out = 0
 
     for entry in config:
         provider = entry["provider"]
         model = entry["model"]
-        
+
         try:
             logger.info(f"Attempting parse with {provider}:{model}...")
             raw_json = _call_llm_provider(text, provider, model, timeout)
             if raw_json:
                 logger.info(f"Successfully parsed with {provider}:{model}")
                 break
+        except TimeoutError as e:
+            err_msg = f"{provider}:{model} timed out after {timeout}s"
+            logger.warning(err_msg)
+            errors.append(err_msg)
+            timed_out += 1
+            continue
         except Exception as e:
             err_msg = f"{provider}:{model} failed: {str(e)}"
             logger.warning(err_msg)
@@ -253,6 +260,11 @@ def parse_resume_with_llm(
             continue
 
     if not raw_json:
+        if timed_out == len(config):
+            raise TimeoutError(
+                f"Resume parse: all {len(config)} LLM provider(s) timed out "
+                f"after {timeout}s each."
+            )
         logger.error(f"All LLM providers failed. Errors: {errors}")
         return ParsedResume()
 
@@ -282,7 +294,7 @@ def _call_llm_provider(text: str, provider: str, model: str, timeout: int) -> st
 def _call_openai(text: str, model: str, timeout: int, api_key: str) -> str:
     """OpenAI call with specific error handling for routing."""
     try:
-        from openai import OpenAI, RateLimitError, APIStatusError
+        from openai import OpenAI, RateLimitError, APIStatusError, APITimeoutError
 
         client = OpenAI(api_key=api_key, timeout=timeout)
         response = client.chat.completions.create(
@@ -299,8 +311,9 @@ def _call_openai(text: str, model: str, timeout: int, api_key: str) -> str:
 
     except ImportError:
         raise RuntimeError("OpenAI SDK not installed.")
+    except APITimeoutError as e:
+        raise TimeoutError(f"OpenAI timed out after {timeout}s") from e
     except (RateLimitError, APIStatusError) as e:
-        # These are expected errors that trigger a fallback.
         raise e
     except Exception as e:
         logger.error(f"Unexpected OpenAI error: {e}")
@@ -311,7 +324,7 @@ def _call_anthropic(text: str, model: str, timeout: int, api_key: str) -> str:
     """Anthropic call with specific error handling for routing."""
     try:
         import anthropic
-        from anthropic import RateLimitError, InternalServerError
+        from anthropic import RateLimitError, InternalServerError, APITimeoutError
 
         client = anthropic.Anthropic(api_key=api_key, timeout=timeout)
         response = client.messages.create(
@@ -327,8 +340,9 @@ def _call_anthropic(text: str, model: str, timeout: int, api_key: str) -> str:
 
     except ImportError:
         raise RuntimeError("Anthropic SDK not installed.")
+    except APITimeoutError as e:
+        raise TimeoutError(f"Anthropic timed out after {timeout}s") from e
     except (RateLimitError, InternalServerError) as e:
-        # Trigger fallback for rate limits or overloaded servers.
         raise e
     except Exception as e:
         logger.error(f"Unexpected Anthropic error: {e}")

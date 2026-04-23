@@ -47,6 +47,23 @@ class UserAccount(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.email
 
+    @property
+    def profile(self):
+        """Dynamically fetch the related Registration (employee) or Employer object."""
+        if self.profile_id is None:
+            return None
+        if self.role == 'employee':
+            try:
+                return Registration.objects.get(id=self.profile_id)
+            except Registration.DoesNotExist:
+                return None
+        elif self.role == 'employer':
+            try:
+                return Employer.objects.get(id=self.profile_id)
+            except Employer.DoesNotExist:
+                return None
+        return None
+
 
 class Skill(models.Model):
     name = models.CharField(max_length=100, unique=True)
@@ -65,7 +82,6 @@ class Registration(models.Model):
 
     name = models.CharField(max_length=150)
     email = models.EmailField(unique=True)
-    password = models.CharField(max_length=128, blank=True)  # hashed password for login
     phone = models.CharField(max_length=20)
     nationality = models.CharField(max_length=100)
     location = models.CharField(max_length=100, db_index=True)
@@ -79,7 +95,7 @@ class Registration(models.Model):
     notice_period = models.CharField(max_length=50, blank=True, default='Unknown')
     profile_score = models.IntegerField(default=0) # Deprecated — use computed score in views.py
     plan = models.CharField(max_length=20, choices=PLAN_CHOICES, default='basic')
-    is_placed = models.BooleanField(default=False, help_text="Mark this employee as placed (hired by an employer)")
+    is_placed = models.BooleanField(default=False, db_index=True, help_text="Mark this employee as placed (hired by an employer)")
     is_featured = models.BooleanField(default=False, help_text="Feature this candidate on the employer dashboard")
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -98,12 +114,6 @@ class Registration(models.Model):
         from django.urls import reverse
         return reverse('admin:base_registration_change', args=[self.id])
 
-    def save(self, *args, **kwargs):
-        # Auto-hash password if it's plaintext
-        if self.password and not self.password.startswith('pbkdf2_sha256$'):
-            from django.contrib.auth.hashers import make_password
-            self.password = make_password(self.password)
-        super().save(*args, **kwargs)
 
 
 class ApplicationStatus(models.Model):
@@ -135,13 +145,12 @@ class Employer(models.Model):
 
     company_name = models.CharField(max_length=200)
     email = models.EmailField(unique=True)
-    password = models.CharField(max_length=128)  # hashed password
     phone = models.CharField(max_length=20)
     company_description = models.TextField(blank=True)
     location = models.CharField(max_length=100)
-    industry = models.CharField(max_length=100)
+    industry = models.CharField(max_length=100, db_index=True)
     logo = models.ImageField(upload_to='employer_logos/', blank=True, null=True)
-    subscription_tier = models.CharField(max_length=20, choices=SUBSCRIPTION_TIER_CHOICES, default='basic')
+    subscription_tier = models.CharField(max_length=20, choices=SUBSCRIPTION_TIER_CHOICES, default='basic', db_index=True)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -155,13 +164,6 @@ class Employer(models.Model):
     def admin_url(self):
         from django.urls import reverse
         return reverse('admin:base_employer_change', args=[self.id])
-
-    def save(self, *args, **kwargs):
-        # Auto-hash password if it's plaintext
-        if self.password and not self.password.startswith('pbkdf2_sha256$'):
-            from django.contrib.auth.hashers import make_password
-            self.password = make_password(self.password)
-        super().save(*args, **kwargs)
 
 
 class JobOpening(models.Model):

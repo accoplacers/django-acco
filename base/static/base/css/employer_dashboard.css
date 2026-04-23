@@ -34,7 +34,7 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
-  background: #F8FAFC;
+  background: var(--slate-50);
   border: 1px solid var(--slate-200);
   padding: 6px 12px;
   border-radius: 8px;
@@ -57,7 +57,7 @@ body {
 .user-name {
   font-size: 13px;
   font-weight: 600;
-  color: #334155;
+  color: var(--slate-700);
 }
 
 .logout-link {
@@ -66,7 +66,7 @@ body {
   gap: 6px;
   padding: 7px 14px;
   border-radius: 8px;
-  background: #FFF1F2;
+  background: var(--clr-accent-light);
   color: var(--clr-accent);
   text-decoration: none;
   font-size: 13px;
@@ -82,9 +82,9 @@ body {
 }
 
 .dash-container {
-  max-width: 1320px;
+  max-width: var(--container-max);
   margin: 0 auto;
-  padding: 40px 32px 60px;
+  padding: 40px var(--container-pad) 60px;
 }
 
 .msg {
@@ -263,9 +263,9 @@ body {
 }
 
 .metric-icon.rose { background: var(--clr-accent-light); color: var(--clr-accent); }
-.metric-icon.accent { background: #FFF1F2; color: #E11D48; }
+.metric-icon.accent { background: var(--clr-accent-light); color: var(--clr-accent); }
 .metric-icon.dark { background: var(--slate-100); color: var(--slate-800); }
-.metric-icon.green { background: #ECFDF5; color: #10B981; }
+.metric-icon.green { background: #ECFDF5; color: var(--clr-success); }
 
 .metric-label {
   font-size: 11px;
@@ -342,7 +342,7 @@ body {
 }
 
 .section-card-head h2 i { color: var(--clr-accent); }
-.section-card-dark .section-card-head h2 i { color: #FDA4AF; }
+.section-card-dark .section-card-head h2 i { color: var(--clr-employer-accent-soft); }
 
 .section-card-head p {
   font-size: 13px;
@@ -392,7 +392,7 @@ body {
 
 .ghost-btn:hover {
   border-color: rgba(225,29,72,0.35);
-  background: #FFF1F2;
+  background: var(--clr-accent-light);
   color: var(--clr-accent);
 }
 
@@ -493,7 +493,7 @@ body {
 }
 
 .filter-chip input:checked + span {
-  background: #FFF1F2;
+  background: var(--clr-accent-light);
   color: var(--clr-accent);
   border-color: rgba(225,29,72,0.35);
 }
@@ -604,7 +604,7 @@ body {
   gap: 5px;
 }
 
-.candidate-role i { color: #FDA4AF; font-size: 11px; }
+.candidate-role i { color: var(--clr-employer-accent-soft); font-size: 11px; }
 
 .candidate-match {
   margin-top: 10px;
@@ -635,14 +635,14 @@ body {
   flex: 1;
   height: 8px;
   border-radius: 999px;
-  background: #F1F5F9;
+  background: var(--slate-100);
   overflow: hidden;
 }
 
 .score-meter-fill {
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(90deg, #FDA4AF 0%, var(--clr-accent) 100%);
+  background: linear-gradient(90deg, var(--clr-employer-accent-soft) 0%, var(--clr-accent) 100%);
   transition: width 0.3s ease;
 }
 
@@ -657,7 +657,7 @@ body {
   width: 32px;
   height: 32px;
   border-radius: 8px;
-  background: #FFF1F2;
+  background: var(--clr-accent-light);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -690,7 +690,7 @@ body {
 .candidate-skill-chip {
   padding: 6px 10px;
   border-radius: 999px;
-  background: #FFF1F2;
+  background: var(--clr-accent-light);
   color: var(--clr-accent);
   font-size: 11.5px;
   font-weight: 700;
@@ -719,7 +719,7 @@ body {
 
 .view-profile-btn:hover {
   border-color: rgba(225,29,72,0.3);
-  background: #FFF1F2;
+  background: var(--clr-accent-light);
   color: var(--clr-accent);
 }
 
@@ -824,7 +824,7 @@ body {
 .empty-side-card i,
 .no-candidates i {
   font-size: 34px;
-  color: #CBD5E1;
+  color: var(--slate-300);
   margin-bottom: 12px;
   display: block;
 }
@@ -1007,7 +1007,7 @@ body {
   gap: 5px;
 }
 
-.modal-role i { color: #FDA4AF; font-size: 11px; }
+.modal-role i { color: var(--clr-employer-accent-soft); font-size: 11px; }
 
 .modal-body {
   padding: 22px 24px 8px;
@@ -1024,7 +1024,7 @@ body {
   width: 36px;
   height: 36px;
   border-radius: 8px;
-  background: #FFF1F2;
+  background: var(--clr-accent-light);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1073,7 +1073,7 @@ body {
 }
 
 .modal-skill-chip {
-  background: #FFF1F2;
+  background: var(--clr-accent-light);
   color: var(--clr-accent);
   padding: 5px 12px;
   border-radius: 999px;

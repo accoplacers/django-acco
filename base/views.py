@@ -166,11 +166,11 @@ def registration_success(request):
         messages.error(request, "Registration error: Missing password. Please try again.")
         return redirect('/')
 
+    hashed_pw = make_password(password)
     with transaction.atomic():
         registration = Registration(
             name=data['name'],
             email=data['email'],
-            password=make_password(password),
             phone=data['phone'],
             nationality=data['nationality'],
             location=data['location'],
@@ -199,7 +199,7 @@ def registration_success(request):
         # Create auth user
         UserAccount.objects.create(
             email=registration.email,
-            password=registration.password, # Already hashed
+            password=hashed_pw,
             role='employee',
             profile_id=registration.id
         )
@@ -278,20 +278,30 @@ def temp_save_registration(request):
         if resume:
             if resume.size > 5 * 1024 * 1024:
                 return JsonResponse({'status': 'error', 'message': 'Resume file size must not exceed 5 MB.'}, status=400)
-            tmp_path = os.path.join(tmp_dir, resume.name)
-            with open(tmp_path, 'wb+') as f:
-                for chunk in resume.chunks():
-                    f.write(chunk)
-            data['resume'] = tmp_path
+            try:
+                tmp_path = os.path.join(tmp_dir, os.path.basename(resume.name))
+                with open(tmp_path, 'wb+') as f:
+                    for chunk in resume.chunks():
+                        f.write(chunk)
+                data['resume'] = tmp_path
+            except OSError as e:
+                logger.error(f"Failed to save temp resume for {email}: {e}")
+                return JsonResponse({'status': 'error', 'message': 'Failed to save resume. Please try again.'}, status=500)
 
         # Save photo temporarily
         photo = request.FILES.get('photo')
         if photo:
-            photo_tmp_path = os.path.join(tmp_dir, photo.name)
-            with open(photo_tmp_path, 'wb+') as f:
-                for chunk in photo.chunks():
-                    f.write(chunk)
-            data['photo'] = photo_tmp_path
+            try:
+                photo_tmp_path = os.path.join(tmp_dir, os.path.basename(photo.name))
+                with open(photo_tmp_path, 'wb+') as f:
+                    for chunk in photo.chunks():
+                        f.write(chunk)
+                data['photo'] = photo_tmp_path
+            except OSError as e:
+                logger.error(f"Failed to save temp photo for {email}: {e}")
+                if 'resume' in data and os.path.exists(data['resume']):
+                    os.remove(data['resume'])
+                return JsonResponse({'status': 'error', 'message': 'Failed to save photo. Please try again.'}, status=500)
 
         request.session['registration_data'] = data
         return JsonResponse({'status': 'success'})
@@ -392,7 +402,6 @@ def employee_register(request):
             registration = Registration(
                 name=name,
                 email=email,
-                password=make_password(password),
                 phone=phone,
                 nationality=nationality,
                 location=location,
@@ -424,27 +433,31 @@ def employee_register(request):
                     # 2. Skill & Competency Mapping (M2M)
                     # Combine all extracted semantic fields into Skill objects
                     all_skill_items = (
-                        parsed_data.certifications + 
-                        parsed_data.erp_software + 
+                        parsed_data.certifications +
+                        parsed_data.erp_software +
                         parsed_data.core_competencies +
                         parsed_data.regulatory_knowledge
                     )
-                    
+
                     for item in all_skill_items:
                         skill_obj, _ = Skill.objects.get_or_create(name=item.strip())
                         registration.skills.add(skill_obj)
 
                     registration.save()
-                    
+
+            except TimeoutError:
+                # LLM timed out — registration is saved, skills will be parsed later.
+                # Do NOT roll back the transaction.
+                logger.warning(f"Resume parse timed out for {email}. Flagging for deferred processing.")
+                request.session['resume_parse_pending'] = True
             except Exception as e:
-                # Log the error but do NOT roll back registration. 
-                # We want the user to be registered even if the AI parsing fails.
-                print(f"AI Ingestion Failed for {email}: {str(e)}")
+                # Any other AI failure must not roll back the registration.
+                logger.error(f"AI Ingestion Failed for {email}: {str(e)}")
 
             # Create auth user
             UserAccount.objects.create(
                 email=email,
-                password=registration.password, # Reuse hash
+                password=make_password(password),
                 role='employee',
                 profile_id=registration.id
             )
@@ -461,6 +474,35 @@ def terms(request):
 
 
 # DASHBOARD
+
+@csrf_exempt
+def stripe_webhook(request):
+    import json as _json
+    payload = request.body
+    sig_header = request.META.get('HTTP_STRIPE_SIGNATURE', '')
+    webhook_secret = getattr(settings, 'STRIPE_WEBHOOK_SECRET', None)
+
+    if webhook_secret and sig_header:
+        try:
+            event = stripe.Webhook.construct_event(payload, sig_header, webhook_secret)
+        except ValueError:
+            logger.warning("Stripe webhook: invalid payload received")
+            return JsonResponse({'error': 'Invalid payload'}, status=400)
+        except stripe.error.SignatureVerificationError:
+            logger.warning("Stripe webhook: signature verification failed")
+            return JsonResponse({'error': 'Invalid signature'}, status=400)
+    else:
+        try:
+            event = _json.loads(payload)
+        except _json.JSONDecodeError:
+            logger.warning("Stripe webhook: malformed JSON payload")
+            return JsonResponse({'error': 'Invalid payload'}, status=400)
+
+    event_type = event.get('type', 'unknown') if isinstance(event, dict) else getattr(event, 'type', 'unknown')
+    logger.info(f"Stripe webhook received: event_type={event_type}")
+
+    return JsonResponse({'status': 'received'})
+
 
 @staff_member_required
 def registrations_dashboard(request):
@@ -593,7 +635,7 @@ def employee_dashboard(request):
     profile_completion = int((sum(profile_checks) / len(profile_checks)) * 100)
 
     # Get all active job openings
-    job_openings = list(JobOpening.objects.filter(is_active=True).select_related('employer').order_by('-created_at'))
+    job_openings = JobOpening.objects.filter(is_active=True).select_related('employer').order_by('-created_at')
 
     interested_job_ids = set(
         EmployeeInterest.objects.filter(employee=employee).values_list('job_id', flat=True)
@@ -786,7 +828,6 @@ def employer_register(request):
             employer = Employer.objects.create(
                 company_name=company_name,
                 email=email,
-                password=make_password(password),
                 phone=phone,
                 company_description=company_description,
                 location=location,
@@ -797,7 +838,7 @@ def employer_register(request):
             # Create auth user
             UserAccount.objects.create(
                 email=email,
-                password=employer.password, # Reuse hash
+                password=make_password(password),
                 role='employer',
                 profile_id=employer.id
             )
@@ -937,8 +978,8 @@ def employer_dashboard(request):
                 messages.error(request, "The selected job could not be found.")
             return redirect('employer_dashboard')
 
-    # Base queryset
-    employees = Registration.objects.all().order_by('-created_at')
+    # Base queryset — prefetch skills to avoid N+1 in the candidate card loop
+    employees = Registration.objects.prefetch_related('skills').order_by('-created_at')
 
     # Get search parameters
     search_query = request.GET.get('q', '').strip()
@@ -990,23 +1031,60 @@ def employer_dashboard(request):
 
     employees = employees.distinct()
 
-    candidate_cards = []
-    for emp in employees:
-        profile_checks = [
-            bool(emp.resume),
-            bool(emp.role),
-            bool(emp.qualification),
-            bool(emp.experience),
-            bool(emp.location),
-            bool(emp.skills.exists()),
-        ]
-        profile_score = int((sum(profile_checks) / len(profile_checks)) * 100)
-        is_verified_profile = profile_score >= 80 and not emp.is_placed
+    # ORM annotations — compute profile field presence and sort signals at DB level,
+    # preventing O(N) Python iteration over the full candidate table.
+    from django.db.models import Case, When, Value, IntegerField, BooleanField, Exists, OuterRef, F
 
-        if verified_filter == '1' and not is_verified_profile:
-            continue
+    _SkillM2M = Registration.skills.through  # auto through table: registration_id, skill_id
 
-        skill_names = list(emp.skills.values_list('name', flat=True))
+    employees = employees.annotate(
+        f_resume=Case(When(resume__isnull=False, then=Value(1)), default=Value(0), output_field=IntegerField()),
+        f_role=Case(When(~Q(role=''), then=Value(1)), default=Value(0), output_field=IntegerField()),
+        f_qual=Case(When(~Q(qualification=''), then=Value(1)), default=Value(0), output_field=IntegerField()),
+        f_exp=Case(When(~Q(experience=''), then=Value(1)), default=Value(0), output_field=IntegerField()),
+        f_loc=Case(When(~Q(location=''), then=Value(1)), default=Value(0), output_field=IntegerField()),
+        f_skills=Case(
+            When(Exists(_SkillM2M.objects.filter(registration_id=OuterRef('pk'))), then=Value(1)),
+            default=Value(0), output_field=IntegerField()
+        ),
+        is_saved_ann=Case(
+            When(id__in=employer_interest_ids, then=Value(True)),
+            default=Value(False), output_field=BooleanField()
+        ),
+    ).annotate(
+        field_score=F('f_resume') + F('f_role') + F('f_qual') + F('f_exp') + F('f_loc') + F('f_skills'),
+    ).annotate(
+        is_verified_ann=Case(
+            When(field_score__gte=5, is_placed=False, then=Value(True)),
+            default=Value(False), output_field=BooleanField()
+        ),
+    )
+
+    if verified_filter == '1':
+        employees = employees.filter(is_verified_ann=True)
+
+    employees = employees.order_by(
+        '-is_saved_ann',
+        '-is_verified_ann',
+        '-field_score',
+        '-created_at',
+    )
+
+    total_candidates = Registration.objects.count()
+    verified_candidates = employees.filter(is_verified_ann=True).count()
+
+    # Paginate the QuerySet — avoids loading all rows into memory
+    paginator = Paginator(employees, 20)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    # Build card dicts for the current page only (≤20 rows)
+    _card_dicts = []
+    for emp in page_obj:
+        emp_skills = list(emp.skills.all())  # uses prefetch cache — no extra DB hit
+        skill_names = [s.name for s in emp_skills]
+        profile_score = int((emp.field_score / 6) * 100)
+
         match_notes = []
         if employer.industry and employer.industry.lower() in (emp.role or '').lower():
             match_notes.append('Industry aligned')
@@ -1017,28 +1095,26 @@ def employer_dashboard(request):
         if not match_notes:
             match_notes.append('Finance candidate')
 
-        candidate_cards.append({
+        _card_dicts.append({
             'employee': emp,
             'profile_score': profile_score,
-            'is_verified_profile': is_verified_profile,
+            'is_verified_profile': emp.is_verified_ann,
             'match_note': match_notes[0],
             'skill_names': skill_names[:4],
-            'is_saved': emp.id in employer_interest_ids,
+            'is_saved': emp.is_saved_ann,
         })
 
-    candidate_cards.sort(
-        key=lambda item: (
-            not item['is_saved'],
-            not item['is_verified_profile'],
-            -item['profile_score'],
-            -item['employee'].created_at.timestamp(),
-        )
-    )
+    # Thin wrapper: preserves page_obj.paginator for the template's
+    # candidate_cards.paginator.count tag while iterating over card dicts.
+    class _CardPage:
+        def __init__(self, page, cards):
+            self.paginator = page.paginator
+            self._cards = cards
+        def __iter__(self): return iter(self._cards)
+        def __bool__(self): return bool(self._cards)
+        def __len__(self): return len(self._cards)
 
-    # Paginate results (20 per page)
-    paginator = Paginator(candidate_cards, 20)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    candidate_cards = _CardPage(page_obj, _card_dicts)
 
     owned_jobs = list(
         JobOpening.objects.filter(employer=employer)
@@ -1052,13 +1128,11 @@ def employer_dashboard(request):
         .order_by('-created_at')[:8]
     )
 
-    total_candidates = Registration.objects.count()
-    verified_candidates = sum(1 for card in candidate_cards if card['is_verified_profile'])
     active_jobs_count = sum(1 for job in owned_jobs if job.is_active)
 
     return render(request, 'base/employer_dashboard.html', {
         'employer': employer,
-        'candidate_cards': page_obj,
+        'candidate_cards': candidate_cards,
         'interested_ids': employer_interest_ids,
         'search_q': search_query,
         'search_skill': skill_query,
@@ -1156,31 +1230,66 @@ def job_detail(request, pk):
     return render(request, 'base/job_detail.html', {'job': job})
 
 
+@login_required
 def log_whatsapp_contact(request, candidate_id):
-    # This should log the event and redirect to WhatsApp
-    candidate = Registration.objects.get(pk=candidate_id)
-    # Log logic here if needed
+    from django.http import HttpResponseForbidden
+    is_staff = request.user.is_staff or request.user.is_superuser
+    is_active_employer = (
+        request.user.role == 'employer' and
+        Employer.objects.filter(id=request.user.profile_id, is_active=True).exists()
+    )
+    if not (is_staff or is_active_employer):
+        return HttpResponseForbidden("Access denied.")
+
+    try:
+        candidate = Registration.objects.get(pk=candidate_id)
+    except Registration.DoesNotExist:
+        from django.http import Http404
+        raise Http404("Candidate not found.")
+
+    employer = None
+    if request.user.role == 'employer':
+        try:
+            employer = Employer.objects.get(id=request.user.profile_id)
+        except Employer.DoesNotExist:
+            pass
+
+    ContactEvent.objects.create(
+        employer=employer,
+        candidate=candidate,
+        contact_type='whatsapp',
+    )
+
     whatsapp_url = f"https://wa.me/{candidate.phone}"
     return redirect(whatsapp_url)
 
 
+_ANALYTICS_CACHE_KEY = 'admin_analytics_v1'
+_ANALYTICS_CACHE_TTL = 300  # 5 minutes
+
+
 @staff_member_required
 def admin_analytics_view(request):
-    from django.db.models import Count, Sum, Avg, Q
+    from django.core.cache import cache
+    from django.db.models import Count, Avg, Q
     from django.utils import timezone
     from datetime import timedelta
-    
+
+    context = cache.get(_ANALYTICS_CACHE_KEY)
+    if context is not None:
+        return render(request, 'base/admin_analytics.html', context)
+
     now = timezone.now()
     days_7 = now - timedelta(days=7)
     days_30 = now - timedelta(days=30)
     days_90 = now - timedelta(days=90)
-    
+
     # Sales Dashboard
     total_active_employers = Employer.objects.filter(is_active=True).count()
     new_employers_7 = Employer.objects.filter(created_at__gte=days_7).count()
     new_employers_30 = Employer.objects.filter(created_at__gte=days_30).count()
     new_employers_90 = Employer.objects.filter(created_at__gte=days_90).count()
-    
+
     tier_counts = Employer.objects.values('subscription_tier').annotate(count=Count('id'))
     tier_breakdown = []
     total_tiers = sum(t['count'] for t in tier_counts) or 1
@@ -1190,31 +1299,31 @@ def admin_analytics_view(request):
             'count': t['count'],
             'width_pct': (t['count'] / total_tiers) * 100
         })
-        
+
     # Acquisition Dashboard
     total_candidates = Registration.objects.count()
     new_candidates_7 = Registration.objects.filter(created_at__gte=days_7).count()
     new_candidates_30 = Registration.objects.filter(created_at__gte=days_30).count()
     new_candidates_90 = Registration.objects.filter(created_at__gte=days_90).count()
-    
+
     top_locations = Registration.objects.values('location').annotate(count=Count('id')).order_by('-count')[:5]
     top_locations_list = [{'label': l['location'], 'count': l['count']} for l in top_locations]
-    
+
     top_roles = Registration.objects.values('role').annotate(count=Count('id')).order_by('-count')[:5]
     top_roles_list = [{'label': r['role'], 'count': r['count']} for r in top_roles]
 
     # Engagement Dashboard
     active_jobs = JobOpening.objects.filter(is_active=True).count()
     avg_exp = Registration.objects.aggregate(Avg('years_of_experience'))['years_of_experience__avg'] or 0
-    
+
     # Success Dashboard
     total_contacts = ContactEvent.objects.count()
     top_contacted = ContactEvent.objects.values('candidate__name').annotate(contact_count=Count('id')).order_by('-contact_count')[:5]
     top_contacted_list = [{'candidate_name': c['candidate__name'], 'contact_count': c['contact_count']} for c in top_contacted]
 
-    # Operations Dashboard
-    pending_review = Registration.objects.all().order_by('-created_at')[:10]
-    
+    # Operations Dashboard — evaluate QuerySet before caching
+    pending_review = list(Registration.objects.order_by('-created_at')[:10])
+
     context = {
         'page_title': 'Intelligence Terminal',
         'sales_dashboard': {
@@ -1223,7 +1332,7 @@ def admin_analytics_view(request):
             'new_employers_30_days': new_employers_30,
             'new_employers_90_days': new_employers_90,
             'tier_breakdown': tier_breakdown,
-            'tier_upgrade_rate': 12.5, # Placeholder momentum metric
+            'tier_upgrade_rate': 12.5,
         },
         'acquisition_dashboard': {
             'total_candidate_registrations': total_candidates,
@@ -1247,6 +1356,7 @@ def admin_analytics_view(request):
             'candidates_without_resume': Registration.objects.filter(Q(resume='') | Q(resume=None)).count(),
             'candidates_without_skills': Registration.objects.annotate(skill_count=Count('skills')).filter(skill_count=0).count(),
             'stale_job_postings': JobOpening.objects.filter(is_active=True, created_at__lt=now - timedelta(days=60)).count(),
-        }
+        },
     }
+    cache.set(_ANALYTICS_CACHE_KEY, context, _ANALYTICS_CACHE_TTL)
     return render(request, 'base/admin_analytics.html', context)

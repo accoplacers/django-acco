@@ -8,7 +8,7 @@ class RegistrationAdmin(admin.ModelAdmin):
     list_editable = ('is_featured', 'is_placed')
     search_fields = ('name', 'email', 'role')
     list_filter = ('location', 'is_featured', 'is_placed', 'experience', 'plan', 'created_at')
-    readonly_fields = ('employee_id', 'created_at', 'password')
+    readonly_fields = ('employee_id', 'created_at')
     filter_horizontal = ('skills',)
     ordering = ('-created_at',)
     actions = ['mark_as_placed', 'mark_as_available']
@@ -18,7 +18,7 @@ class RegistrationAdmin(admin.ModelAdmin):
             'fields': ('employee_id',)
         }),
         ('Personal Information', {
-            'fields': ('name', 'email', 'password', 'phone', 'nationality', 'location')
+            'fields': ('name', 'email', 'phone', 'nationality', 'location')
         }),
         ('Professional Details', {
             'fields': ('qualification', 'experience', 'role', 'resume', 'photo', 'skills')
@@ -86,7 +86,7 @@ class EmployerAdmin(admin.ModelAdmin):
             'fields': ('employer_id',)
         }),
         ('Company Information', {
-            'fields': ('company_name', 'email', 'password', 'phone', 'industry', 'location')
+            'fields': ('company_name', 'email', 'phone', 'industry', 'location')
         }),
         ('Details', {
             'fields': ('company_description', 'logo', 'created_at')

@@ -79,7 +79,7 @@ body {
 
 .module h2,
 .module caption {
-    background: #f8fafc !important;
+    background: var(--slate-50) !important;
     color: var(--adm-text) !important;
     font-weight: 800 !important;
     font-size: 12px !important;
@@ -105,7 +105,7 @@ body {
 
 .app-card-header {
     padding: 1.25rem 1.5rem;
-    background: #f8fafc;
+    background: var(--slate-50);
     border-bottom: 1px solid var(--adm-border);
 }
 
@@ -117,7 +117,7 @@ body {
 }
 
 #changelist table thead th {
-    background: #f8fafc !important;
+    background: var(--slate-50) !important;
     font-weight: 800 !important;
     font-size: 11px !important;
     text-transform: uppercase !important;
@@ -145,14 +145,14 @@ input[type=submit],
 
 .button:hover,
 input[type=submit]:hover {
-    background: #4f46e5 !important;
+    background: var(--clr-primary) !important;
     transform: translateY(-1px) !important;
     box-shadow: 0 6px 16px rgba(99, 102, 241, 0.3) !important;
 }
 
 /* ── Sidebar Recent Actions ── */
 .recent-actions-card {
-    background: #0F172A !important;
+    background: var(--adm-header-bg) !important;
     color: white !important;
 }
 
@@ -162,7 +162,7 @@ input[type=submit]:hover {
 
 /* ── Login Page ── */
 body.login {
-    background: #0f172a !important;
+    background: var(--adm-header-bg) !important;
     background-image:
         radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.2) 0px, transparent 50%),
         radial-gradient(at 100% 100%, rgba(124, 58, 237, 0.2) 0px, transparent 50%) !important;
@@ -177,7 +177,7 @@ body.login {
 
 /* Ensure the background covers the whole viewport */
 html:has(body.login) {
-    background: #0f172a !important;
+    background: var(--adm-header-bg) !important;
 }
 
 .login #container {
@@ -194,7 +194,7 @@ html:has(body.login) {
 }
 
 .login #header {
-    background: #1e293b !important;
+    background: var(--slate-800) !important;
     padding: 3.5rem 2rem !important;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
     border-radius: 0 !important;
@@ -235,7 +235,7 @@ html:has(body.login) {
     font-size: 11px !important;
     text-transform: uppercase !important;
     letter-spacing: 0.12em !important;
-    color: #64748b !important;
+    color: var(--adm-text-muted) !important;
     margin-bottom: 0.85rem !important;
     display: block !important;
 }
@@ -243,13 +243,13 @@ html:has(body.login) {
 .login input[type=text],
 .login input[type=password],
 .login input[type=email] {
-    background: #f8fafc !important;
-    border: 2px solid #f1f5f9 !important;
+    background: var(--slate-50) !important;
+    border: 2px solid var(--slate-100) !important;
     border-radius: 14px !important;
     padding: 1.1rem 1.25rem !important;
     font-size: 15px !important;
     font-weight: 500 !important;
-    color: #0f172a !important;
+    color: var(--adm-text) !important;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
     width: 100% !important;
     box-sizing: border-box !important;
@@ -257,7 +257,7 @@ html:has(body.login) {
 
 .login input:focus {
     background: #ffffff !important;
-    border-color: #6366f1 !important;
+    border-color: var(--adm-accent) !important;
     box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1) !important;
     outline: none !important;
 }
@@ -270,7 +270,7 @@ html:has(body.login) {
 }
 
 .login .submit-row input {
-    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important;
+    background: linear-gradient(135deg, var(--adm-accent) 0%, var(--clr-primary) 100%) !important;
     height: 60px !important;
     border-radius: 16px !important;
     font-size: 16px !important;
@@ -291,9 +291,9 @@ html:has(body.login) {
 }
 
 .login .errornote {
-    background: #fff1f2 !important;
+    background: var(--clr-accent-light) !important;
     border: 1px solid #ffe4e6 !important;
-    color: #e11d48 !important;
+    color: var(--clr-accent) !important;
     border-radius: 14px !important;
     padding: 1.25rem !important;
     font-weight: 700 !important;

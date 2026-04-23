@@ -65,6 +65,10 @@
     --clr-purple-700: #6D28D9;
     --clr-employer-accent-soft: #FDA4AF;
 
+    /* ── Layout ── */
+    --container-max: 1200px;
+    --container-pad: 24px;
+
     /* ── Transitions ── */
     --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
     --transition-normal: 250ms cubic-bezier(0.4, 0, 0.2, 1);
@@ -452,9 +456,9 @@ body {
 
 /* ── Dashboard Container & Content ── */
 .dash-container {
-    max-width: 1200px;
+    max-width: var(--container-max);
     margin: 0 auto;
-    padding: var(--space-8) var(--space-6);
+    padding: var(--space-8) var(--container-pad);
 }
 
 /* ── Welcome Banner ── */
@@ -2258,7 +2262,7 @@ body {
 
 /* ── Dashboard Layout ── */
 .dash-container {
-    max-width: 1200px;
+    max-width: var(--container-max);
     margin: 0 auto;
 }
 

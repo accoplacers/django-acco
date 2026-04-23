@@ -2,28 +2,6 @@ import re
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 
-def validate_no_sql_injection(value):
-    """
-    Validates that the input doesn't contain SQL injection patterns.
-    """
-    if not value:
-        return
-
-    # Common SQL injection patterns
-    sql_patterns = [
-        r'\b(SELECT|UNION|DROP|INSERT|UPDATE|DELETE|EXEC|EXECUTE|SCRIPT|JAVASCRIPT)\b',
-        r'(PG_SLEEP|WAITFOR\s+DELAY|BENCHMARK)',
-        r'(--|;--|\'\s*OR|\"\s*OR)',
-        r'(XOR|0x[0-9A-F]+)',
-        r'(<script|javascript:)',
-    ]
-
-    for pattern in sql_patterns:
-        if re.search(pattern, str(value), re.IGNORECASE):
-            raise ValidationError(
-                'Invalid input detected. Please enter valid data without special characters or SQL commands.'
-            )
-
 
 def validate_company_name(value):
     """
@@ -34,9 +12,6 @@ def validate_company_name(value):
 
     if len(value) > 200:
         raise ValidationError('Company name is too long (max 200 characters).')
-
-    # Check for SQL injection
-    validate_no_sql_injection(value)
 
     # Allow letters, numbers, spaces, and common business characters
     if not re.match(r'^[a-zA-Z0-9\s\.\,\-\&\'\(\)]+$', value):
@@ -62,13 +37,9 @@ def validate_phone_number(value):
 
 def validate_safe_email(value):
     """
-    Validates email and checks for SQL injection patterns.
+    Validates email format and length.
     """
-    # First use Django's built-in email validator
     validate_email(value)
-
-    # Then check for SQL injection
-    validate_no_sql_injection(value)
 
     # Additional check for @ and reasonable length
     if value.count('@') != 1:
@@ -87,6 +58,3 @@ def validate_text_input(value, min_length=0, max_length=1000):
 
     if value and len(value) > max_length:
         raise ValidationError(f'Input is too long (max {max_length} characters).')
-
-    # Check for SQL injection
-    validate_no_sql_injection(value)
