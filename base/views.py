@@ -12,6 +12,7 @@ from django.contrib.auth import login, authenticate, logout as django_logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.hashers import make_password, check_password
+from django.views.decorators.cache import never_cache
 from django.db import transaction
 from django.core.exceptions import ValidationError
 from .models import Registration, Contact, Employer, JobOpening, EmployerInterest, EmployeeInterest, UserAccount, ContactEvent
@@ -319,7 +320,7 @@ def employee_register(request):
 
     def get_initial_step(error_message):
         message = (error_message or '').lower()
-        if any(token in message for token in ['resume', 'deposit', 'refund', 'terms', 'photo']):
+        if any(token in message for token in ['resume', 'photo']):
             return 3
         if any(token in message for token in ['phone', 'nationality', 'location', 'qualification', 'experience', 'role']):
             return 2
@@ -349,7 +350,6 @@ def employee_register(request):
         resume = request.FILES.get('resume')
         photo = request.FILES.get('photo')
         plan = request.POST.get('plan', 'basic')
-        terms_accepted = request.POST.get('terms') == 'on'
 
         form_data = {
             'name': name, 'email': email, 'phone': phone,
@@ -368,7 +368,7 @@ def employee_register(request):
             validate_text_input(role, min_length=2, max_length=100)
 
             if not password or len(password) < 6:
-                raise ValidationError("Password must be at least 6 characters long.")
+                raise ValidationError("Password must be at least 6 characters long (server-side check).")
             if len(password) > 128:
                 raise ValidationError("Password is too long.")
             if password != confirm_password:
@@ -379,8 +379,6 @@ def employee_register(request):
                 raise ValidationError("Please upload your resume.")
             if resume.size > 5 * 1024 * 1024:
                 raise ValidationError("Resume file size must not exceed 5 MB.")
-            if not terms_accepted:
-                raise ValidationError("Please confirm the deposit and refund policy to continue.")
 
         except ValidationError as e:
             error_message = str(e)
@@ -455,15 +453,17 @@ def employee_register(request):
                 logger.error(f"AI Ingestion Failed for {email}: {str(e)}")
 
             # Create auth user
-            UserAccount.objects.create(
+            user_account = UserAccount.objects.create(
                 email=email,
                 password=make_password(password),
                 role='employee',
                 profile_id=registration.id
             )
 
-        messages.success(request, "Registration successful! Please login to access your dashboard.")
-        return redirect('employee_login')
+        user_account.backend = 'django.contrib.auth.backends.ModelBackend'
+        login(request, user_account)
+        messages.success(request, "Welcome to Accoplacers! Your profile is now live.")
+        return redirect('employee_dashboard')
 
     return render_employee_register()
 
@@ -592,6 +592,7 @@ def employee_logout(request):
 
 
 @login_required(login_url='employee_login')
+@never_cache
 def employee_dashboard(request):
     if request.user.role != 'employee':
         messages.error(request, "Unauthorized access.")
@@ -599,10 +600,11 @@ def employee_dashboard(request):
     
     employee_id = request.user.profile_id
     try:
-        employee = Registration.objects.get(id=employee_id)
+        employee = Registration.objects.prefetch_related('skills').get(id=employee_id)
     except Registration.DoesNotExist:
-        return redirect('employee_login')
-    
+        messages.error(request, "Profile not found.")
+        return redirect('registration_view')
+
     # Handle skills update
     if request.method == 'POST' and request.POST.get('action') == 'update_skills':
         from .models import Skill
@@ -700,24 +702,30 @@ def employee_dashboard(request):
         )
     )
 
+    from django.urls import reverse
+    profile_url = reverse('employee_profile')
+
     next_steps = []
     if not employee_skill_set:
         next_steps.append({
             'title': 'Add your core skills',
             'detail': 'Include systems, certifications, and finance tools so matching is more precise.',
             'action': 'Update skills below',
+            'action_url': f'{profile_url}#skills',
         })
     if not interested_job_ids:
         next_steps.append({
             'title': 'Save your first opportunity',
             'detail': 'Mark roles as interested so the team can see where you want to be introduced.',
-            'action': 'Review today\'s openings',
+            'action': "Review today's openings",
+            'action_url': '#jobs-section',
         })
     if profile_completion < 100:
         next_steps.append({
             'title': 'Complete your profile',
             'detail': f'Your profile is {profile_completion}% complete. A more complete profile is easier to shortlist.',
             'action': 'Review profile signals',
+            'action_url': profile_url,
         })
 
     if not next_steps:
@@ -725,7 +733,13 @@ def employee_dashboard(request):
             'title': 'Keep momentum',
             'detail': 'Your profile is in good shape. Stay active by reviewing new openings and updating skills as they grow.',
             'action': 'Check new roles weekly',
+            'action_url': '#jobs-section',
         })
+
+    try:
+        app_status = employee.application_status
+    except Exception:
+        app_status = None
 
     return render(request, 'base/employee_dashboard.html', {
         'employee': employee,
@@ -736,6 +750,93 @@ def employee_dashboard(request):
         'skills_count': len(employee_skills),
         'next_steps': next_steps,
         'suggested_skills': suggested_skills,
+        'app_status': app_status,
+    })
+
+
+
+@login_required(login_url='employee_login')
+def employee_profile(request):
+    if request.user.role != 'employee':
+        messages.error(request, "Unauthorized access.")
+        return redirect('registration_view')
+
+    employee_id = request.user.profile_id
+    try:
+        employee = Registration.objects.prefetch_related('skills').get(id=employee_id)
+    except Registration.DoesNotExist:
+        return redirect('employee_login')
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+
+        if action == 'update_profile':
+            full_name = request.POST.get('full_name', '').strip()
+            phone = request.POST.get('phone', '').strip()
+            location = request.POST.get('location', '').strip()
+            role = request.POST.get('role', '').strip()
+            experience = request.POST.get('experience', '').strip()
+            skills_raw = request.POST.get('skills', '').strip()
+
+            if full_name:
+                employee.name = full_name
+            if phone:
+                employee.phone = phone
+            if location:
+                employee.location = location
+            if role:
+                employee.role = role
+            if experience:
+                employee.experience = experience
+
+            skill_names = [s.strip() for s in skills_raw.split(',') if s.strip()]
+            skill_objs = []
+            for name in skill_names:
+                obj, _ = Skill.objects.get_or_create(name=name)
+                skill_objs.append(obj)
+            employee.skills.set(skill_objs)
+
+            employee.save()
+            messages.success(request, "Profile updated successfully.")
+            return redirect('employee_profile')
+
+        elif action == 'upload_resume':
+            import os as _os
+            resume_file = request.FILES.get('resume')
+            if not resume_file:
+                messages.error(request, "No file selected.")
+            else:
+                allowed_extensions = {'.pdf', '.doc', '.docx'}
+                file_ext = _os.path.splitext(resume_file.name)[1].lower()
+                if file_ext not in allowed_extensions:
+                    messages.error(request, "Invalid file type. Accepted: PDF, DOC, DOCX.")
+                elif resume_file.size > 5 * 1024 * 1024:
+                    messages.error(request, "File too large. Maximum size is 5 MB.")
+                else:
+                    employee.resume = resume_file
+                    employee.save()
+                    messages.success(request, "Resume updated successfully.")
+            return redirect('employee_profile')
+
+    employee_skills = list(employee.skills.all())
+    profile_checks = [
+        bool(employee.name),
+        bool(employee.email),
+        bool(employee.phone),
+        bool(employee.location),
+        bool(employee.nationality),
+        bool(employee.qualification),
+        bool(employee.experience),
+        bool(employee.role),
+        bool(employee.resume),
+        bool(employee_skills),
+    ]
+    profile_completion = int((sum(profile_checks) / len(profile_checks)) * 100)
+
+    return render(request, 'base/employee_profile.html', {
+        'employee': employee,
+        'employee_skills': employee_skills,
+        'profile_completion': profile_completion,
     })
 
 
@@ -770,6 +871,7 @@ def employer_register(request):
             return HttpResponse("Bad Request", status=400)
 
         company_name = request.POST.get('company_name', '').strip()
+        contact_name = request.POST.get('contact_name', '').strip()
         email = request.POST.get('email', '').strip()
         password = request.POST.get('password', '')
         confirm_password = request.POST.get('confirm_password', '')
@@ -781,6 +883,7 @@ def employer_register(request):
 
         form_data = {
             'company_name': company_name,
+            'contact_name': contact_name,
             'email': email,
             'phone': phone,
             'company_description': company_description,
@@ -791,6 +894,7 @@ def employer_register(request):
         try:
             # Validate all inputs
             validate_company_name(company_name)
+            validate_text_input(contact_name, min_length=2, max_length=100)
             validate_safe_email(email)
             validate_phone_number(phone)
             validate_text_input(location, min_length=2, max_length=100)
@@ -817,8 +921,8 @@ def employer_register(request):
             messages.error(request, error_message)
             return render_employer_register(form_data, get_initial_section(error_message))
 
-        # Check if email already exists
-        if Employer.objects.filter(email=email).exists():
+        # Check if email already exists in UserAccount (Critical Bug Fix 006-H)
+        if UserAccount.objects.filter(email=email).exists():
             error_message = "An account with this email already exists."
             messages.error(request, error_message)
             return render_employer_register(form_data, get_initial_section(error_message))
@@ -827,6 +931,7 @@ def employer_register(request):
         with transaction.atomic():
             employer = Employer.objects.create(
                 company_name=company_name,
+                contact_name=contact_name,
                 email=email,
                 phone=phone,
                 company_description=company_description,
@@ -836,9 +941,9 @@ def employer_register(request):
             )
 
             # Create auth user
-            UserAccount.objects.create(
+            UserAccount.objects.create_user(
                 email=email,
-                password=make_password(password),
+                password=password,
                 role='employer',
                 profile_id=employer.id
             )
@@ -1227,6 +1332,25 @@ def custom_500(request):
 
 def job_detail(request, pk):
     job = JobOpening.objects.get(pk=pk)
+    
+    # Markdown Interception for AI Agents (AIO Pivot)
+    if request.GET.get('format') == 'md':
+        from django.http import HttpResponse
+        content = f"""# {job.title}
+## Company: {job.employer.company_name}
+## Location: {job.location} | Type: {job.job_type}
+
+### Description
+{job.description}
+
+### Requirements
+{job.requirements}
+
+---
+Apply via AccoPlacers: {request.build_absolute_uri(job.get_absolute_url())}
+"""
+        return HttpResponse(content, content_type='text/markdown; charset=utf-8')
+        
     return render(request, 'base/job_detail.html', {'job': job})
 
 
@@ -1360,3 +1484,59 @@ def admin_analytics_view(request):
     }
     cache.set(_ANALYTICS_CACHE_KEY, context, _ANALYTICS_CACHE_TTL)
     return render(request, 'base/admin_analytics.html', context)
+
+
+@login_required(login_url='employee_login')
+@never_cache
+def employee_profile(request):
+    if request.user.role != 'employee':
+        messages.error(request, "Unauthorized access.")
+        return redirect('registration_view')
+        
+    employee_id = request.user.profile_id
+    try:
+        employee = Registration.objects.get(id=employee_id)
+    except Registration.DoesNotExist:
+        messages.error(request, "Profile not found.")
+        return redirect('registration_view')
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        
+        if action == 'update_profile':
+            employee.name = request.POST.get('name', employee.name)
+            employee.phone = request.POST.get('phone', employee.phone)
+            employee.nationality = request.POST.get('nationality', employee.nationality)
+            employee.location = request.POST.get('location', employee.location)
+            employee.role = request.POST.get('role', employee.role)
+            employee.experience = request.POST.get('experience', employee.experience)
+            employee.qualification = request.POST.get('qualification', employee.qualification)
+            employee.save()
+            messages.success(request, "Profile updated successfully.")
+            
+        elif action == 'update_resume':
+            resume = request.FILES.get('resume')
+            if resume:
+                # Security check for file type
+                ext = os.path.splitext(resume.name)[1].lower()
+                if ext not in ['.pdf', '.doc', '.docx']:
+                    messages.error(request, "Invalid file type. Only PDF, DOC, and DOCX are accepted.")
+                elif resume.size > 5 * 1024 * 1024:
+                    messages.error(request, "File size too large (max 5MB).")
+                else:
+                    # Replace old resume file if it exists
+                    if employee.resume:
+                        try:
+                            if os.path.isfile(employee.resume.path):
+                                os.remove(employee.resume.path)
+                        except:
+                            pass
+                    
+                    employee.resume.save(resume.name, resume)
+                    messages.success(request, "Resume replaced successfully.")
+            else:
+                messages.error(request, "No file selected.")
+
+        return redirect('employee_profile')
+
+    return render(request, 'base/employee_profile.html', {'employee': employee})

@@ -22,8 +22,8 @@
         </div>
         <span class="dash-logo-text portal-logo-text-light">Acco<span>placers</span></span>
       </a>
-      <h1 class="pl-title">GCC finance roles, one verified profile</h1>
-      <p class="pl-subtitle">Complete three short steps to join our accounting, audit, and finance candidate pool for Dubai and the wider GCC.</p>
+      <h1 class="pl-title">GCC roles, one verified profile</h1>
+      <p class="pl-subtitle">Complete three short steps to join our professional candidate pool and get matched with leading employers across Dubai and the wider GCC.</p>
 
       <div class="pl-features-container">
         <div class="pl-feature-item">
@@ -32,7 +32,7 @@
         </div>
         <div class="pl-feature-item">
           <div class="pl-feature-icon"><i class="fas fa-briefcase"></i></div>
-          Roles matched for accounting, audit, and finance
+          Roles matched across all industries and sectors
         </div>
         <div class="pl-feature-item">
           <div class="pl-feature-icon"><i class="fas fa-circle-check"></i></div>
@@ -52,7 +52,7 @@
           <div class="wizard-progress-copy">
             <p class="wizard-step-count" id="wizardStepCount">Step 1 of 3</p>
             <h1 class="form-heading wizard-heading" id="wizardHeading">Basic identity</h1>
-            <p class="form-sub wizard-sub" id="wizardSub">Set up your secure account to start matching with GCC accounting and finance roles.</p>
+            <p class="form-sub wizard-sub" id="wizardSub">Set up your secure account to start matching with GCC roles across all industries.</p>
           </div>
           <div class="wizard-progress-meta">
             <div class="wizard-dots" aria-hidden="true">
@@ -80,7 +80,7 @@
           <input type="hidden" name="plan" value="basic">
           <input type="text" name="fax_number" class="honeypot-field" tabindex="-1" autocomplete="off">
 
-          <section class="register-step" data-step="1" data-title="Basic identity" data-subtitle="Set up your secure account to start matching with GCC accounting and finance roles.">
+          <section class="register-step" data-step="1" data-title="Basic identity" data-subtitle="Set up your secure account to start matching with GCC roles across all industries.">
             <div class="step-panel-head">
               <div class="trust-chip"><i class="fas fa-lock"></i> Secure sign-up</div>
             </div>
@@ -199,7 +199,7 @@
                 <label class="field-label" for="skill-input">Skills / Expertise *</label>
                 <div class="input-wrap">
                   <i class="fas fa-tags input-icon-left"></i>
-                  <input type="text" id="skill-input" class="form-input" placeholder="Type a skill and press Enter (e.g. Auditing, SAP, Excel)">
+                  <input type="text" id="skill-input" class="form-input" placeholder="Type a skill and press Enter (e.g. Project Management, SAP, Excel)">
                 </div>
                 <div class="skills-chips-container" id="skillsChips"></div>
                 <input type="hidden" name="skills" id="skillsHidden" value="{{ form_data.skills|default:'' }}">
@@ -213,7 +213,7 @@
             </div>
           </section>
 
-          <section class="register-step" data-step="3" data-title="Resume and activation" data-subtitle="Upload your resume, review the deposit policy, and confirm your profile activation.">
+          <section class="register-step" data-step="3" data-title="Resume and activation" data-subtitle="Upload your resume and confirm your profile activation.">
             <div class="step-panel-head step-panel-head-split">
               <div class="trust-chip"><i class="fas fa-shield-halved"></i> Secure upload</div>
               <div class="trust-chip trust-chip-muted"><i class="fas fa-circle-check"></i> Verified activation</div>
@@ -232,29 +232,6 @@
               <p class="upload-meta" id="resumeUploadMeta">Accepted: PDF, DOC, DOCX. Maximum size: 5 MB.</p>
               <p class="field-feedback upload-status" id="resumeUploadStatus" aria-live="polite"></p>
             </div>
-
-            <div class="deposit-note">
-              <div class="deposit-note-head">
-                <div class="deposit-note-icon"><i class="fas fa-lock"></i></div>
-                <div>
-                  <p class="deposit-note-label">Deposit and refund policy</p>
-                  <p class="deposit-note-copy">A refundable AED {{ EMPLOYEE_PROFILE_DEPOSIT_AED }} deposit is required to activate your profile. This is returned if you are not placed within {{ EMPLOYEE_PROFILE_REFUND_DAYS }} working days.</p>
-                </div>
-              </div>
-              <ul class="deposit-note-list">
-                <li>We use this to confirm genuine profile activation before employer review.</li>
-                <li>The same payment method is used for refunds wherever possible.</li>
-              </ul>
-            </div>
-
-            <label class="ack-card" for="terms">
-              <input type="checkbox" id="terms" name="terms">
-              <span>
-                <strong>I understand the deposit and refund policy.</strong>
-                <small>Secure and verified profile activation is only completed after this confirmation.</small>
-              </span>
-            </label>
-            <p class="field-feedback" id="termsFeedback" aria-live="polite"></p>
 
             <div class="wizard-actions">
               <button type="button" class="btn-portal-secondary wizard-back" data-prev-step="2">Back</button>
@@ -278,10 +255,6 @@
                 <div class="wizard-summary-row">
                   <span>Profile</span>
                   <strong>Job Seeker Registration</strong>
-                </div>
-                <div class="wizard-summary-row">
-                  <span>Deposit</span>
-                  <strong>AED {{ EMPLOYEE_PROFILE_DEPOSIT_AED }} refundable</strong>
                 </div>
                 <div class="wizard-summary-row">
                   <span>Resume</span>
@@ -321,8 +294,6 @@
       const password = document.getElementById('password');
       const confirmPassword = document.getElementById('confirm_password');
       const passwordMatchFeedback = document.getElementById('passwordMatchFeedback');
-      const termsCheckbox = document.getElementById('terms');
-      const termsFeedback = document.getElementById('termsFeedback');
       const resumeInput = document.getElementById('resume');
       const resumeDropzone = document.getElementById('resumeDropzone');
       const resumeUploadStatus = document.getElementById('resumeUploadStatus');
@@ -338,7 +309,7 @@
       const stepTitles = {
         1: {
           title: 'Basic identity',
-          sub: 'Set up your secure account to start matching with GCC accounting and finance roles.'
+          sub: 'Set up your secure account to start matching with GCC roles across all industries.'
         },
         2: {
           title: 'Professional profile',
@@ -346,7 +317,7 @@
         },
         3: {
           title: 'Resume and activation',
-          sub: 'Upload your resume, review the deposit policy, and confirm your profile activation.'
+          sub: 'Upload your resume and confirm your profile activation.'
         }
       };
 
@@ -501,13 +472,6 @@
 
         if (stepNumber === 3) {
           const hasValidResume = validateResumeFile(resumeInput.files[0]);
-          if (!termsCheckbox.checked) {
-            setInlineFeedback(termsFeedback, 'Please confirm the deposit and refund policy to continue.', 'error');
-          } else {
-            setInlineFeedback(termsFeedback, '', 'error');
-          }
-
-          const termsValid = termsCheckbox.checked;
           const fieldValidity = fields.every((field) => field.checkValidity());
 
           if (!fieldValidity) {
@@ -515,7 +479,7 @@
             invalidField.reportValidity();
           }
 
-          return hasValidResume && termsValid && fieldValidity;
+          return hasValidResume && fieldValidity;
         }
 
         const fieldValidity = fields.every((field) => field.checkValidity());
@@ -592,12 +556,6 @@
         validateResumeFile(this.files[0]);
       });
 
-      termsCheckbox.addEventListener('change', function () {
-        if (this.checked) {
-          setInlineFeedback(termsFeedback, '', 'error');
-        }
-      });
-
       function openConfirmationModal() {
         if (!validateCurrentStep(3)) {
           return;
@@ -646,6 +604,10 @@
             nextButton.click();
           }
         }
+      });
+
+      form.addEventListener('submit', function () {
+        form.querySelectorAll('[disabled]').forEach(el => el.removeAttribute('disabled'));
       });
 
       if (document.querySelector('.msg.error')) {

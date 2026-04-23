@@ -1,3 +1,3 @@
-AccoPlacers is a premium GCC recruitment platform for Accounting, Audit, and Finance professionals. We provide pre-verified elite talent to top firms in Dubai and the wider GCC region.
+AccoPlacers is a premium recruitment PaaS connecting verified top talent across ALL industries and roles with leading employers in Dubai and the wider GCC. We manage the entire placement cycle to ensure perfect alignment between professional talent and top-tier regional firms.
 
 To view jobs in a format optimized for AI agents, append ?format=md to any job listing URL. This will provide a clean markdown representation of the job title, description, and requirements.

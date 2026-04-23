@@ -23,17 +23,17 @@
         <span class="dash-logo-text portal-logo-text-employer">Acco<span>placers</span></span>
       </a>
 
-      <h1 class="pl-title">Hire GCC finance talent</h1>
-      <p class="pl-subtitle">Create your employer account to review verified accounting, audit, and finance candidates across Dubai and the wider GCC.</p>
+      <h1 class="pl-title">Hire top GCC talent</h1>
+      <p class="pl-subtitle">Create your employer account to review verified professional candidates across Dubai and the wider GCC.</p>
 
       <div class="pl-features-container">
         <div class="pl-feature-item">
           <div class="pl-feature-icon employer-feature-icon"><i class="fas fa-user-check"></i></div>
-          Pre-screened profiles for finance hiring teams
+          Pre-screened profiles for professional hiring teams
         </div>
         <div class="pl-feature-item">
           <div class="pl-feature-icon employer-feature-icon"><i class="fas fa-briefcase"></i></div>
-          Built for accounting, audit, and finance recruitment
+          Built for premium professional recruitment
         </div>
         <div class="pl-feature-item">
           <div class="pl-feature-icon employer-feature-icon"><i class="fas fa-list-check"></i></div>
@@ -62,7 +62,7 @@
           </div>
           <div class="register-intro-item">
             <strong>2. We review your profile</strong>
-            <span>We align your account with the right finance candidate segment.</span>
+            <span>We align your account with the right candidate segment.</span>
           </div>
           <div class="register-intro-item">
             <strong>3. Start reviewing candidates</strong>
@@ -92,6 +92,14 @@
             <div class="input-wrap">
               <i class="fas fa-building input-icon-left"></i>
               <input type="text" id="company_name" name="company_name" class="form-input" placeholder="Your company name" required value="{{ form_data.company_name|default:'' }}" autocomplete="organization">
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="field-label" for="contact_name">Contact Name *</label>
+            <div class="input-wrap">
+              <i class="fas fa-user input-icon-left"></i>
+              <input type="text" id="contact_name" name="contact_name" class="form-input" placeholder="HR Manager / Owner Name" required value="{{ form_data.contact_name|default:'' }}" autocomplete="name">
             </div>
           </div>
 
@@ -150,7 +158,7 @@
             <label class="field-label" for="company_description">What are you hiring for?</label>
             <div class="input-wrap">
               <i class="fas fa-align-left input-icon-left textarea-icon-top"></i>
-              <textarea id="company_description" name="company_description" class="form-input textarea-input" placeholder="Share your finance function, the types of roles you hire, or what makes your team a strong fit for candidates.">{{ form_data.company_description|default:'' }}</textarea>
+              <textarea id="company_description" name="company_description" class="form-input textarea-input" placeholder="Share your hiring needs, the types of roles you hire, or what makes your team a strong fit for candidates.">{{ form_data.company_description|default:'' }}</textarea>
             </div>
             <p class="field-hint">This helps us align your account with the most relevant candidate pool.</p>
           </div>

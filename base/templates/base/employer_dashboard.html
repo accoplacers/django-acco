@@ -30,9 +30,9 @@
 <div class="dash-container">
   <section class="employer-hero">
     <div class="hero-panel">
-      <p class="hero-eyebrow">GCC Finance Talent</p>
+      <p class="hero-eyebrow">GCC Talent</p>
       <h1>Build your shortlist faster</h1>
-      <p>Review verified accounting, audit, and finance candidates, manage live openings, and track who is signaling interest in your roles.</p>
+      <p>Review verified candidates across all industries, manage live openings, and track who is signaling interest in your roles.</p>
       <div class="hero-trust-row">
         <span class="hero-trust-pill"><i class="fas fa-shield-halved"></i> Verified profiles</span>
         <span class="hero-trust-pill muted"><i class="fas fa-building-circle-check"></i> Employer workspace</span>
@@ -146,7 +146,7 @@
         <div class="section-card-head section-card-head-stack">
           <div>
             <h2><i class="fas fa-user-tie"></i> Candidate Search</h2>
-            <p>Browse finance profiles with stronger verification and profile readiness signals surfaced first.</p>
+            <p>Browse candidate profiles with stronger verification and profile readiness signals surfaced first.</p>
           </div>
           <div class="result-pill">{{ candidate_cards.paginator.count }} profile{{ candidate_cards.paginator.count|pluralize }}</div>
         </div>
@@ -273,7 +273,7 @@
         <div class="no-candidates">
           <i class="fas fa-user-slash"></i>
           <h3>No candidates match your current filters</h3>
-          <p>Broaden the filters or remove the saved-only view to see more verified finance profiles.</p>
+          <p>Broaden the filters or remove the saved-only view to see more verified profiles.</p>
         </div>
         {% endif %}
       </div>
@@ -343,7 +343,7 @@
             </svg>
           </div>
           <h3 class="empty-state__title">No Active Listings Yet</h3>
-          <p class="empty-state__text">Post your first role to start receiving matched, pre-verified finance candidates within 72 hours.</p>
+          <p class="empty-state__text">Post your first role to start receiving matched, pre-verified candidates within 72 hours.</p>
           <button type="button" class="btn btn--primary" onclick="openJobModal()">Post a Job</button>
         </div>
         {% endif %}
@@ -469,7 +469,7 @@
 
         <div class="field field-full">
           <label class="field-label" for="jobRequirementsField">Requirements *</label>
-          <textarea id="jobRequirementsField" name="requirements" class="form-input job-textarea" placeholder="List the core accounting, audit, or finance requirements." required maxlength="3000"></textarea>
+          <textarea id="jobRequirementsField" name="requirements" class="form-input job-textarea" placeholder="List the core role requirements and qualifications." required maxlength="3000"></textarea>
           <div class="char-counter" id="reqCharCounter">0 / 3000</div>
         </div>
       </div>

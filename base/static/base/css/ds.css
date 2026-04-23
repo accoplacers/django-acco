@@ -39,6 +39,7 @@
     --space-2: 8px;
     --space-3: 12px;
     --space-4: 16px;
+    --space-5: 20px;
     --space-6: 24px;
     --space-8: 32px;
     --space-12: 48px;
@@ -1670,7 +1671,11 @@ body {
 
 .wizard-modal-head,
 .wizard-modal-foot {
-    padding: var(--space-5) var(--space-6);
+    padding: var(--space-8);
+}
+
+.wizard-modal-body {
+    padding: var(--space-8);
 }
 
 .wizard-modal-head {
@@ -1706,9 +1711,6 @@ body {
     line-height: 1;
 }
 
-.wizard-modal-body {
-    padding: var(--space-6);
-}
 
 .wizard-summary-card {
     border: 1px solid var(--slate-200);
@@ -1861,6 +1863,23 @@ body {
 .inline-actions .btn-premium,
 .inline-actions .btn-portal-secondary {
     min-width: 170px;
+}
+
+.form-footer {
+    margin-top: var(--space-6);
+    text-align: center;
+}
+
+.form-footer a {
+    color: var(--slate-600);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: var(--transition-fast);
+}
+
+.form-footer a:hover {
+    color: var(--clr-primary);
 }
 
 .register-form-section {

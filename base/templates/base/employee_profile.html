@@ -1,0 +1,181 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}My Profile · Accoplacers{% endblock %}
+{% block body_class %}theme-employee{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'base/css/employee_dashboard.css' %}">
+<link rel="stylesheet" href="{% static 'base/css/profile.css' %}">
+<style>
+    .profile-container { 
+        margin-top: 0 !important; 
+        padding-top: var(--space-4) !important; 
+    }
+    .breadcrumb-row { 
+        background: #fff; 
+        border-bottom: 1px solid var(--slate-200); 
+        padding: var(--space-3) 0;
+    }
+    .breadcrumb-container {
+        max-width: var(--container-max);
+        margin: 0 auto;
+        padding: 0 var(--container-pad);
+    }
+    .breadcrumb-link {
+        color: var(--clr-primary);
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: opacity 0.2s;
+    }
+    .breadcrumb-link:hover { opacity: 0.8; }
+</style>
+{% endblock %}
+
+{% block header %}
+<header class="header">
+  <a href="{% url 'registration_view' %}" class="nav-logo">
+    <div class="nav-logo-icon">
+      <img src="{% static 'base/img/android-chrome-192x192.png' %}" alt="Accoplacers Logo" class="main-logo-img">
+    </div>
+    <span class="nav-logo-text">Acco<span>placers</span></span>
+  </a>
+  <div class="header-right">
+    <div class="user-chip">
+      <div class="user-avatar">{{ employee.name|slice:":1"|upper }}</div>
+      <span class="user-name">{{ employee.name }}</span>
+    </div>
+    <a href="{% url 'employee_logout' %}" class="logout-link"><i class="fas fa-sign-out-alt"></i> <span class="logout-text">Logout</span></a>
+  </div>
+</header>
+
+<div class="breadcrumb-row">
+    <div class="breadcrumb-container">
+        <a href="{% url 'employee_dashboard' %}" class="breadcrumb-link">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+  <div class="profile-grid">
+    <main class="profile-main">
+      <section class="profile-card">
+        <div class="profile-card-header">
+          <h2><i class="fas fa-user-circle"></i> Personal Identity</h2>
+          <p>Keep your contact details and professional summary up to date.</p>
+        </div>
+        
+        <form method="POST" id="profileEditForm" class="profile-form">
+          {% csrf_token %}
+          <div class="form-grid">
+            <div class="field">
+              <label class="field-label">Full Name</label>
+              <input type="text" name="name" value="{{ employee.name }}" class="form-input" required>
+            </div>
+            <div class="field">
+              <label class="field-label">Email Address</label>
+              <input type="email" value="{{ employee.email }}" class="form-input" disabled title="Email cannot be changed manually.">
+              <p class="field-hint">Contact support to change your email.</p>
+            </div>
+            <div class="field">
+              <label class="field-label">Phone Number</label>
+              <input type="tel" name="phone" value="{{ employee.phone }}" class="form-input" required>
+            </div>
+            <div class="field">
+              <label class="field-label">Nationality</label>
+              <input type="text" name="nationality" value="{{ employee.nationality }}" class="form-input" required>
+            </div>
+            <div class="field">
+              <label class="field-label">Current Location</label>
+              <input type="text" name="location" value="{{ employee.location }}" class="form-input" required>
+            </div>
+            <div class="field">
+              <label class="field-label">Preferred Role</label>
+              <input type="text" name="role" value="{{ employee.role }}" class="form-input" required>
+            </div>
+            <div class="field">
+              <label class="field-label">Years of Experience</label>
+              <select name="experience" class="form-input">
+                <option value="0-1" {% if employee.experience == '0-1' %}selected{% endif %}>0-1 years</option>
+                <option value="1-3" {% if employee.experience == '1-3' %}selected{% endif %}>1-3 years</option>
+                <option value="3-5" {% if employee.experience == '3-5' %}selected{% endif %}>3-5 years</option>
+                <option value="5-10" {% if employee.experience == '5-10' %}selected{% endif %}>5-10 years</option>
+                <option value="10+" {% if employee.experience == '10+' %}selected{% endif %}>10+ years</option>
+              </select>
+            </div>
+            <div class="field">
+              <label class="field-label">Qualification</label>
+              <input type="text" name="qualification" value="{{ employee.qualification }}" class="form-input" required>
+            </div>
+          </div>
+          
+          <div class="profile-actions">
+            <button type="submit" name="action" value="update_profile" class="btn-premium">Save Changes</button>
+          </div>
+        </form>
+      </section>
+      
+      <section class="profile-card profile-card-resume">
+        <div class="profile-card-header">
+          <h2><i class="fas fa-file-pdf"></i> Resume and Credentials</h2>
+          <p>Your current resume is used for all employer introductions.</p>
+        </div>
+        
+        <div class="resume-widget">
+          {% if employee.resume %}
+          <div class="current-resume">
+            <div class="resume-icon"><i class="fas fa-file-pdf"></i></div>
+            <div class="resume-meta">
+              <strong>{{ employee.resume.name|cut:"resumes/" }}</strong>
+              <a href="{{ employee.resume.url }}" target="_blank">View current file</a>
+            </div>
+          </div>
+          {% else %}
+          <p class="no-resume-alert">No resume uploaded yet.</p>
+          {% endif %}
+          
+          <form method="POST" enctype="multipart/form-data" class="resume-upload-form">
+            {% csrf_token %}
+            <div class="upload-zone upload-zone-compact" id="dropzone">
+              <input type="file" name="resume" id="resumeInput" accept=".pdf,.doc,.docx" required>
+              <div class="upload-zone-icon"><i class="fas fa-cloud-arrow-up"></i></div>
+              <div class="upload-zone-copy">
+                <strong>Upload new resume</strong>
+                <span>PDF, DOC, DOCX up to 5MB</span>
+              </div>
+            </div>
+            <button type="submit" name="action" value="update_resume" class="btn-premium btn-outline">Replace Resume</button>
+          </form>
+        </div>
+      </section>
+    </main>
+    
+    <aside class="profile-sidebar">
+      <div class="sidebar-card status-card">
+        <h3>Account Status</h3>
+        <div class="status-item">
+          <span>Activation</span>
+          {% if employee.is_placed %}
+          <strong class="status-tag success">Placed</strong>
+          {% else %}
+          <strong class="status-tag warning">Active</strong>
+          {% endif %}
+        </div>
+      </div>
+      
+      <div class="sidebar-card info-card">
+        <h3><i class="fas fa-circle-info"></i> Security</h3>
+        <p>Your data is encrypted and only shared with verified employers when you express interest.</p>
+        <a href="{% url 'terms' %}" class="link">Review Privacy Policy</a>
+      </div>
+    </aside>
+  </div>
+</div>
+{% endblock %}
