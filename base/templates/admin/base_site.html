@@ -9,13 +9,14 @@
         </div>
         <h1 id="site-name" style="margin: 0; font-family: 'Outfit', sans-serif;"><a href="{% url 'admin:index' %}">Acco<span>Placers</span> Admin</a></h1>
     </div>
-    
+    {% if user.is_authenticated and user.is_staff %}
     <div style="height: 24px; width: 1px; background: rgba(255,255,255,0.2);"></div>
     
     <a href="{% url 'admin_analytics' %}" class="premium-nav-link">
         <i class="fas fa-chart-line"></i>
         Intelligence Terminal
     </a>
+    {% endif %}
 </div>
 {% endblock %}
 
