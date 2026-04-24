@@ -27,8 +27,11 @@ sitemaps = {
     'static': StaticViewSitemap,
     'jobs': JobSitemap,
 }
+def trigger_error(request):
+    division_by_zero = 1 / 0
 
 urlpatterns = [
+    path('sentry-debug/', trigger_error),
     path('favicon.ico', serve, {
         'document_root': settings.BASE_DIR / 'base' / 'static' / 'base' / 'img',
         'path': 'favicon.ico',
