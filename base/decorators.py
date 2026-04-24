@@ -1,5 +1,6 @@
 from django.core.cache import cache
 from django.http import JsonResponse, HttpResponse
+from django.conf import settings
 from functools import wraps
 import hashlib
 
@@ -27,6 +28,10 @@ def rate_limit(max_requests=5, time_window=60, block_duration=300):
         @wraps(view_func)
         def wrapped(request, *args, **kwargs):
             ip = get_client_ip(request)
+            
+            # Local bypass for automated smoke tests and dev
+            if settings.DEBUG and ip in ['127.0.0.1', 'localhost', '::1']:
+                return view_func(request, *args, **kwargs)
             
             cache_key = f'rate_limit_{view_func.__name__}_{ip}'
             block_key = f'blocked_{view_func.__name__}_{ip}'
