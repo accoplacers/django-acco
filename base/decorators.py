@@ -28,10 +28,6 @@ def rate_limit(max_requests=5, time_window=60, block_duration=300):
         def wrapped(request, *args, **kwargs):
             ip = get_client_ip(request)
             
-            # Bypass rate limiting for localhost during development
-            if ip == '127.0.0.1':
-                return view_func(request, *args, **kwargs)
-
             cache_key = f'rate_limit_{view_func.__name__}_{ip}'
             block_key = f'blocked_{view_func.__name__}_{ip}'
 

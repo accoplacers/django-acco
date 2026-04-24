@@ -524,31 +524,22 @@ def terms(request):
 
 @csrf_exempt
 def stripe_webhook(request):
-    import json as _json
     payload = request.body
     sig_header = request.META.get('HTTP_STRIPE_SIGNATURE', '')
     webhook_secret = getattr(settings, 'STRIPE_WEBHOOK_SECRET', None)
 
-    if webhook_secret:
-        try:
-            event = stripe.Webhook.construct_event(payload, sig_header, webhook_secret)
-        except ValueError:
-            logger.warning("Stripe webhook: invalid payload received")
-            return JsonResponse({'error': 'Invalid payload'}, status=400)
-        except stripe.error.SignatureVerificationError:
-            logger.warning("Stripe webhook: signature verification failed")
-            return JsonResponse({'error': 'Invalid signature'}, status=400)
-    else:
-        # If no secret is configured, we only allow this in DEBUG mode for testing
-        if not settings.DEBUG:
-            logger.error("STRIPE_WEBHOOK_SECRET is NOT configured in production!")
-            return JsonResponse({'error': 'Webhook secret missing'}, status=500)
-        
-        try:
-            event = _json.loads(payload)
-        except _json.JSONDecodeError:
-            logger.warning("Stripe webhook: malformed JSON payload")
-            return JsonResponse({'error': 'Invalid payload'}, status=400)
+    if not webhook_secret:
+        logger.error("STRIPE_WEBHOOK_SECRET is not configured!")
+        return JsonResponse({'error': 'Webhook secret missing'}, status=500)
+
+    try:
+        event = stripe.Webhook.construct_event(payload, sig_header, webhook_secret)
+    except ValueError:
+        logger.warning("Stripe webhook: invalid payload received")
+        return JsonResponse({'error': 'Invalid payload'}, status=400)
+    except stripe.error.SignatureVerificationError:
+        logger.warning("Stripe webhook: signature verification failed")
+        return JsonResponse({'error': 'Invalid signature'}, status=400)
 
     event_type = event.get('type', 'unknown') if isinstance(event, dict) else getattr(event, 'type', 'unknown')
     data_object = event.get('data', {}).get('object', {}) if isinstance(event, dict) else getattr(event, 'data', {}).object
