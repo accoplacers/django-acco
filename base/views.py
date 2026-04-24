@@ -13,6 +13,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.hashers import make_password, check_password
 from django.views.decorators.cache import never_cache
+from django.contrib.auth.password_validation import validate_password
 from django.db import transaction
 from django.core.exceptions import ValidationError
 from .models import Registration, Contact, Employer, JobOpening, EmployerInterest, EmployeeInterest, UserAccount, ContactEvent
@@ -108,35 +109,80 @@ def contact_user(request):
 
 @csrf_exempt
 def create_checkout_session(request):
-    if request.method == 'POST':
-        try:
-            import json
-            data = json.loads(request.body.decode('utf-8'))
-            plan = data.get('plan', 'basic')
+    try:
+        import json
+        plan = 'basic'
+        
+        if request.method == 'POST':
+            if request.body:
+                try:
+                    data = json.loads(request.body.decode('utf-8'))
+                    plan = data.get('plan', 'basic')
+                except json.JSONDecodeError:
+                    plan = request.POST.get('plan', 'basic')
+            else:
+                plan = request.POST.get('plan', 'basic')
+        else:
+            plan = request.GET.get('plan', 'basic')
 
-            # ✅ Map plan to price (in AED) - Consumed from settings
-            amount_aed = settings.STRIPE_PLAN_PRICES.get(plan, settings.STRIPE_PLAN_PRICES['basic'])
-            amount = int(amount_aed * 100)  # Stripe expects amount in fils
+        # ✅ Map plan to price (in AED) - Consumed from settings
+        amount_aed = settings.STRIPE_PLAN_PRICES.get(plan, settings.STRIPE_PLAN_PRICES['basic'])
+        amount = int(amount_aed * 100)  # Stripe expects amount in fils
 
-            session = stripe.checkout.Session.create(
-                payment_method_types=['card'],
-                line_items=[{
-                    'price_data': {
-                        'currency': 'aed',
-                        'product_data': {
-                            'name': f'{plan.capitalize()} Registration Plan',
-                        },
-                        'unit_amount': amount,
+        # Metadata to identify the user/type
+        metadata = {'plan': plan}
+        if request.user.is_authenticated:
+            metadata['user_id'] = request.user.id
+            metadata['role'] = request.user.role
+            metadata['profile_id'] = request.user.profile_id
+            
+            # --- 009-H: Double Payment Prevention ---
+            if request.user.role == 'employer':
+                try:
+                    employer = Employer.objects.get(id=request.user.profile_id)
+                    tier_ranks = {'basic': 0, 'intermediate': 1, 'premium': 2}
+                    current_rank = tier_ranks.get(employer.subscription_tier, 0)
+                    target_rank = tier_ranks.get(plan, 0)
+                    
+                    if current_rank >= target_rank and target_rank > 0:
+                        msg = f"You already have the {employer.subscription_tier.capitalize()} plan or higher."
+                        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                            return JsonResponse({'error': msg})
+                        else:
+                            messages.info(request, msg)
+                            return redirect('employer_dashboard')
+                except Employer.DoesNotExist:
+                    pass
+
+        session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            line_items=[{
+                'price_data': {
+                    'currency': 'aed',
+                    'product_data': {
+                        'name': f'{plan.capitalize()} Registration Plan',
                     },
-                    'quantity': 1,
-                }],
-                mode='payment',
-                success_url=request.build_absolute_uri('/register/success/'),
-                cancel_url=request.build_absolute_uri('/'),
-            )
+                    'unit_amount': amount,
+                },
+                'quantity': 1,
+            }],
+            mode='payment',
+            success_url=request.build_absolute_uri('/register/success/'),
+            cancel_url=request.build_absolute_uri('/'),
+            metadata=metadata
+        )
+        
+        if request.method == 'POST' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
             return JsonResponse({'id': session.id})
-        except Exception as e:
+        else:
+            return redirect(session.url, code=303)
+            
+    except Exception as e:
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             return JsonResponse({'error': str(e)})
+        else:
+            messages.error(request, f"Stripe error: {str(e)}")
+            return redirect('employer_dashboard' if request.user.is_authenticated and request.user.role == 'employer' else '/')
 
         
 
@@ -373,6 +419,7 @@ def employee_register(request):
                 raise ValidationError("Password is too long.")
             if password != confirm_password:
                 raise ValidationError("Passwords do not match.")
+            validate_password(password)
             if plan not in ['basic', 'intermediate', 'premium']:
                 plan = 'basic'
             if not resume:
@@ -482,7 +529,7 @@ def stripe_webhook(request):
     sig_header = request.META.get('HTTP_STRIPE_SIGNATURE', '')
     webhook_secret = getattr(settings, 'STRIPE_WEBHOOK_SECRET', None)
 
-    if webhook_secret and sig_header:
+    if webhook_secret:
         try:
             event = stripe.Webhook.construct_event(payload, sig_header, webhook_secret)
         except ValueError:
@@ -492,6 +539,11 @@ def stripe_webhook(request):
             logger.warning("Stripe webhook: signature verification failed")
             return JsonResponse({'error': 'Invalid signature'}, status=400)
     else:
+        # If no secret is configured, we only allow this in DEBUG mode for testing
+        if not settings.DEBUG:
+            logger.error("STRIPE_WEBHOOK_SECRET is NOT configured in production!")
+            return JsonResponse({'error': 'Webhook secret missing'}, status=500)
+        
         try:
             event = _json.loads(payload)
         except _json.JSONDecodeError:
@@ -499,12 +551,41 @@ def stripe_webhook(request):
             return JsonResponse({'error': 'Invalid payload'}, status=400)
 
     event_type = event.get('type', 'unknown') if isinstance(event, dict) else getattr(event, 'type', 'unknown')
+    data_object = event.get('data', {}).get('object', {}) if isinstance(event, dict) else getattr(event, 'data', {}).object
+    
     logger.info(f"Stripe webhook received: event_type={event_type}")
 
-    return JsonResponse({'status': 'received'})
+    if event_type == 'checkout.session.completed':
+        session = data_object
+        metadata = session.get('metadata', {})
+        
+        user_role = metadata.get('role')
+        profile_id = metadata.get('profile_id')
+        plan = metadata.get('plan')
+
+        if user_role == 'employer' and profile_id and plan:
+            try:
+                employer = Employer.objects.get(id=profile_id)
+                employer.subscription_tier = plan
+                employer.save()
+                logger.info(f"Employer {profile_id} upgraded to {plan}")
+            except Employer.DoesNotExist:
+                logger.error(f"Webhook error: Employer {profile_id} not found")
+        
+        elif user_role == 'employee' and profile_id and plan:
+            try:
+                candidate = Registration.objects.get(id=profile_id)
+                candidate.plan = plan
+                candidate.save()
+                logger.info(f"Candidate {profile_id} updated to plan {plan}")
+            except Registration.DoesNotExist:
+                logger.error(f"Webhook error: Candidate {profile_id} not found")
+
+    return JsonResponse({'status': 'success'})
 
 
 @staff_member_required
+@never_cache
 def registrations_dashboard(request):
     # Handle job opening creation
     if request.method == 'POST' and request.POST.get('action') == 'create_job':
@@ -557,6 +638,8 @@ def registrations_dashboard(request):
 # EMPLOYEE AUTHENTICATION
 # ==========================================
 
+@rate_limit(max_requests=5, time_window=60, block_duration=300)
+@never_cache
 def employee_login(request):
     if request.user.is_authenticated:
         if request.user.role == 'employee':
@@ -592,6 +675,7 @@ def employee_logout(request):
 
 
 @login_required(login_url='employee_login')
+@rate_limit(max_requests=30, time_window=60, block_duration=120)
 @never_cache
 def employee_dashboard(request):
     if request.user.role != 'employee':
@@ -941,19 +1025,24 @@ def employer_register(request):
             )
 
             # Create auth user
-            UserAccount.objects.create_user(
+            user = UserAccount.objects.create_user(
                 email=email,
                 password=password,
                 role='employer',
                 profile_id=employer.id
             )
 
-        messages.success(request, "Registration successful! Please login.")
-        return redirect('employer_login')
+        # Auto-login the user (Smoke B fix)
+        login(request, user)
+
+        messages.success(request, "Registration successful!")
+        return redirect('employer_dashboard')
 
     return render_employer_register()
 
 
+@rate_limit(max_requests=5, time_window=60, block_duration=300)
+@never_cache
 def employer_login(request):
     if request.user.is_authenticated:
         if request.user.role == 'employer':
@@ -1007,6 +1096,7 @@ def toggle_placed(request):
 
 
 @login_required(login_url='employer_login')
+@never_cache
 def employer_dashboard(request):
     if request.user.role != 'employer':
         messages.error(request, "Unauthorized access.")
@@ -1250,6 +1340,7 @@ def employer_dashboard(request):
         'total_candidates': total_candidates,
         'verified_candidates': verified_candidates,
         'active_jobs_count': active_jobs_count,
+        'subscription_tier': employer.subscription_tier,
     })
 
 
@@ -1540,3 +1631,22 @@ def employee_profile(request):
         return redirect('employee_profile')
 
     return render(request, 'base/employee_profile.html', {'employee': employee})
+
+@login_required
+def delete_job_api(request, job_id):
+    if request.method != 'POST':
+        from django.http import JsonResponse
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
+    if request.user.role != 'employer':
+        from django.http import JsonResponse
+        return JsonResponse({'error': 'Unauthorized'}, status=403)
+    try:
+        from django.http import JsonResponse
+        employer = Employer.objects.get(id=request.user.profile_id)
+        deleted, _ = JobOpening.objects.filter(id=job_id, employer=employer).delete()
+        if deleted:
+            return JsonResponse({'status': 'success'})
+        return JsonResponse({'error': 'Job not found or unauthorized'}, status=404)
+    except Exception as e:
+        from django.http import JsonResponse
+        return JsonResponse({'error': str(e)}, status=500)

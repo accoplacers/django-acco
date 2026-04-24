@@ -93,7 +93,7 @@ class Registration(models.Model):
     skills = models.ManyToManyField(Skill, blank=True, related_name='registrations')
     years_of_experience = models.PositiveIntegerField(default=0)
     notice_period = models.CharField(max_length=50, blank=True, default='Unknown')
-    profile_score = models.IntegerField(default=0) # Deprecated — use computed score in views.py
+    profile_score = models.IntegerField(default=0)  # TODO(S-20): Remove after decoupling admin_analytics_view from this field
     plan = models.CharField(max_length=20, choices=PLAN_CHOICES, default='basic')
     is_placed = models.BooleanField(default=False, db_index=True, help_text="Mark this employee as placed (hired by an employer)")
     is_featured = models.BooleanField(default=False, help_text="Feature this candidate on the employer dashboard")

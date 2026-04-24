@@ -247,6 +247,7 @@
            data-description="{{ card.job.description }}"
            data-requirements="{{ card.job.requirements }}"
            data-match-detail="{{ card.match_detail }}"
+           data-company="{{ card.job.employer.company_name }}"
            data-interested="{% if card.is_interested %}true{% else %}false{% endif %}">
         <div class="job-card-top">
           <div class="job-title-wrap">
@@ -324,7 +325,8 @@
     <button class="modal-close" onclick="closeJobModal()" aria-label="Close"><i class="fas fa-times"></i></button>
     <div class="modal-badge-row">
       <span class="modal-type-badge" id="modalType"></span>
-      <span class="modal-company-badge" id="modalMatchDetail"></span>
+      <span class="modal-company-badge" id="modalCompany"></span>
+      <span class="modal-match-badge" id="modalMatchDetail"></span>
     </div>
     <h2 class="modal-title" id="modalTitle"></h2>
     <div class="modal-meta" id="modalMeta"></div>
@@ -434,6 +436,7 @@
 
     document.getElementById('modalType').textContent = d.type;
     document.getElementById('modalTitle').textContent = d.title;
+    document.getElementById('modalCompany').textContent = d.company;
     document.getElementById('modalMatchDetail').textContent = d.matchDetail;
 
     let metaHtml = `<div class="modal-meta-item"><i class="fas fa-map-marker-alt"></i> ${d.location}</div>`;
