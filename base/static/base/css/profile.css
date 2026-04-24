@@ -155,17 +155,6 @@
 .status-tag.warning { background: #FEF3C7; color: #92400E; }
 .status-tag.danger { background: #FEE2E2; color: #991B1B; }
 
-.payment-cta {
-    margin-top: 24px;
-    padding-top: 24px;
-    border-top: 1px solid var(--slate-100);
-}
-
-.payment-cta p {
-    font-size: 0.85rem;
-    color: var(--slate-600);
-    margin-bottom: 16px;
-}
 
 .info-card p {
     font-size: 0.88rem;
