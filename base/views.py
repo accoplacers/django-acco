@@ -1,7 +1,6 @@
 from django.shortcuts import render, HttpResponse, redirect
 from django.http import JsonResponse
 from .models import Registration, Contact
-import stripe
 from django.conf import settings
 from django.core.files import File
 import os
@@ -30,13 +29,12 @@ logger = logging.getLogger(__name__)
 from .services.resume_parser import extract_text_from_pdf, parse_resume_with_llm, ParsedResume
 from .models import Skill
 
-stripe.api_key = settings.STRIPE_SECRET_KEY
+
 
 
 def registration_view(request):
     user = request.user if request.user.is_authenticated else None
     context = {
-        'stripe_public_key': settings.STRIPE_PUBLIC_KEY,
         'session_user_type': user.role if user else None,
         'session_user_name': (
             user.email if user else None
@@ -107,155 +105,7 @@ def contact_user(request):
     return redirect('/')
 
 
-@csrf_exempt
-def create_checkout_session(request):
-    try:
-        import json
-        plan = 'basic'
-        
-        if request.method == 'POST':
-            if request.body:
-                try:
-                    data = json.loads(request.body.decode('utf-8'))
-                    plan = data.get('plan', 'basic')
-                except json.JSONDecodeError:
-                    plan = request.POST.get('plan', 'basic')
-            else:
-                plan = request.POST.get('plan', 'basic')
-        else:
-            plan = request.GET.get('plan', 'basic')
 
-        # ✅ Map plan to price (in AED) - Consumed from settings
-        amount_aed = settings.STRIPE_PLAN_PRICES.get(plan, settings.STRIPE_PLAN_PRICES['basic'])
-        amount = int(amount_aed * 100)  # Stripe expects amount in fils
-
-        # Metadata to identify the user/type
-        metadata = {'plan': plan}
-        if request.user.is_authenticated:
-            metadata['user_id'] = request.user.id
-            metadata['role'] = request.user.role
-            metadata['profile_id'] = request.user.profile_id
-            
-            # --- 009-H: Double Payment Prevention ---
-            if request.user.role == 'employer':
-                try:
-                    employer = Employer.objects.get(id=request.user.profile_id)
-                    tier_ranks = {'basic': 0, 'intermediate': 1, 'premium': 2}
-                    current_rank = tier_ranks.get(employer.subscription_tier, 0)
-                    target_rank = tier_ranks.get(plan, 0)
-                    
-                    if current_rank >= target_rank and target_rank > 0:
-                        msg = f"You already have the {employer.subscription_tier.capitalize()} plan or higher."
-                        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-                            return JsonResponse({'error': msg})
-                        else:
-                            messages.info(request, msg)
-                            return redirect('employer_dashboard')
-                except Employer.DoesNotExist:
-                    pass
-
-        session = stripe.checkout.Session.create(
-            payment_method_types=['card'],
-            line_items=[{
-                'price_data': {
-                    'currency': 'aed',
-                    'product_data': {
-                        'name': f'{plan.capitalize()} Registration Plan',
-                    },
-                    'unit_amount': amount,
-                },
-                'quantity': 1,
-            }],
-            mode='payment',
-            success_url=request.build_absolute_uri('/register/success/'),
-            cancel_url=request.build_absolute_uri('/'),
-            metadata=metadata
-        )
-        
-        if request.method == 'POST' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
-            return JsonResponse({'id': session.id})
-        else:
-            return redirect(session.url, code=303)
-            
-    except Exception as e:
-        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-            return JsonResponse({'error': str(e)})
-        else:
-            messages.error(request, f"Stripe error: {str(e)}")
-            return redirect('employer_dashboard' if request.user.is_authenticated and request.user.role == 'employer' else '/')
-
-        
-
-def registration_success(request):
-    data = request.session.get('registration_data')
-    if not data:
-        return HttpResponse("No registration data found in session.", status=400)
-
-    # Check if email already exists
-    email = data.get('email')
-    if Registration.objects.filter(email=email).exists():
-        # Clean up temp files if they exist
-        resume_tmp_path = data.get('resume')
-        photo_tmp_path = data.get('photo')
-        if resume_tmp_path and os.path.exists(resume_tmp_path):
-            os.remove(resume_tmp_path)
-        if photo_tmp_path and os.path.exists(photo_tmp_path):
-            os.remove(photo_tmp_path)
-        # Clean session
-        del request.session['registration_data']
-        messages.error(request, "An account with this email already exists. Please login or use a different email.")
-        return redirect('/')
-
-    resume_tmp_path = data.pop('resume', None)
-    photo_tmp_path = data.pop('photo', None)
-    password = data.pop('password', None)
-    if not password:
-        messages.error(request, "Registration error: Missing password. Please try again.")
-        return redirect('/')
-
-    hashed_pw = make_password(password)
-    with transaction.atomic():
-        registration = Registration(
-            name=data['name'],
-            email=data['email'],
-            phone=data['phone'],
-            nationality=data['nationality'],
-            location=data['location'],
-            qualification=data['qualification'],
-            experience=data['experience'],
-            role=data['role'],
-            plan=data.get('plan', 'basic'),
-        )
-
-        # Assign resume if it exists
-        if resume_tmp_path and os.path.exists(resume_tmp_path):
-            f = open(resume_tmp_path, 'rb')
-            registration.resume.save(os.path.basename(resume_tmp_path), File(f))
-            f.close()
-            os.remove(resume_tmp_path)
-
-        # Assign photo if it exists
-        if photo_tmp_path and os.path.exists(photo_tmp_path):
-            f = open(photo_tmp_path, 'rb')
-            registration.photo.save(os.path.basename(photo_tmp_path), File(f))
-            f.close()
-            os.remove(photo_tmp_path)
-
-        registration.save()
-
-        # Create auth user
-        UserAccount.objects.create(
-            email=registration.email,
-            password=hashed_pw,
-            role='employee',
-            profile_id=registration.id
-        )
-
-    # Clean session
-    del request.session['registration_data']
-
-    messages.success(request, "Your registration was successful! Please login.")
-    return redirect('employee_login')
 
 
 
@@ -522,57 +372,6 @@ def terms(request):
 
 # DASHBOARD
 
-@csrf_exempt
-def stripe_webhook(request):
-    payload = request.body
-    sig_header = request.META.get('HTTP_STRIPE_SIGNATURE', '')
-    webhook_secret = getattr(settings, 'STRIPE_WEBHOOK_SECRET', None)
-
-    if not webhook_secret:
-        logger.error("STRIPE_WEBHOOK_SECRET is not configured!")
-        return JsonResponse({'error': 'Webhook secret missing'}, status=500)
-
-    try:
-        event = stripe.Webhook.construct_event(payload, sig_header, webhook_secret)
-    except ValueError:
-        logger.warning("Stripe webhook: invalid payload received")
-        return JsonResponse({'error': 'Invalid payload'}, status=400)
-    except stripe.error.SignatureVerificationError:
-        logger.warning("Stripe webhook: signature verification failed")
-        return JsonResponse({'error': 'Invalid signature'}, status=400)
-
-    event_type = event.get('type', 'unknown') if isinstance(event, dict) else getattr(event, 'type', 'unknown')
-    data_object = event.get('data', {}).get('object', {}) if isinstance(event, dict) else getattr(event, 'data', {}).object
-    
-    logger.info(f"Stripe webhook received: event_type={event_type}")
-
-    if event_type == 'checkout.session.completed':
-        session = data_object
-        metadata = session.get('metadata', {})
-        
-        user_role = metadata.get('role')
-        profile_id = metadata.get('profile_id')
-        plan = metadata.get('plan')
-
-        if user_role == 'employer' and profile_id and plan:
-            try:
-                employer = Employer.objects.get(id=profile_id)
-                employer.subscription_tier = plan
-                employer.save()
-                logger.info(f"Employer {profile_id} upgraded to {plan}")
-            except Employer.DoesNotExist:
-                logger.error(f"Webhook error: Employer {profile_id} not found")
-        
-        elif user_role == 'employee' and profile_id and plan:
-            try:
-                candidate = Registration.objects.get(id=profile_id)
-                candidate.plan = plan
-                candidate.save()
-                logger.info(f"Candidate {profile_id} updated to plan {plan}")
-            except Registration.DoesNotExist:
-                logger.error(f"Webhook error: Candidate {profile_id} not found")
-
-    return JsonResponse({'status': 'success'})
 
 
 @staff_member_required

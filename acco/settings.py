@@ -200,22 +200,9 @@ MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-STRIPE_PUBLIC_KEY = env("STRIPE_PUBLIC_KEY")
-STRIPE_SECRET_KEY = env("STRIPE_SECRET_KEY")
-
 # File upload size limits (10 MB per file, 15 MB total request)
 DATA_UPLOAD_MAX_MEMORY_SIZE = 15 * 1024 * 1024   # 15 MB
 FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024   # 10 MB
-
-# Phase 1: Config Centralization
-STRIPE_PLAN_PRICES = {
-    'basic': int(env("STRIPE_PRICE_BASIC", default="49")),
-    'intermediate': int(env("STRIPE_PRICE_INTERMEDIATE", default="89")),
-    'premium': int(env("STRIPE_PRICE_PREMIUM", default="149")),
-}
-
-EMPLOYEE_PROFILE_DEPOSIT_AED = int(env("EMPLOYEE_PROFILE_DEPOSIT_AED", default="500"))
-EMPLOYEE_PROFILE_REFUND_DAYS = int(env("EMPLOYEE_PROFILE_REFUND_DAYS", default="2"))
 
 WHATSAPP_CONTACT_NUMBER = env("WHATSAPP_NUMBER", default="971589288746")
 

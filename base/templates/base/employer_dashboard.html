@@ -37,9 +37,6 @@
         <span class="hero-trust-pill"><i class="fas fa-shield-halved"></i> Verified profiles</span>
         <span class="hero-trust-pill muted"><i class="fas fa-building-circle-check"></i> Employer workspace</span>
         <span class="hero-trust-pill muted"><i class="fas fa-gem"></i> {{ subscription_tier|default:"Basic"|title }} Plan</span>
-        {% if subscription_tier == "basic" or not subscription_tier %}
-        <a href="{% url 'create_checkout_session' %}" class="hero-trust-pill muted">Upgrade Plan <i class="fas fa-arrow-right"></i></a>
-        {% endif %}
       </div>
     </div>
 
