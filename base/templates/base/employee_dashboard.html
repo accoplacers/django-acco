@@ -29,7 +29,7 @@
 {% block content %}
 <div class="dash-container">
   <section class="workspace-hero">
-    <div class="welcome workspace-welcome">
+    <div class="welcome workspace-welcome reveal">
       <div class="welcome-left">
         <p class="workspace-eyebrow">Employee Workspace</p>
         <h1>Welcome back, {{ employee.name }}</h1>
@@ -58,7 +58,7 @@
           <h2>Keep your profile moving</h2>
         </div>
         <div class="completion-ring" aria-label="Profile completion {{ profile_completion }} percent">
-          <strong>{{ profile_completion }}%</strong>
+          <strong class="count-up-element" data-count-to="{{ profile_completion }}%">0</strong>
           <span>complete</span>
         </div>
       </div>
@@ -124,31 +124,31 @@
   </section>
 
   <section class="workspace-stats">
-    <div class="workspace-stat-card">
+    <div class="workspace-stat-card reveal-up stagger-1">
       <div class="workspace-stat-icon primary"><i class="fas fa-bullseye"></i></div>
       <div>
         <p class="workspace-stat-label">Recommended Roles</p>
-        <strong class="workspace-stat-value">{{ recommended_count }}</strong>
+        <strong class="workspace-stat-value count-up-element" data-count-to="{{ recommended_count }}">0</strong>
       </div>
     </div>
-    <div class="workspace-stat-card">
+    <div class="workspace-stat-card reveal-up stagger-2">
       <div class="workspace-stat-icon accent"><i class="fas fa-heart"></i></div>
       <div>
         <p class="workspace-stat-label">Saved Roles</p>
-        <strong class="workspace-stat-value">{{ interested_job_ids|length }}</strong>
+        <strong class="workspace-stat-value count-up-element" data-count-to="{{ interested_job_ids|length }}">0</strong>
       </div>
     </div>
-    <div class="workspace-stat-card">
+    <div class="workspace-stat-card reveal-up stagger-3">
       <div class="workspace-stat-icon success"><i class="fas fa-tools"></i></div>
       <div>
         <p class="workspace-stat-label">Skills Added</p>
-        <strong class="workspace-stat-value">{{ skills_count }}</strong>
+        <strong class="workspace-stat-value count-up-element" data-count-to="{{ skills_count }}">0</strong>
       </div>
     </div>
   </section>
 
   <div class="workspace-grid">
-    <section class="card card-main">
+    <section class="card card-main reveal-up stagger-4">
       <div class="card-header card-header-stack">
         <div>
           <h2 class="card-title"><i class="fas fa-tools"></i> Skills and Match Signals</h2>
@@ -196,7 +196,7 @@
       </div>
     </section>
 
-    <aside class="workspace-side">
+    <aside class="workspace-side reveal-up stagger-5">
       <div class="workspace-note-card">
         <div class="workspace-note-head">
           <h3><i class="fas fa-circle-check"></i> How employers see you</h3>
@@ -236,7 +236,7 @@
     {% if job_cards %}
     <div class="jobs-grid">
       {% for card in job_cards %}
-      <div class="job-card {% if card.is_recommended %}job-card-recommended{% endif %}"
+      <div class="job-card reveal-slide-up {% if card.is_recommended %}job-card-recommended{% endif %}"
            onclick="openJobModal(this)"
            data-id="{{ card.job.id }}"
            data-title="{{ card.job.title }}"

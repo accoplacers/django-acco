@@ -13,6 +13,7 @@
     {% load static %}
     <!-- Styles -->
     <link rel="stylesheet" href="{% static 'base/css/ds.css' %}">
+    <link rel="stylesheet" href="{% static 'base/css/animations.css' %}">
     {% block extra_css %}{% endblock %}
     
     <!-- Favicon -->
@@ -75,6 +76,7 @@
             });
         });
     </script>
+    <script src="{% static 'base/js/animations.js' %}" defer></script>
     {% block extra_js %}{% endblock %}
 </body>
 </html>

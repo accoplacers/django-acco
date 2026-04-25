@@ -29,7 +29,7 @@
 {% block content %}
 <div class="dash-container">
   <section class="employer-hero">
-    <div class="hero-panel">
+    <div class="hero-panel reveal">
       <p class="hero-eyebrow">GCC Talent</p>
       <h1>Build your shortlist faster</h1>
       <p>Review verified candidates across all industries, manage live openings, and track who is signaling interest in your roles.</p>
@@ -40,7 +40,7 @@
       </div>
     </div>
 
-    <aside class="hero-side-card">
+    <aside class="hero-side-card reveal">
       <div class="hero-side-label">Current Hiring Snapshot</div>
         <div class="hero-side-stat">
           <span>Verified candidates</span>
@@ -62,32 +62,32 @@
   </section>
 
   <section class="employer-stats">
-    <div class="metric-card">
+    <div class="metric-card reveal-up stagger-1">
       <div class="metric-icon rose"><i class="fas fa-user-check"></i></div>
       <div>
         <p class="metric-label">Verified Profiles</p>
-        <strong class="metric-value">{{ verified_candidates }}</strong>
+        <strong class="metric-value count-up-element" data-count-to="{{ verified_candidates }}">0</strong>
       </div>
     </div>
-    <div class="metric-card">
+    <div class="metric-card reveal-up stagger-2">
       <div class="metric-icon accent"><i class="fas fa-heart"></i></div>
       <div>
         <p class="metric-label">Saved Candidates</p>
-        <strong class="metric-value">{{ interested_ids|length }}</strong>
+        <strong class="metric-value count-up-element" data-count-to="{{ interested_ids|length }}">0</strong>
       </div>
     </div>
-    <div class="metric-card">
+    <div class="metric-card reveal-up stagger-3">
       <div class="metric-icon dark"><i class="fas fa-briefcase"></i></div>
       <div>
         <p class="metric-label">Managed Jobs</p>
-        <strong class="metric-value">{{ owned_jobs|length }}</strong>
+        <strong class="metric-value count-up-element" data-count-to="{{ owned_jobs|length }}">0</strong>
       </div>
     </div>
-    <div class="metric-card">
+    <div class="metric-card reveal-up stagger-4">
       <div class="metric-icon green"><i class="fas fa-bell"></i></div>
       <div>
         <p class="metric-label">Employee Signals</p>
-        <strong class="metric-value">{{ employee_interest_feed|length }}</strong>
+        <strong class="metric-value count-up-element" data-count-to="{{ employee_interest_feed|length }}">0</strong>
       </div>
     </div>
   </section>
@@ -198,7 +198,7 @@
         {% if candidate_cards %}
         <div class="candidates-grid">
           {% for card in candidate_cards %}
-          <div class="candidate-card{% if card.employee.is_placed %} placed{% endif %}{% if card.is_verified_profile %} verified{% endif %}"
+          <div class="candidate-card reveal-slide-up {% if card.employee.is_placed %} placed{% endif %}{% if card.is_verified_profile %} verified{% endif %}"
             data-id="{{ card.employee.id|stringformat:'04d' }}"
             data-pk="{{ card.employee.id }}"
             data-name="{{ card.employee.name|escapejs }}"
@@ -293,7 +293,7 @@
         {% if owned_jobs %}
         <div class="jobs-list" id="employerJobsList">
           {% for job in owned_jobs %}
-          <div class="job-manage-card" id="job-card-{{ job.id }}">
+          <div class="job-manage-card reveal-slide-up" id="job-card-{{ job.id }}">
             <div class="job-manage-top">
               <div>
                 <strong>{{ job.title }}</strong>
@@ -356,7 +356,7 @@
         {% if employee_interest_feed %}
         <div class="interest-feed">
           {% for signal in employee_interest_feed %}
-          <div class="interest-feed-item">
+          <div class="interest-feed-item reveal-slide-up">
             <div class="interest-feed-avatar">{{ signal.employee.name|slice:":1"|upper }}</div>
             <div class="interest-feed-copy">
               <strong>{{ signal.employee.name }}</strong>

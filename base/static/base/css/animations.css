@@ -1,0 +1,171 @@
+/* animations.css - Purposeful UI Animations */
+
+/* ── Base Reveal Utilities ── */
+.reveal {
+    opacity: 0;
+    transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.reveal.active {
+    opacity: 1;
+}
+
+.reveal-up {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.reveal-up.active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Tighter slide up for data rows/cards */
+.reveal-slide-up {
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.reveal-slide-up.active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Stagger Delays - using custom property or inline classes */
+.stagger-1 { transition-delay: 80ms; }
+.stagger-2 { transition-delay: 160ms; }
+.stagger-3 { transition-delay: 240ms; }
+.stagger-4 { transition-delay: 320ms; }
+.stagger-5 { transition-delay: 400ms; }
+.stagger-6 { transition-delay: 480ms; }
+.stagger-7 { transition-delay: 560ms; }
+.stagger-8 { transition-delay: 640ms; }
+.stagger-9 { transition-delay: 720ms; }
+.stagger-10 { transition-delay: 800ms; }
+
+/* Allow passing delay via style="--stagger: X" */
+.stagger-custom {
+    transition-delay: calc(var(--stagger, 0) * 80ms) !important;
+}
+
+/* ── Specific Elements ── */
+
+/* Counter Elements: Keep hidden until ready to animate to avoid flashing 0 */
+.count-up-element {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+.count-up-element.active {
+    opacity: 1;
+}
+
+/* Button Hover Enhancements */
+.btn-premium, .upsell-btn {
+    transition: all var(--transition-normal), transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.btn-premium:hover, .upsell-btn:hover {
+    transform: scale(1.02);
+}
+
+/* Action Links Nudge */
+.next-step-item, .view-profile-btn, .modal-foot-btns .interest-btn, .ghost-btn {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.next-step-item:hover {
+    transform: translateX(4px);
+}
+
+/* Completion Ring Animation - Accurate Visual */
+.completion-ring {
+    position: relative;
+    border: none !important; /* Override ds.css/dashboard.css border */
+    background: conic-gradient(var(--clr-primary) var(--percent, 0%), var(--slate-100) 0) !important;
+    transition: none; /* We animate via JS for precision */
+}
+
+/* Inner hole to make it a ring */
+.completion-ring::after {
+    content: '';
+    position: absolute;
+    inset: 8px; /* Thickness of the ring */
+    background: white; /* Match card background */
+    border-radius: 50%;
+    z-index: 0;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+}
+
+/* Ensure content is above the inner hole */
+.completion-ring strong, 
+.completion-ring span {
+    position: relative;
+    z-index: 1;
+}
+
+/* Remove the old sweeping animation classes/keyframes if they were there */
+.completion-ring::before {
+    display: none !important;
+}
+
+@keyframes drawRing {
+    /* Removed old approximation */
+}
+
+/* Navigation Blur Effect */
+#header {
+    transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), backdrop-filter 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-bottom 0.3s ease;
+    border-bottom: 1px solid transparent;
+}
+
+#header.nav-scrolled {
+    background-color: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--slate-200);
+    box-shadow: var(--shadow-sm);
+}
+
+/* Modal Animations */
+.modal-overlay {
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+
+.modal-overlay.open {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal, .modal-card, .job-modal-card {
+    opacity: 0;
+    transform: scale(0.97) translateY(10px);
+    transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1), transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.modal-overlay.open .modal,
+.modal-overlay.open .modal-card,
+.modal-overlay.open .job-modal-card {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+}
+
+/* Prevent animations on modals during close to avoid jank with AJAX */
+.modal-overlay.closing .modal,
+.modal-overlay.closing .modal-card,
+.modal-overlay.closing .job-modal-card {
+    transform: scale(0.97) translateY(10px);
+    opacity: 0;
+}
+
+/* ── Accessibility ── */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
