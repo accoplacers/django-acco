@@ -90,34 +90,34 @@
         </a>
       </div>
     </aside>
-  </section>
 
-  <section class="status-tracker-section">
-    <div class="status-tracker-card">
-      <div class="tracker-head">
-        <h3><i class="fas fa-signal"></i> Application Tracker</h3>
-        <span class="tracker-update">{% if app_status %}Last update: {{ app_status.updated_at|date:"d M Y" }}{% else %}Pending review{% endif %}</span>
-      </div>
-      
-      <div class="status-tracker">
-        <div class="status-step {% if app_status.status == 'submitted' %}status-step--active{% elif app_status.status in 'review,shortlisted,contacted' %}status-step--complete{% else %}status-step--pending{% endif %}">
-          <div class="status-step__icon"><i class="fas fa-file-import"></i></div>
-          <div class="status-step__label">Submitted</div>
+    <div class="status-tracker-section">
+      <div class="status-tracker-card">
+        <div class="tracker-head">
+          <h3><i class="fas fa-signal"></i> Application Tracker</h3>
+          <span class="tracker-update">{% if app_status %}Last update: {{ app_status.updated_at|date:"d M Y" }}{% else %}Pending review{% endif %}</span>
         </div>
         
-        <div class="status-step {% if app_status.status == 'review' %}status-step--active{% elif app_status.status in 'shortlisted,contacted' %}status-step--complete{% else %}status-step--pending{% endif %}">
-          <div class="status-step__icon"><i class="fas fa-magnifying-glass-chart"></i></div>
-          <div class="status-step__label">Review</div>
-        </div>
-        
-        <div class="status-step {% if app_status.status == 'shortlisted' %}status-step--active{% elif app_status.status == 'contacted' %}status-step--complete{% else %}status-step--pending{% endif %}">
-          <div class="status-step__icon"><i class="fas fa-star"></i></div>
-          <div class="status-step__label">Shortlisted</div>
-        </div>
-        
-        <div class="status-step {% if app_status.status == 'contacted' %}status-step--active{% else %}status-step--pending{% endif %}">
-          <div class="status-step__icon"><i class="fas fa-comments"></i></div>
-          <div class="status-step__label">Contacted</div>
+        <div class="status-tracker">
+          <div class="status-step {% if app_status.status == 'submitted' %}status-step--active{% elif app_status.status in 'review,shortlisted,contacted' %}status-step--complete{% else %}status-step--pending{% endif %}">
+            <div class="status-step__icon"><i class="fas fa-file-import"></i></div>
+            <div class="status-step__label">Submitted</div>
+          </div>
+          
+          <div class="status-step {% if app_status.status == 'review' %}status-step--active{% elif app_status.status in 'shortlisted,contacted' %}status-step--complete{% else %}status-step--pending{% endif %}">
+            <div class="status-step__icon"><i class="fas fa-magnifying-glass-chart"></i></div>
+            <div class="status-step__label">Review</div>
+          </div>
+          
+          <div class="status-step {% if app_status.status == 'shortlisted' %}status-step--active{% elif app_status.status == 'contacted' %}status-step--complete{% else %}status-step--pending{% endif %}">
+            <div class="status-step__icon"><i class="fas fa-star"></i></div>
+            <div class="status-step__label">Shortlisted</div>
+          </div>
+          
+          <div class="status-step {% if app_status.status == 'contacted' %}status-step--active{% else %}status-step--pending{% endif %}">
+            <div class="status-step__icon"><i class="fas fa-comments"></i></div>
+            <div class="status-step__label">Contacted</div>
+          </div>
         </div>
       </div>
     </div>
