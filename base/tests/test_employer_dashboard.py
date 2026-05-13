@@ -8,14 +8,13 @@ class EmployerDashboardTest(TestCase):
         self.employer = Employer.objects.create(
             company_name='Dubai Finance Group',
             email='hiring@dubaifinance.com',
-            password='password123',
             phone='+971501112233',
             location='Dubai, UAE',
             industry='Banking'
         )
         self.employer_user = UserAccount.objects.create_user(
             email='hiring@dubaifinance.com',
-            password='password123',
+            password='S3cureLaunchPass!2026',
             role='employer',
             profile_id=self.employer.id
         )

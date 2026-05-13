@@ -207,6 +207,11 @@ FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024   # 10 MB
 
 WHATSAPP_CONTACT_NUMBER = env("WHATSAPP_NUMBER", default="971589288746")
 
+# Email is required for password reset. Use console output by default so local
+# development does not fail when SMTP credentials are not configured.
+EMAIL_BACKEND = env("EMAIL_BACKEND", default="django.core.mail.backends.console.EmailBackend")
+DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="Accoplacers <no-reply@accoplacers.com>")
+
 # Phase 0: Session Hardening
 SESSION_COOKIE_AGE = 60 * 60 * 8  # 8 hours in seconds
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True

@@ -11,6 +11,7 @@ class EmployeeRegistrationTest(TestCase):
     def setUp(self):
         self.client = Client()
         self.register_url = reverse('employee_register')
+        self.valid_password = 'S3cureLaunchPass!2026'
         
         # Patch the parser globally for all tests in this class to avoid real PDF processing
         self.patcher_extractor = patch('base.views.extract_text_from_pdf')
@@ -38,8 +39,8 @@ class EmployeeRegistrationTest(TestCase):
         payload = {
             'name': 'Bot User',
             'email': 'bot@example.com',
-            'password': 'password123',
-            'confirm_password': 'password123',
+            'password': self.valid_password,
+            'confirm_password': self.valid_password,
             'phone': '+971501234567',
             'nationality': 'Indian',
             'location': 'Dubai',
@@ -58,8 +59,8 @@ class EmployeeRegistrationTest(TestCase):
         payload = {
             'name': 'Rate User',
             'email': 'rate@example.com',
-            'password': 'password123',
-            'confirm_password': 'password123',
+            'password': self.valid_password,
+            'confirm_password': self.valid_password,
             'phone': '+971501234567',
             'nationality': 'Indian',
             'location': 'Dubai',
@@ -91,8 +92,8 @@ class EmployeeRegistrationTest(TestCase):
         payload = {
             'name': 'Real User',
             'email': 'real@example.com',
-            'password': 'password123',
-            'confirm_password': 'password123',
+            'password': self.valid_password,
+            'confirm_password': self.valid_password,
             'phone': '+971501234567',
             'nationality': 'Indian',
             'location': 'Dubai',
@@ -105,8 +106,9 @@ class EmployeeRegistrationTest(TestCase):
 
         response = self.client.post(self.register_url, payload)
         
-        # Check redirection to login
+        # Check redirection to the authenticated dashboard
         self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['Location'], reverse('employee_dashboard'))
         
         # Verify Registration creation
         reg = Registration.objects.get(email='real@example.com')

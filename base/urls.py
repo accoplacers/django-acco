@@ -1,4 +1,5 @@
-from django.urls import path
+from django.contrib.auth import views as auth_views
+from django.urls import path, reverse_lazy
 
 from . import views
 
@@ -17,6 +18,38 @@ urlpatterns = [
     path('employee/logout/', views.employee_logout, name='employee_logout'),
     path('employee/profile/', views.employee_profile, name='employee_profile'),
     path('employee/dashboard/', views.employee_dashboard, name='employee_dashboard'),
+    path(
+        'password-reset/',
+        auth_views.PasswordResetView.as_view(
+            template_name='base/password_reset_form.html',
+            email_template_name='base/password_reset_email.html',
+            subject_template_name='base/password_reset_subject.txt',
+            success_url=reverse_lazy('password_reset_done'),
+        ),
+        name='password_reset',
+    ),
+    path(
+        'password-reset/done/',
+        auth_views.PasswordResetDoneView.as_view(
+            template_name='base/password_reset_done.html',
+        ),
+        name='password_reset_done',
+    ),
+    path(
+        'password-reset/<uidb64>/<token>/',
+        auth_views.PasswordResetConfirmView.as_view(
+            template_name='base/password_reset_confirm.html',
+            success_url=reverse_lazy('password_reset_complete'),
+        ),
+        name='password_reset_confirm',
+    ),
+    path(
+        'password-reset/complete/',
+        auth_views.PasswordResetCompleteView.as_view(
+            template_name='base/password_reset_complete.html',
+        ),
+        name='password_reset_complete',
+    ),
     
     # Employer Authentication
     path('employer/register/', views.employer_register, name='employer_register'),

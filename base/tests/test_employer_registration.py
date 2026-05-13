@@ -9,6 +9,7 @@ class EmployerRegistrationTest(TestCase):
     def setUp(self):
         self.client = Client()
         self.register_url = reverse('employer_register')
+        self.valid_password = 'S3cureLaunchPass!2026'
         self.logo = SimpleUploadedFile(
             "logo.png",
             b"fake-image-content",
@@ -18,9 +19,10 @@ class EmployerRegistrationTest(TestCase):
     def test_happy_path_creates_employer_and_auth_user(self):
         payload = {
             'company_name': 'Acme Finance',
+            'contact_name': 'Nadia Thomas',
             'email': 'hiring@acmefinance.com',
-            'password': 'password123',
-            'confirm_password': 'password123',
+            'password': self.valid_password,
+            'confirm_password': self.valid_password,
             'phone': '+971501234567',
             'company_description': 'We hire finance transformation and controllership talent.',
             'location': 'Dubai, UAE',
@@ -38,7 +40,6 @@ class EmployerRegistrationTest(TestCase):
         Employer.objects.create(
             company_name='Existing Co',
             email='duplicate@company.com',
-            password='hashed-password',
             phone='+971501234567',
             company_description='Existing employer account.',
             location='Dubai, UAE',
@@ -47,9 +48,10 @@ class EmployerRegistrationTest(TestCase):
 
         payload = {
             'company_name': 'Another Co',
+            'contact_name': 'Ravi Menon',
             'email': 'duplicate@company.com',
-            'password': 'password123',
-            'confirm_password': 'password123',
+            'password': self.valid_password,
+            'confirm_password': self.valid_password,
             'phone': '+971509999999',
             'company_description': 'Trying to register again.',
             'location': 'Dubai, UAE',
@@ -65,9 +67,10 @@ class EmployerRegistrationTest(TestCase):
     def test_honeypot_blocks_bot_submission(self):
         payload = {
             'company_name': 'Spam Co',
+            'contact_name': 'Spam Contact',
             'email': 'spam@company.com',
-            'password': 'password123',
-            'confirm_password': 'password123',
+            'password': self.valid_password,
+            'confirm_password': self.valid_password,
             'phone': '+971500000000',
             'company_description': 'Spam submission.',
             'location': 'Dubai, UAE',
@@ -83,9 +86,10 @@ class EmployerRegistrationTest(TestCase):
     def test_password_mismatch_returns_error(self):
         payload = {
             'company_name': 'Mismatch Co',
+            'contact_name': 'Mira Shah',
             'email': 'mismatch@company.com',
-            'password': 'password123',
-            'confirm_password': 'password124',
+            'password': self.valid_password,
+            'confirm_password': 'DifferentPass!2026',
             'phone': '+971501111111',
             'company_description': 'Testing mismatched password handling.',
             'location': 'Dubai, UAE',

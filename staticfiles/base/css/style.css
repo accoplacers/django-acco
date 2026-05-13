@@ -227,7 +227,7 @@ nav#navMenu {
     transition: transform 0.28s ease, opacity 0.2s ease, width 0.2s ease;
 }
 
-.mobile-toggle span:nth-child(2) { width: 14px; }
+.mobile-toggle span:nth-child(2) { width: 20px; }
 
 .mobile-toggle.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
 .mobile-toggle.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }

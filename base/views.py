@@ -138,10 +138,11 @@ def temp_save_registration(request):
             validate_text_input(role, min_length=2, max_length=100)
 
             # Validate password
-            if not password or len(password) < 6:
-                raise ValidationError("Password must be at least 6 characters long.")
+            if not password:
+                raise ValidationError("Password is required.")
             if len(password) > 128:
                 raise ValidationError("Password is too long.")
+            validate_password(password)
 
             # Validate plan
             if plan not in ['basic', 'intermediate', 'premium']:
@@ -263,8 +264,8 @@ def employee_register(request):
             validate_text_input(experience, min_length=1, max_length=20)
             validate_text_input(role, min_length=2, max_length=100)
 
-            if not password or len(password) < 6:
-                raise ValidationError("Password must be at least 6 characters long (server-side check).")
+            if not password:
+                raise ValidationError("Password is required.")
             if len(password) > 128:
                 raise ValidationError("Password is too long.")
             if password != confirm_password:
@@ -324,19 +325,32 @@ def employee_register(request):
                     # 1. Experience Mapping
                     if parsed_data.years_of_experience > 0:
                         registration.experience = str(parsed_data.years_of_experience)
+                        registration.years_of_experience = parsed_data.years_of_experience
+
+                    if parsed_data.notice_period:
+                        registration.notice_period = parsed_data.notice_period
 
                     # 2. Skill & Competency Mapping (M2M)
-                    # Combine all extracted semantic fields into Skill objects
-                    all_skill_items = (
-                        parsed_data.certifications +
-                        parsed_data.erp_software +
-                        parsed_data.core_competencies +
-                        parsed_data.regulatory_knowledge
-                    )
+                    skill_groups = {
+                        'Certification': parsed_data.certifications,
+                        'ERP Software': parsed_data.erp_software,
+                        'Competency': parsed_data.core_competencies,
+                        'Regulatory': parsed_data.regulatory_knowledge,
+                    }
 
-                    for item in all_skill_items:
-                        skill_obj, _ = Skill.objects.get_or_create(name=item.strip())
-                        registration.skills.add(skill_obj)
+                    for category, items in skill_groups.items():
+                        for item in items:
+                            name = item.strip()
+                            if not name:
+                                continue
+                            skill_obj, created = Skill.objects.get_or_create(
+                                name=name,
+                                defaults={'category': category},
+                            )
+                            if not created and not skill_obj.category:
+                                skill_obj.category = category
+                                skill_obj.save(update_fields=['category'])
+                            registration.skills.add(skill_obj)
 
                     registration.save()
 
@@ -777,15 +791,15 @@ def employer_register(request):
             if company_description:
                 validate_text_input(company_description, min_length=0, max_length=2000)
 
-            # Validate password length
-            if not password or len(password) < 6:
-                raise ValidationError("Password must be at least 6 characters long.")
-
+            if not password:
+                raise ValidationError("Password is required.")
             if len(password) > 128:
                 raise ValidationError("Password is too long (max 128 characters).")
 
             if password != confirm_password:
                 raise ValidationError("Passwords do not match.")
+
+            validate_password(password)
 
             if logo and logo.size > 5 * 1024 * 1024:
                 raise ValidationError("Logo file size must not exceed 5 MB.")
@@ -796,7 +810,7 @@ def employer_register(request):
             return render_employer_register(form_data, get_initial_section(error_message))
 
         # Check if email already exists in UserAccount (Critical Bug Fix 006-H)
-        if UserAccount.objects.filter(email=email).exists():
+        if UserAccount.objects.filter(email=email).exists() or Employer.objects.filter(email=email).exists():
             error_message = "An account with this email already exists."
             messages.error(request, error_message)
             return render_employer_register(form_data, get_initial_section(error_message))
@@ -1094,6 +1108,7 @@ def employer_dashboard(request):
     class _CardPage:
         def __init__(self, page, cards):
             self.paginator = page.paginator
+            self.object_list = cards
             self._cards = cards
         def __iter__(self): return iter(self._cards)
         def __bool__(self): return bool(self._cards)

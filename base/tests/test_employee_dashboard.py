@@ -9,7 +9,6 @@ class EmployeeDashboardTest(TestCase):
         self.registration = Registration.objects.create(
             name='Aisha Khan',
             email='aisha@example.com',
-            password='hashed-password',
             phone='+971501234567',
             nationality='Indian',
             location='Dubai',
@@ -25,7 +24,7 @@ class EmployeeDashboardTest(TestCase):
 
         self.user = UserAccount.objects.create_user(
             email='aisha@example.com',
-            password='password123',
+            password='S3cureLaunchPass!2026',
             role='employee',
             profile_id=self.registration.id,
         )
@@ -33,7 +32,6 @@ class EmployeeDashboardTest(TestCase):
         self.employer = Employer.objects.create(
             company_name='Finance Co',
             email='hiring@financeco.com',
-            password='hashed-password',
             phone='+971500000000',
             company_description='Finance hiring team.',
             location='Dubai',
